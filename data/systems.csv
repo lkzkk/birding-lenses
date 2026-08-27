@@ -1,0 +1,32 @@
+system_id,display_name,body,lens,teleconverter,actual_focal_length_mm,actual_f_stop,equiv_focal_length_mm,equiv_f_stop,system_weight_g
+om1ii-100400-400,OM-1 II + 100–400/6.3 @400,OM System OM-1 II,M.Zuiko Digital ED 100-400mm F5.0-6.3 IS II,none,400,6.3,800,12.6,1724
+r5ii-rf600f11,Canon R5 II + 600/11,Canon EOS R5 Mark II,RF600mm F11 IS STM,none,600,11.0,600,11.0,1600
+r5ii-rf800f11,Canon R5 II + 800/11,Canon EOS R5 Mark II,RF800mm F11 IS STM,none,800,11.0,800,11.0,1930
+om1ii-300f4-14x,OM-1 II + 300/4 + 1.4×,OM System OM-1 II,M.Zuiko Digital ED 300mm F4.0 IS PRO,MC-14 1.4x,420,5.6,840,11.2,1974
+xh2s-150600-600,X-H2S + 150–600/8 @600,Fujifilm X-H2S,XF150-600mmF5.6-8 R LM OIS WR,none,600,8.0,914,12.19,2265
+r5ii-rf100500-14x,Canon R5 II + 100–500 + 1.4×,Canon EOS R5 Mark II,RF100-500mm F4.5-7.1 L IS USM,Extender RF 1.4x,700,9.94,700,9.94,2260
+om1ii-300f4,OM-1 II + 300/4,OM System OM-1 II,M.Zuiko Digital ED 300mm F4.0 IS PRO,none,300,4.0,600,8.0,1869
+xh2s-xf500f56,X-H2S + 500/5.6,Fujifilm X-H2S,XF500mmF5.6 R LM OIS WR,none,500,5.6,762,8.53,1995
+om1ii-150400-400,OM-1 II + 150–400/4.5 @400,OM System OM-1 II,M.Zuiko Digital ED 150-400mm F4.5 TC1.25x IS PRO,TC disengaged,400,4.5,800,9.0,2474
+z8-600f63-14x,Z8 + 600/6.3 + 1.4×,Nikon Z8,NIKKOR Z 600mm f/6.3 VR S,Z TC-1.4x,840,8.82,840,8.82,2520
+r5ii-rf100500-500,Canon R5 II + 100–500/7.1 @500,Canon EOS R5 Mark II,RF100-500mm F4.5-7.1 L IS USM,none,500,7.1,500,7.1,2035
+r5ii-rf200800-800,Canon R5 II + 200–800/9 @800,Canon EOS R5 Mark II,RF200-800mm F6.3-9 IS USM,none,800,9.0,800,9.0,2730
+a1ii-200600-14x,A1 II + 200–600 + 1.4×,Sony Alpha 1 II,FE 200-600mm F5.6-6.3 G OSS,FE 1.4x,840,8.82,840,8.82,3025
+z8-180600-14x,Z8 + 180–600 + 1.4×,Nikon Z8,NIKKOR Z 180-600mm f/5.6-6.3 VR,Z TC-1.4x,840,8.82,840,8.82,3085
+z8-400f45-14x,Z8 + 400/4.5 + 1.4×,Nikon Z8,NIKKOR Z 400mm f/4.5 VR S,Z TC-1.4x,560,6.3,560,6.3,2290
+z8-600f63,Z8 + 600/6.3 PF,Nikon Z8,NIKKOR Z 600mm f/6.3 VR S,none,600,6.3,600,6.3,2300
+a1ii-sigma500f56,A1 II + Sigma 500/5.6,Sony Alpha 1 II,Sigma 500mm F5.6 DG DN OS Sports,none,500,5.6,500,5.6,2108
+a1ii-400800-800,A1 II + 400–800/8 @800,Sony Alpha 1 II,FE 400-800mm F6.3-8 G OSS,none,800,8.0,800,8.0,3218
+gfx100sii-gf500-14x,GFX100S II + GF 500/5.6 + 1.4×,Fujifilm GFX100S II,GF500mmF5.6 R LM OIS WR,GF1.4X TC WR,700,8.0,554,6.34,2658
+gfx100s-gf500-14x,GFX100S + GF 500/5.6 + 1.4×,Fujifilm GFX100S,GF500mmF5.6 R LM OIS WR,GF1.4X TC WR,700,8.0,554,6.34,2675
+a1ii-300f28-2x,A1 II + 300/2.8 + 2×,Sony Alpha 1 II,FE 300mm F2.8 GM OSS,FE 2.0x,600,5.6,600,5.6,2420
+a1ii-200600-600,A1 II + 200–600/6.3 @600,Sony Alpha 1 II,FE 200-600mm F5.6-6.3 G OSS,none,600,6.3,600,6.3,2858
+z8-180600-600,Z8 + 180–600/6.3 @600,Nikon Z8,NIKKOR Z 180-600mm f/5.6-6.3 VR,none,600,6.3,600,6.3,2865
+z8-800f63,Z8 + 800/6.3 PF,Nikon Z8,NIKKOR Z 800mm f/6.3 VR S,none,800,6.3,800,6.3,3295
+a1ii-600f4-14x,A1 II + 600/4 + 1.4×,Sony Alpha 1 II,FE 600mm F4 GM OSS,FE 1.4x,840,5.6,840,5.6,3950
+z8-600f4tc-engaged,Z8 + 600/4 TC engaged,Nikon Z8,NIKKOR Z 600mm f/4 TC VR S,built-in 1.4x engaged,840,5.6,840,5.6,4170
+r5ii-rf600f4,Canon R5 II + 600/4,Canon EOS R5 Mark II,RF600mm F4 L IS USM,none,600,4.0,600,4.0,3760
+a1ii-600f4,A1 II + 600/4,Sony Alpha 1 II,FE 600mm F4 GM OSS,none,600,4.0,600,4.0,3783
+a1ii-400f28-14x,A1 II + 400/2.8 + 1.4×,Sony Alpha 1 II,FE 400mm F2.8 GM OSS,FE 1.4x,560,4.0,560,4.0,3805
+z8-400f28tc-engaged,Z8 + 400/2.8 TC engaged,Nikon Z8,NIKKOR Z 400mm f/2.8 TC VR S,built-in 1.4x engaged,560,4.0,560,4.0,3860
+z8-600f4tc,Z8 + 600/4 TC,Nikon Z8,NIKKOR Z 600mm f/4 TC VR S,TC disengaged,600,4.0,600,4.0,4170
