@@ -30,7 +30,11 @@ button { cursor:pointer }
 button:hover { border-color:var(--accent) }
 .chartgrid { display:grid; grid-template-columns:minmax(0,1fr) 310px; gap:14px }
 .card { background:var(--panel); border:1px solid var(--border); border-radius:12px }
-.plotwrap { padding:8px; min-width:0 }
+.plotwrap { padding:8px; min-width:0; position:relative }
+.point-popup { position:absolute; z-index:5; max-width:270px; padding:9px 11px; border:1px solid var(--border); border-radius:9px; background:color-mix(in srgb,var(--panel) 94%,transparent); box-shadow:0 8px 24px rgba(0,0,0,.16); font-size:12px; line-height:1.35; pointer-events:none; transform:translate(12px,-50%); }
+.point-popup[data-side="left"] { transform:translate(calc(-100% - 12px),-50%); }
+.point-popup strong { display:block; margin-bottom:4px; font-size:12px; }
+.point-popup .muted { color:var(--muted); }
 svg { width:100%; height:auto; display:block; touch-action:none; user-select:none }
 .side { display:grid; gap:12px; align-content:start }
 .side .card { padding:14px }
@@ -97,7 +101,7 @@ svg { width:100%; height:auto; display:block; touch-action:none; user-select:non
 
   <div class="chartgrid">
     <section>
-      <div class="card plotwrap"><svg id="plot" viewBox="0 0 900 650" aria-label="Interactive 3D scatter plot"></svg></div>
+      <div class="card plotwrap"><svg id="plot" viewBox="0 0 900 650" aria-label="Interactive 3D scatter plot"></svg><div id="pointPopup" class="point-popup" hidden></div></div>
       <div class="sliders">
         <div class="slider"><label>Rotate<input id="yaw" type="range" min="-180" max="180" value="-38"></label></div>
         <div class="slider"><label>Tilt<input id="pitch" type="range" min="-85" max="85" value="24"></label></div>
@@ -150,7 +154,7 @@ svg { width:100%; height:auto; display:block; touch-action:none; user-select:non
 const svg=document.getElementById('plot'), colorDimension=document.getElementById('colorDimension'), colorMode=document.getElementById('colorMode'),
  planeToggle=document.getElementById('planeToggle'), idToggle=document.getElementById('idToggle'),
  yawCtl=document.getElementById('yaw'), pitchCtl=document.getElementById('pitch'), zoomCtl=document.getElementById('zoom'),
- detail=document.getElementById('detail'), list=document.getElementById('systemList');
+ detail=document.getElementById('detail'), list=document.getElementById('systemList'), pointPopup=document.getElementById('pointPopup');
 const NS='http://www.w3.org/2000/svg';
 
 function parseCSV(text) {
@@ -236,7 +240,7 @@ function residualValue(s,dim){const d=DIMS[dim];return s[d.key]-expectedValue(s,
 const RESR={};
 Object.keys(DIMS).forEach(dim=>{RESR[dim]=Math.max(...S.map(s=>Math.abs(residualValue(s,dim))));});
 
-let yaw=-38*Math.PI/180,pitch=24*Math.PI/180,zoom=1,selected=null,drag=false,lx=0,ly=0;
+let yaw=-38*Math.PI/180,pitch=24*Math.PI/180,zoom=1,selected=null,pointerState=null;
 
 const mk=(tag,a={},p=svg)=>{const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(a))e.setAttribute(k,v);p.appendChild(e);return e};
 const tx=(x,y,s,a={},p=svg)=>{const e=mk('text',{x,y,fill:'var(--text)','font-size':'11',...a},p);e.textContent=s;return e};
@@ -335,6 +339,16 @@ function drawPlane(g) {
   mk('polygon',{points:poly.map(x=>`${x.p[0]},${x.p[1]}`).join(' '),fill:'var(--plane)','fill-opacity':'.16',stroke:'var(--plane)','stroke-width':'1.7','stroke-dasharray':'7 5','pointer-events':'none'},g);
 }
 
+function updatePointPopup(){
+  if(selected===null){ pointPopup.hidden=true; return; }
+  const s=S[selected],dim=colorDimension.value,rv=residualValue(s,dim),p=project(normS(s));
+  pointPopup.hidden=false;
+  pointPopup.style.left=`${(p[0]/900)*100}%`;
+  pointPopup.style.top=`${(p[1]/650)*100}%`;
+  pointPopup.dataset.side=p[0]>620?'left':'right';
+  pointPopup.innerHTML=`<strong>${s.name}</strong><span>${Math.round(s.fl)} mm equiv · f/${s.f} equiv · ${s.w.toFixed(3)} kg</span><br><span class="muted">${DIMS[dim].short} residual: ${fmtResidual(rv,dim)}</span>`;
+}
+
 function select(i) {
   selected=i;
   const s=S[i],dim=colorDimension.value,rv=residualValue(s,dim),ev=expectedValue(s,dim),d=DIMS[dim];
@@ -355,12 +369,12 @@ function render() {
   p=project([-1.18,-1.08,0]);tx(p[0],p[1],'System weight',{'font-size':'13','font-weight':'600','text-anchor':'middle'},g);
 
   S.map((s,i)=>({s,i,p:project(normS(s))})).sort((a,b)=>a.p[2]-b.p[2]).forEach(({s,i,p})=>{
-    const r=radius(s.w),grp=mk('g',{tabindex:'0','aria-label':`${i+1}. ${s.name}`},g);
+    const r=radius(s.w),grp=mk('g',{tabindex:'0',role:'button','data-point-index':String(i),'aria-label':`${i+1}. ${s.name}`},g);
     mk('circle',{cx:p[0],cy:p[1],r:selected===i?r+3:r,fill:pointColor(s),stroke:selected===i?'var(--text)':'rgba(255,255,255,.92)','stroke-width':selected===i?'2.8':'1.3',style:'cursor:pointer'},grp);
     if(idToggle.checked)tx(p[0],p[1]+3.5,String(i+1),{'font-size':'9','font-weight':'700','text-anchor':'middle',fill:'#111','pointer-events':'none'},grp);
-    grp.addEventListener('click',e=>{e.stopPropagation();select(i);});
     grp.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select(i);}});
   });
+  updatePointPopup();
 }
 function buildButtons() {
   list.innerHTML='';
@@ -392,10 +406,42 @@ document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',(
   sync();
 }));
 
-svg.addEventListener('pointerdown',e=>{drag=true;lx=e.clientX;ly=e.clientY;svg.setPointerCapture(e.pointerId);});
-svg.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;yaw+=dx*.01;pitch=Math.max(-1.48,Math.min(1.48,pitch+dy*.008));yawCtl.value=Math.round(yaw*180/Math.PI);pitchCtl.value=Math.round(pitch*180/Math.PI);render();});
-const stop=e=>{drag=false;if(e.pointerId!==undefined&&svg.hasPointerCapture(e.pointerId))svg.releasePointerCapture(e.pointerId);};
-svg.addEventListener('pointerup',stop);svg.addEventListener('pointercancel',stop);
+svg.addEventListener('pointerdown',e=>{
+  if(e.button!==undefined && e.button!==0) return;
+  const hit=e.target.closest?.('[data-point-index]');
+  pointerState={
+    id:e.pointerId,
+    startX:e.clientX,startY:e.clientY,
+    lastX:e.clientX,lastY:e.clientY,
+    dragging:false,
+    pointIndex:hit?Number(hit.getAttribute('data-point-index')):null
+  };
+});
+svg.addEventListener('pointermove',e=>{
+  const p=pointerState;
+  if(!p || e.pointerId!==p.id) return;
+  const moved=Math.hypot(e.clientX-p.startX,e.clientY-p.startY);
+  if(!p.dragging && moved>5){
+    p.dragging=true;
+    try{svg.setPointerCapture(e.pointerId);}catch(_){}
+  }
+  if(!p.dragging) return;
+  const dx=e.clientX-p.lastX,dy=e.clientY-p.lastY;
+  p.lastX=e.clientX;p.lastY=e.clientY;
+  yaw+=dx*.01;pitch=Math.max(-1.48,Math.min(1.48,pitch+dy*.008));
+  yawCtl.value=Math.round(yaw*180/Math.PI);pitchCtl.value=Math.round(pitch*180/Math.PI);render();
+});
+svg.addEventListener('pointerup',e=>{
+  const p=pointerState;
+  if(!p || e.pointerId!==p.id) return;
+  if(svg.hasPointerCapture(e.pointerId)) svg.releasePointerCapture(e.pointerId);
+  pointerState=null;
+  if(!p.dragging && Number.isInteger(p.pointIndex)) select(p.pointIndex);
+});
+svg.addEventListener('pointercancel',e=>{
+  if(pointerState && e.pointerId===pointerState.id) pointerState=null;
+  if(svg.hasPointerCapture(e.pointerId)) svg.releasePointerCapture(e.pointerId);
+});
 svg.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.65,Math.min(1.5,zoom*(e.deltaY>0?.94:1.06)));zoomCtl.value=Math.round(zoom*100);render();},{passive:false});
 
 document.getElementById('weightScale').innerHTML=`<span>${R.w[0].toFixed(1)} kg</span><span>${R.w[1].toFixed(1)} kg</span>`;
