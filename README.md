@@ -1,5 +1,11 @@
 # Birding System Explorer
 
+## AI-slop disclosure
+
+This project is, deliberately and unapologetically, **vibecoded AI slop**. The HTML, JavaScript, regression logic, documentation, and much of the data wrangling were produced iteratively with ChatGPT rather than through a conventional software-development process. It is a personal exploratory tool, not a polished or independently audited product.
+
+That means the code may contain inelegant decisions, duplicated ideas, browser quirks, or statistical assumptions that deserve scrutiny. The source CSV is kept separate and human-readable specifically so the inputs can be inspected, corrected, and argued with. Treat the visualization as a way to explore the dataset—not as an authoritative camera-buying oracle.
+
 Interactive static microsite comparing bird-photography camera/lens systems across:
 
 - 35mm-equivalent focal length
@@ -88,9 +94,9 @@ For every dimension, the user can select either:
 This means there are three separate regression planes:
 
 ```text
-weight           = a + b × equivalent_focal_length + c × equivalent_f_stop
-equivalent_FL    = a + b × equivalent_f_stop       + c × weight
-equivalent_fstop = a + b × equivalent_focal_length + c × weight
+weight          = a + b × equivalent_focal_length + c × equivalent_f_stop
+equivalent_FL   = a + b × equivalent_f_stop       + c × weight
+equivalent_fstop= a + b × equivalent_focal_length + c × weight
 ```
 
 The coefficients are calculated in the browser from the current contents of `data/systems.csv`; they are not hard-coded.
