@@ -5,448 +5,48 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <title>Birding System Explorer</title>
-<style>
-:root {
-  --bg:#f6f7f9; --panel:#fff; --text:#15171a; --muted:#6b7280; --border:#d9dde3;
-  --accent:#2563eb; --grid:#c8cdd4; --plane:#7c8592;
-}
-@media (prefers-color-scheme:dark) {
-  :root { --bg:#111315; --panel:#191c20; --text:#f2f4f7; --muted:#9aa2ad; --border:#343941;
-           --accent:#78a7ff; --grid:#454b54; --plane:#a5adb8; }
-}
-* { box-sizing:border-box }
-body { margin:0; font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--text); }
-main { max-width:1400px; margin:auto; padding:20px; }
-h1 { font-size:clamp(22px,3vw,34px); margin:0 0 4px; }
-.sub { color:var(--muted); margin-bottom:18px }
-.toolbar { display:grid; grid-template-columns:minmax(420px,650px) 1fr; gap:12px; align-items:end; margin-bottom:14px }
-.color-controls { display:grid; grid-template-columns:repeat(2,minmax(180px,1fr)); gap:10px; }
-.controls { display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; justify-content:flex-end }
-label { color:var(--muted); font-size:13px }
-label.control { display:grid; gap:4px }
-select,button,input { font:inherit }
-select,button { border:1px solid var(--border); background:var(--panel); color:var(--text); border-radius:9px; padding:9px 11px }
-button { cursor:pointer }
-button:hover { border-color:var(--accent) }
-.chartgrid { display:grid; grid-template-columns:minmax(0,1fr) 310px; gap:14px }
-.card { background:var(--panel); border:1px solid var(--border); border-radius:12px }
-.plotwrap { padding:8px; min-width:0; position:relative }
-.point-popup { position:absolute; z-index:5; max-width:270px; padding:9px 11px; border:1px solid var(--border); border-radius:9px; background:color-mix(in srgb,var(--panel) 94%,transparent); box-shadow:0 8px 24px rgba(0,0,0,.16); font-size:12px; line-height:1.35; pointer-events:none; transform:translate(12px,-50%); }
-.point-popup[data-side="left"] { transform:translate(calc(-100% - 12px),-50%); }
-.point-popup strong { display:block; margin-bottom:4px; font-size:12px; }
-.point-popup .muted { color:var(--muted); }
-svg { width:100%; height:auto; display:block; touch-action:none; user-select:none }
-.side { display:grid; gap:12px; align-content:start }
-.side .card { padding:14px }
-.legendbar { height:16px; border:1px solid var(--border); border-radius:999px; background:linear-gradient(90deg,hsl(120 78% 43%),hsl(60 55% 48%),hsl(0 78% 48%)) }
-.scale { display:flex; justify-content:space-between; gap:8px; font-size:11px; color:var(--muted); margin-top:4px }
-.scale span:nth-child(2) { text-align:center }
-.scale span:last-child { text-align:right }
-.detail dt { color:var(--muted); float:left; clear:left }
-.detail dd { text-align:right; margin:0 0 6px 125px; font-weight:600 }
-.sliders { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px }
-.slider label { display:grid; gap:4px }
-.hint { color:var(--muted); font-size:12px; margin-top:8px }
-.explain { color:var(--muted); font-size:12px; margin:8px 0 0 }
-.explain b { color:var(--text) }
-.systems { margin-top:16px }
-.systemlist { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px }
-.systembtn { text-align:left; padding:8px 9px; font-size:12px; min-height:44px; display:flex; gap:8px; align-items:center }
-.dot { display:inline-block; border-radius:50%; border:1px solid rgba(0,0,0,.25); flex:none }
-.active { outline:2px solid var(--accent); outline-offset:1px }
-@media(max-width:1000px) {
-  .toolbar { grid-template-columns:1fr }
-  .controls { justify-content:flex-start }
-  .chartgrid { grid-template-columns:1fr }
-  .side { grid-template-columns:repeat(2,minmax(0,1fr)) }
-  .systemlist { grid-template-columns:repeat(2,minmax(0,1fr)) }
-}
-@media(max-width:620px) {
-  main { padding:12px }
-  .color-controls,.sliders,.side { grid-template-columns:1fr }
-  .systemlist { grid-template-columns:1fr }
-}
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
-<body>
-<main>
-  <h1>Birding System Explorer</h1>
-  <div class="sub">Reach × equivalent aperture × total system weight</div>
-
-  <div class="toolbar">
-    <div class="color-controls">
-      <label class="control">Color dimension
-        <select id="colorDimension">
-          <option value="weight">System weight</option>
-          <option value="fl">35mm-equivalent focal length</option>
-          <option value="fstop">35mm-equivalent f-stop</option>
-        </select>
-      </label>
-      <label class="control">Color mode
-        <select id="colorMode">
-          <option value="residual">Residual from average plane</option>
-          <option value="absolute">Absolute value</option>
-        </select>
-      </label>
-    </div>
-    <div class="controls">
-      <label><input id="planeToggle" type="checkbox" checked> Average plane</label>
-      <label><input id="idToggle" type="checkbox" checked> Point IDs</label>
-      <button type="button" data-view="reset">Reset</button>
-      <button type="button" data-view="front">Front</button>
-      <button type="button" data-view="top">Top</button>
-      <button type="button" data-view="side">Side</button>
-    </div>
+<body><main>
+<h1>Birding System Explorer</h1>
+<div class="sub">Reach × equivalent aperture × total system weight × Swiss price</div>
+<div class="toolbar">
+  <div class="selectors">
+    <label class="control">Comparison mode<select id="comparisonMode"><option value="3d">3D comparison</option><option value="2d">2D comparison</option><option value="4d">Experimental 4D</option></select></label>
+    <label class="control">X axis<select id="axisX"></select></label>
+    <label class="control">Y axis<select id="axisY"></select></label>
+    <label class="control" id="axisZWrap">Z axis<select id="axisZ"></select></label>
+    <label class="control">Color dimension<select id="colorDimension"></select></label>
+    <label class="control">Color mode<select id="colorMode"><option value="residual">Efficiency residual</option><option value="absolute">Absolute value</option></select></label>
   </div>
-
-  <div class="chartgrid">
-    <section>
-      <div class="card plotwrap"><svg id="plot" viewBox="0 0 900 650" aria-label="Interactive 3D scatter plot"></svg><div id="pointPopup" class="point-popup" hidden></div></div>
-      <div class="sliders">
-        <div class="slider"><label>Rotate<input id="yaw" type="range" min="-180" max="180" value="-38"></label></div>
-        <div class="slider"><label>Tilt<input id="pitch" type="range" min="-85" max="85" value="24"></label></div>
-        <div class="slider"><label>Zoom<input id="zoom" type="range" min="65" max="150" value="100"></label></div>
-      </div>
-      <div class="hint">Drag to rotate · wheel/trackpad to zoom · click a point to inspect</div>
-    </section>
-
-    <aside class="side">
-      <section class="card">
-        <strong id="legendTitle">System weight — residual</strong>
-        <div class="legendbar" style="margin-top:10px"></div>
-        <div id="scale" class="scale"></div>
-        <p id="legendNote" class="hint"></p>
-      </section>
-
-      <section class="card">
-        <strong>Equivalent f-stop</strong>
-        <p class="explain"><b>35mm-equivalent f-stop = physical f-number × format crop factor.</b></p>
-        <p class="explain">It normalizes aperture across sensor formats. At the same equivalent framing, it approximates the full-frame f-number giving the same depth of field and the same total light over the whole sensor for the same shutter time and scene brightness.</p>
-        <p class="explain">It does <b>not</b> change exposure per unit sensor area: a physical f/5.6 lens still exposes as f/5.6. Transmission, sensor quantum efficiency and vignetting are not included.</p>
-      </section>
-
-      <section class="card">
-        <strong>Point size</strong>
-        <div class="hint">Total system weight</div>
-        <div style="height:50px;display:flex;align-items:end;justify-content:space-around;margin-top:6px">
-          <span class="dot" style="width:12px;height:12px;background:#888"></span>
-          <span class="dot" style="width:23px;height:23px;background:#888"></span>
-          <span class="dot" style="width:35px;height:35px;background:#888"></span>
-        </div>
-        <div id="weightScale" class="scale"></div>
-      </section>
-
-      <section class="card" id="detail">
-        <strong>Select a system</strong>
-        <p class="hint">Click any point or system below.</p>
-      </section>
-    </aside>
+  <div class="controls">
+    <label><input id="planeToggle" type="checkbox" checked> <span id="planeLabel">Average plane</span></label>
+    <label><input id="idToggle" type="checkbox" checked> Point IDs</label>
+    <button type="button" data-preset="reach-aperture">Reach × aperture</button>
+    <button type="button" data-preset="reach-weight">Reach × weight</button>
+    <button type="button" data-preset="aperture-weight">Aperture × weight</button>
+    <button type="button" data-preset="reach-price">Reach × price</button>
+    <button id="resetView" type="button">Reset rotation</button>
+    <button id="clearSelection" type="button">Clear selection</button>
   </div>
-
-  <section class="systems">
-    <strong>Systems</strong>
-    <div id="systemList" class="systemlist" style="margin-top:8px"></div>
+</div>
+<div class="chartgrid">
+  <section>
+    <div id="viewMeta" class="view-meta" aria-live="polite"></div>
+    <div class="card plotwrap">
+      <svg id="plot" viewBox="0 0 900 650" aria-label="Interactive camera system comparison"></svg>
+      <div id="axisXTitle" class="axis-title axis-x"></div><div id="axisYTitle" class="axis-title axis-y"></div><div id="axisZTitle" class="axis-title axis-z"></div>
+      <div id="pointPopup" class="point-popup" hidden></div>
+    </div>
+    <div id="interactionHint" class="hint">Drag to rotate · wheel/trackpad to zoom · click a point to inspect.</div>
   </section>
+  <aside class="side">
+    <section class="card"><strong id="legendTitle"></strong><div class="legendbar" style="margin-top:10px"></div><div id="scale" class="scale"></div><p id="legendNote" class="hint"></p></section>
+    <section class="card"><strong>Equivalent f-stop</strong><p class="explain"><b>35mm-equivalent f-stop = physical f-number × format crop factor.</b></p><p class="explain">At equivalent framing it approximates the full-frame f-number with the same depth of field and whole-sensor light collection. It does not change exposure per unit sensor area.</p></section>
+    <section class="card"><strong id="sizeTitle">Point size</strong><div id="sizeNote" class="hint"></div><div style="height:50px;display:flex;align-items:end;justify-content:space-around;margin-top:6px"><span class="dot" style="width:12px;height:12px;background:#888"></span><span class="dot" style="width:23px;height:23px;background:#888"></span><span class="dot" style="width:35px;height:35px;background:#888"></span></div><div id="sizeScale" class="scale"></div></section>
+    <section class="card" id="detail"><strong>Select a system</strong><p class="hint">Click any point or system below.</p></section>
+  </aside>
+</div>
+<section class="systems"><strong>Systems</strong><div class="system-note">Grouped by brand. Total price is a 28 Aug 2026 Swiss component-price snapshot: Toppreise.ch primary, Galaxus/Digifuchs fallback where needed. See the README and <code>data/component_prices.csv</code>.</div><div id="systemList" class="systemlist"></div></section>
 </main>
-
-<script>
-(async () => {
-const svg=document.getElementById('plot'), colorDimension=document.getElementById('colorDimension'), colorMode=document.getElementById('colorMode'),
- planeToggle=document.getElementById('planeToggle'), idToggle=document.getElementById('idToggle'),
- yawCtl=document.getElementById('yaw'), pitchCtl=document.getElementById('pitch'), zoomCtl=document.getElementById('zoom'),
- detail=document.getElementById('detail'), list=document.getElementById('systemList'), pointPopup=document.getElementById('pointPopup');
-const NS='http://www.w3.org/2000/svg';
-
-function parseCSV(text) {
-  const rows=[]; let row=[], cell='', quoted=false;
-  for(let i=0;i<text.length;i++){
-    const ch=text[i];
-    if(quoted){
-      if(ch==='"' && text[i+1]==='"'){cell+='"';i++;}
-      else if(ch==='"') quoted=false;
-      else cell+=ch;
-    } else {
-      if(ch==='"') quoted=true;
-      else if(ch===','){row.push(cell);cell='';}
-      else if(ch==='\n'){row.push(cell.replace(/\r$/,''));rows.push(row);row=[];cell='';}
-      else cell+=ch;
-    }
-  }
-  if(cell.length || row.length){row.push(cell.replace(/\r$/,''));rows.push(row);}
-  const headers=rows.shift();
-  return rows.filter(r=>r.some(v=>v!=='')).map(r=>Object.fromEntries(headers.map((h,i)=>[h,r[i]??''])));
-}
-
-let records;
-try {
-  const response=await fetch('data/systems.csv',{cache:'no-store'});
-  if(!response.ok) throw new Error(`HTTP ${response.status}`);
-  records=parseCSV(await response.text());
-} catch(err) {
-  detail.innerHTML='<strong>Data could not be loaded</strong><p class="hint">The visualization reads <code>data/systems.csv</code>. Open the published GitHub Pages site rather than the HTML file directly.</p>';
-  console.error(err);
-  return;
-}
-
-const S=records.map(r=>({
-  name:r.display_name,
-  fl:Number(r.equiv_focal_length_mm),
-  f:Number(r.equiv_f_stop),
-  w:Number(r.system_weight_g)/1000,
-  actualFl:Number(r.actual_focal_length_mm),
-  actualF:Number(r.actual_f_stop),
-  body:r.body,
-  lens:r.lens,
-  tc:r.teleconverter
-}));
-
-const ext = arr => [Math.min(...arr),Math.max(...arr)];
-const R={fl:ext(S.map(s=>s.fl)),f:ext(S.map(s=>s.f)),w:ext(S.map(s=>s.w))};
-const DIMS={
-  weight:{key:'w',label:'System weight',short:'Weight',unit:'kg',better:'low',predictors:['fl','f']},
-  fl:{key:'fl',label:'35mm-equiv. focal length',short:'Equivalent focal length',unit:'mm',better:'high',predictors:['f','w']},
-  fstop:{key:'f',label:'35mm-equiv. f-stop',short:'Equivalent f-stop',unit:'f-number',better:'low',predictors:['fl','w']}
-};
-
-function solve3(A,b){
-  const m=A.map((r,i)=>[...r,b[i]]);
-  for(let col=0;col<3;col++){
-    let pivot=col;
-    for(let r=col+1;r<3;r++) if(Math.abs(m[r][col])>Math.abs(m[pivot][col])) pivot=r;
-    [m[col],m[pivot]]=[m[pivot],m[col]];
-    const d=m[col][col];
-    if(Math.abs(d)<1e-12) throw new Error('Singular regression matrix');
-    for(let c=col;c<4;c++)m[col][c]/=d;
-    for(let r=0;r<3;r++)if(r!==col){
-      const f=m[r][col];
-      for(let c=col;c<4;c++)m[r][c]-=f*m[col][c];
-    }
-  }
-  return [m[0][3],m[1][3],m[2][3]];
-}
-function fitDependent(dep,p1,p2){
-  let n=S.length,s1=0,s2=0,sd=0,s11=0,s22=0,s12=0,s1d=0,s2d=0;
-  S.forEach(s=>{const x=s[p1],y=s[p2],d=s[dep];s1+=x;s2+=y;sd+=d;s11+=x*x;s22+=y*y;s12+=x*y;s1d+=x*d;s2d+=y*d;});
-  const [a,b,c]=solve3([[n,s1,s2],[s1,s11,s12],[s2,s12,s22]],[sd,s1d,s2d]);
-  return {dep,p1,p2,a,b,c};
-}
-const PLANES={
-  weight:fitDependent('w','fl','f'),
-  fl:fitDependent('fl','f','w'),
-  fstop:fitDependent('f','fl','w')
-};
-function expectedValue(s,dim){const p=PLANES[dim];return p.a+p.b*s[p.p1]+p.c*s[p.p2];}
-function residualValue(s,dim){const d=DIMS[dim];return s[d.key]-expectedValue(s,dim);}
-const RESR={};
-Object.keys(DIMS).forEach(dim=>{RESR[dim]=Math.max(...S.map(s=>Math.abs(residualValue(s,dim))));});
-
-let yaw=-38*Math.PI/180,pitch=24*Math.PI/180,zoom=1,selected=null,pointerState=null;
-
-const mk=(tag,a={},p=svg)=>{const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(a))e.setAttribute(k,v);p.appendChild(e);return e};
-const tx=(x,y,s,a={},p=svg)=>{const e=mk('text',{x,y,fill:'var(--text)','font-size':'11',...a},p);e.textContent=s;return e};
-const nrm=(v,min,max)=>(v-min)/(max-min)*2-1;
-const denrm=(v,min,max)=>(v+1)/2*(max-min)+min;
-const normS=s=>[nrm(s.fl,...R.fl),nrm(s.f,...R.f),nrm(s.w,...R.w)];
-
-function project([x,y,z]) {
-  const cy=Math.cos(yaw),sy=Math.sin(yaw),x1=x*cy-z*sy,z1=x*sy+z*cy;
-  const cp=Math.cos(pitch),sp=Math.sin(pitch),y1=y*cp-z1*sp,z2=y*sp+z1*cp;
-  const sc=220*zoom; return [450+x1*sc,320-y1*sc,z2];
-}
-function greenRed(t) { t=Math.max(0,Math.min(1,t)); return `hsl(${120*(1-t)} 78% 43%)`; }
-function absoluteNorm(s,dim){
-  if(dim==='fl') return (s.fl-R.fl[0])/(R.fl[1]-R.fl[0]);
-  if(dim==='fstop') return (s.f-R.f[0])/(R.f[1]-R.f[0]);
-  return (s.w-R.w[0])/(R.w[1]-R.w[0]);
-}
-function pointColor(s) {
-  const dim=colorDimension.value, mode=colorMode.value, d=DIMS[dim];
-  if(mode==='absolute'){
-    const q=absoluteNorm(s,dim);
-    return greenRed(d.better==='high' ? 1-q : q);
-  }
-  const max=RESR[dim] || 1;
-  const q=(residualValue(s,dim)+max)/(2*max);
-  return greenRed(d.better==='high' ? 1-q : q);
-}
-const radius=w=>7+13*(w-R.w[0])/(R.w[1]-R.w[0]);
-function line(a,b,g,more={}) { const A=project(a),B=project(b); mk('line',{x1:A[0],y1:A[1],x2:B[0],y2:B[1],stroke:'var(--grid)','stroke-width':'1.15',...more},g); }
-
-function fmt(v,dim,decimals=2){
-  if(dim==='weight') return `${v.toFixed(decimals)} kg`;
-  if(dim==='fl') return `${Math.round(v)} mm`;
-  return `f/${v.toFixed(decimals).replace(/\.00$/,'')}`;
-}
-function fmtResidual(v,dim){
-  const sign=v>0?'+':'';
-  if(dim==='weight') return `${sign}${v.toFixed(2)} kg`;
-  if(dim==='fl') return `${sign}${Math.round(v)} mm`;
-  return `${sign}${v.toFixed(2)} f-number`;
-}
-
-function updateLegend() {
-  const title=document.getElementById('legendTitle'), scale=document.getElementById('scale'), note=document.getElementById('legendNote');
-  const dim=colorDimension.value, mode=colorMode.value, d=DIMS[dim];
-  title.textContent=`${d.short} — ${mode==='absolute'?'absolute':'residual'}`;
-  if(mode==='absolute'){
-    const vals=dim==='fl'?[R.fl[1],(R.fl[0]+R.fl[1])/2,R.fl[0]]:dim==='fstop'?[R.f[0],(R.f[0]+R.f[1])/2,R.f[1]]:[R.w[0],(R.w[0]+R.w[1])/2,R.w[1]];
-    scale.innerHTML=`<span>${fmt(vals[0],dim,1)}</span><span>${fmt(vals[1],dim,1)}</span><span>${fmt(vals[2],dim,1)}</span>`;
-    note.textContent=dim==='fl'?'Greener = longer equivalent reach.':dim==='fstop'?'Greener = faster (lower) equivalent f-number.':'Greener = lighter system.';
-  } else {
-    const m=RESR[dim];
-    const left=d.better==='high'?m:-m, right=-left;
-    scale.innerHTML=`<span>${fmtResidual(left,dim)}</span><span>0</span><span>${fmtResidual(right,dim)}</span>`;
-    if(dim==='fl') note.textContent='Greener = more equivalent focal length than predicted from equivalent f-stop and weight.';
-    else if(dim==='fstop') note.textContent='Greener = a lower/faster equivalent f-number than predicted from equivalent focal length and weight.';
-    else note.textContent='Greener = lighter than predicted from equivalent focal length and equivalent f-stop.';
-  }
-}
-function axes(g) {
-  const c=[[-1,-1,-1],[1,-1,-1],[-1,1,-1],[1,1,-1],[-1,-1,1],[1,-1,1],[-1,1,1],[1,1,1]];
-  [[0,1],[0,2],[0,4],[1,3],[1,5],[2,3],[2,6],[3,7],[4,5],[4,6],[5,7],[6,7]].forEach(([a,b])=>line(c[a],c[b],g));
-  [-.5,0,.5].forEach(t=>{line([t,-1,-1],[t,1,-1],g,{opacity:.22});line([-1,t,-1],[1,t,-1],g,{opacity:.22});line([-1,-1,t],[-1,1,t],g,{opacity:.16});});
-  [500,600,700,800,900].filter(v=>v>=R.fl[0]&&v<=R.fl[1]).forEach(v=>{const p=project([nrm(v,...R.fl),-1,-1]);tx(p[0],p[1]+18,String(v),{'text-anchor':'middle',fill:'var(--muted)'},g);});
-  [4,6,8,10,12].filter(v=>v>=R.f[0]&&v<=R.f[1]).forEach(v=>{const p=project([-1,nrm(v,...R.f),-1]);tx(p[0]-9,p[1]+4,`f/${v}`,{'text-anchor':'end',fill:'var(--muted)'},g);});
-  [1.5,2,2.5,3,3.5,4].filter(v=>v>=R.w[0]-.1&&v<=R.w[1]+.1).forEach(v=>{const p=project([-1,-1,nrm(v,...R.w)]);tx(p[0]-9,p[1]+4,`${v}kg`,{'text-anchor':'end',fill:'var(--muted)'},g);});
-}
-
-function rawPoint(q){return {fl:denrm(q[0],...R.fl),f:denrm(q[1],...R.f),w:denrm(q[2],...R.w)};}
-function planeFunction(q,dim){
-  const s=rawPoint(q), d=DIMS[dim], p=PLANES[dim];
-  return s[d.key]-(p.a+p.b*s[p.p1]+p.c*s[p.p2]);
-}
-const cubeCorners=[[-1,-1,-1],[1,-1,-1],[-1,1,-1],[1,1,-1],[-1,-1,1],[1,-1,1],[-1,1,1],[1,1,1]];
-const cubeEdges=[[0,1],[0,2],[0,4],[1,3],[1,5],[2,3],[2,6],[3,7],[4,5],[4,6],[5,7],[6,7]];
-function clippedPlanePolygon(dim){
-  const pts=[];
-  const add=q=>{if(!pts.some(p=>Math.hypot(p[0]-q[0],p[1]-q[1],p[2]-q[2])<1e-6))pts.push(q);};
-  cubeEdges.forEach(([ia,ib])=>{
-    const A=cubeCorners[ia],B=cubeCorners[ib],ga=planeFunction(A,dim),gb=planeFunction(B,dim);
-    if(Math.abs(ga)<1e-9)add(A);
-    if(Math.abs(gb)<1e-9)add(B);
-    if(ga*gb<0){const t=ga/(ga-gb);add([A[0]+t*(B[0]-A[0]),A[1]+t*(B[1]-A[1]),A[2]+t*(B[2]-A[2])]);}
-  });
-  if(pts.length<3)return [];
-  const pp=pts.map(q=>({q,p:project(q)}));
-  const cx=pp.reduce((a,x)=>a+x.p[0],0)/pp.length, cy=pp.reduce((a,x)=>a+x.p[1],0)/pp.length;
-  pp.sort((a,b)=>Math.atan2(a.p[1]-cy,a.p[0]-cx)-Math.atan2(b.p[1]-cy,b.p[0]-cx));
-  return pp;
-}
-function drawPlane(g) {
-  if(!planeToggle.checked) return;
-  const dim=colorDimension.value, poly=clippedPlanePolygon(dim);
-  if(poly.length<3)return;
-  mk('polygon',{points:poly.map(x=>`${x.p[0]},${x.p[1]}`).join(' '),fill:'var(--plane)','fill-opacity':'.16',stroke:'var(--plane)','stroke-width':'1.7','stroke-dasharray':'7 5','pointer-events':'none'},g);
-}
-
-function updatePointPopup(){
-  if(selected===null){ pointPopup.hidden=true; return; }
-  const s=S[selected],dim=colorDimension.value,rv=residualValue(s,dim),p=project(normS(s));
-  pointPopup.hidden=false;
-  pointPopup.style.left=`${(p[0]/900)*100}%`;
-  pointPopup.style.top=`${(p[1]/650)*100}%`;
-  pointPopup.dataset.side=p[0]>620?'left':'right';
-  pointPopup.innerHTML=`<strong>${s.name}</strong><span>${Math.round(s.fl)} mm equiv · f/${s.f} equiv · ${s.w.toFixed(3)} kg</span><br><span class="muted">${DIMS[dim].short} residual: ${fmtResidual(rv,dim)}</span>`;
-}
-
-function select(i) {
-  selected=i;
-  const s=S[i],dim=colorDimension.value,rv=residualValue(s,dim),ev=expectedValue(s,dim),d=DIMS[dim];
-  detail.innerHTML=`<strong>${s.name}</strong><dl class="detail">
-    <dt>Equivalent FL</dt><dd>${Math.round(s.fl)} mm</dd>
-    <dt>Equivalent f-stop</dt><dd>f/${s.f}</dd>
-    <dt>Actual FL</dt><dd>${s.actualFl} mm</dd>
-    <dt>Actual f-stop</dt><dd>f/${s.actualF}</dd>
-    <dt>Weight</dt><dd>${s.w.toFixed(3)} kg</dd>
-    <dt>${d.short} expected</dt><dd>${fmt(ev,dim,2)}</dd>
-    <dt>${d.short} residual</dt><dd>${fmtResidual(rv,dim)}</dd></dl>`;
-  updateButtons(); render();
-}
-function render() {
-  svg.innerHTML=''; const g=mk('g'); axes(g); drawPlane(g);
-  let p=project([0,-1.22,-1.08]);tx(p[0],p[1],'35mm-equiv. focal length',{'font-size':'13','font-weight':'600','text-anchor':'middle'},g);
-  p=project([-1.22,0,-1.06]);tx(p[0],p[1],'35mm-equiv. f-stop',{'font-size':'13','font-weight':'600','text-anchor':'middle'},g);
-  p=project([-1.18,-1.08,0]);tx(p[0],p[1],'System weight',{'font-size':'13','font-weight':'600','text-anchor':'middle'},g);
-
-  S.map((s,i)=>({s,i,p:project(normS(s))})).sort((a,b)=>a.p[2]-b.p[2]).forEach(({s,i,p})=>{
-    const r=radius(s.w),grp=mk('g',{tabindex:'0',role:'button','data-point-index':String(i),'aria-label':`${i+1}. ${s.name}`},g);
-    mk('circle',{cx:p[0],cy:p[1],r:selected===i?r+3:r,fill:pointColor(s),stroke:selected===i?'var(--text)':'rgba(255,255,255,.92)','stroke-width':selected===i?'2.8':'1.3',style:'cursor:pointer'},grp);
-    if(idToggle.checked)tx(p[0],p[1]+3.5,String(i+1),{'font-size':'9','font-weight':'700','text-anchor':'middle',fill:'#111','pointer-events':'none'},grp);
-    grp.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select(i);}});
-  });
-  updatePointPopup();
-}
-function buildButtons() {
-  list.innerHTML='';
-  S.forEach((s,i)=>{
-    const b=document.createElement('button'); b.type='button'; b.dataset.i=i; b.className='systembtn';
-    const d=document.createElement('span'); d.className='dot'; const sz=Math.max(11,Math.min(20,radius(s.w))); d.style.width=sz+'px';d.style.height=sz+'px';d.style.background=pointColor(s);
-    const t=document.createElement('span');t.innerHTML=`<b>${i+1}</b> · ${s.name}`;
-    b.append(d,t);b.addEventListener('click',()=>select(i));list.appendChild(b);
-  });
-}
-function updateButtons() {
-  [...list.children].forEach((b,i)=>{b.classList.toggle('active',i===selected);const dot=b.querySelector('.dot');dot.style.background=pointColor(S[i]);});
-  if(selected!==null){
-    const s=S[selected],dim=colorDimension.value,d=DIMS[dim],rv=residualValue(s,dim),ev=expectedValue(s,dim);
-    const dts=detail.querySelectorAll('dt'),dds=detail.querySelectorAll('dd');
-    if(dts.length>=7){dts[5].textContent=`${d.short} expected`;dds[5].textContent=fmt(ev,dim,2);dts[6].textContent=`${d.short} residual`;dds[6].textContent=fmtResidual(rv,dim);}
-  }
-}
-function sync() { yaw=+yawCtl.value*Math.PI/180; pitch=+pitchCtl.value*Math.PI/180; zoom=+zoomCtl.value/100; render(); }
-
-[yawCtl,pitchCtl,zoomCtl].forEach(e=>e.addEventListener('input',sync));
-[planeToggle,idToggle].forEach(e=>e.addEventListener('change',render));
-[colorDimension,colorMode].forEach(e=>e.addEventListener('change',()=>{updateLegend();updateButtons();render();}));
-document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{
-  if(b.dataset.view==='reset'){yawCtl.value=-38;pitchCtl.value=24;zoomCtl.value=100;}
-  if(b.dataset.view==='front'){yawCtl.value=0;pitchCtl.value=0;}
-  if(b.dataset.view==='top'){yawCtl.value=0;pitchCtl.value=85;}
-  if(b.dataset.view==='side'){yawCtl.value=90;pitchCtl.value=0;}
-  sync();
-}));
-
-svg.addEventListener('pointerdown',e=>{
-  if(e.button!==undefined && e.button!==0) return;
-  const hit=e.target.closest?.('[data-point-index]');
-  pointerState={
-    id:e.pointerId,
-    startX:e.clientX,startY:e.clientY,
-    lastX:e.clientX,lastY:e.clientY,
-    dragging:false,
-    pointIndex:hit?Number(hit.getAttribute('data-point-index')):null
-  };
-});
-svg.addEventListener('pointermove',e=>{
-  const p=pointerState;
-  if(!p || e.pointerId!==p.id) return;
-  const moved=Math.hypot(e.clientX-p.startX,e.clientY-p.startY);
-  if(!p.dragging && moved>5){
-    p.dragging=true;
-    try{svg.setPointerCapture(e.pointerId);}catch(_){}
-  }
-  if(!p.dragging) return;
-  const dx=e.clientX-p.lastX,dy=e.clientY-p.lastY;
-  p.lastX=e.clientX;p.lastY=e.clientY;
-  yaw+=dx*.01;pitch=Math.max(-1.48,Math.min(1.48,pitch+dy*.008));
-  yawCtl.value=Math.round(yaw*180/Math.PI);pitchCtl.value=Math.round(pitch*180/Math.PI);render();
-});
-svg.addEventListener('pointerup',e=>{
-  const p=pointerState;
-  if(!p || e.pointerId!==p.id) return;
-  if(svg.hasPointerCapture(e.pointerId)) svg.releasePointerCapture(e.pointerId);
-  pointerState=null;
-  if(!p.dragging && Number.isInteger(p.pointIndex)) select(p.pointIndex);
-});
-svg.addEventListener('pointercancel',e=>{
-  if(pointerState && e.pointerId===pointerState.id) pointerState=null;
-  if(svg.hasPointerCapture(e.pointerId)) svg.releasePointerCapture(e.pointerId);
-});
-svg.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.65,Math.min(1.5,zoom*(e.deltaY>0?.94:1.06)));zoomCtl.value=Math.round(zoom*100);render();},{passive:false});
-
-document.getElementById('weightScale').innerHTML=`<span>${R.w[0].toFixed(1)} kg</span><span>${R.w[1].toFixed(1)} kg</span>`;
-buildButtons();updateLegend();updateButtons();render();
-})();
-</script>
-</body>
-</html>
+<script src="app.js"></script></body></html>
