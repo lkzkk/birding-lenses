@@ -4,59 +4,50 @@
 
 This project is, deliberately and unapologetically, **vibecoded AI slop**. The HTML, JavaScript, regression logic, documentation, and much of the data wrangling were produced iteratively with ChatGPT rather than through a conventional software-development process. It is a personal exploratory tool, not a polished or independently audited product.
 
-That means the code may contain inelegant decisions, duplicated ideas, browser quirks, or statistical assumptions that deserve scrutiny. The source CSV is kept separate and human-readable specifically so the inputs can be inspected, corrected, and argued with. Treat the visualization as a way to explore the dataset—not as an authoritative camera-buying oracle.
+That means the code may contain inelegant decisions, browser quirks, stale prices, or statistical assumptions that deserve scrutiny. The source data are kept separate and human-readable specifically so the inputs can be inspected, corrected, and argued with. Treat the visualization as an exploratory tool—not as an authoritative camera-buying oracle.
 
-Interactive static microsite comparing bird-photography camera/lens systems across four dimensions:
+## What it compares
 
-- 35mm-equivalent focal length
-- 35mm-equivalent f-stop
-- total system weight
-- Swiss system price snapshot
+The core 3D model always uses:
 
-The site reads its source data directly from [`data/systems.csv`](data/systems.csv) at runtime and recalculates the regression planes from that CSV. The source data are not duplicated inside the JavaScript. Component-level Swiss price inputs are kept separately in [`data/component_prices.csv`](data/component_prices.csv).
+- **X:** 35mm-equivalent focal length
+- **Y:** 35mm-equivalent f-stop
+- **Z:** either total system weight or total Swiss system price
+- **Point size:** automatically uses whichever of weight or price is *not* on Z
 
-## Data dictionary
+So weight and price are both visible at the same time. The **Z axis** selector simply swaps which one gets spatial position and which one gets marker size.
 
-### `data/systems.csv`
+There is only one 3D model. Three buttons set useful rotation presets of that same cube:
 
-| Column | Type | Unit | Description |
-|---|---|---|---|
-| `system_id` | text | — | Stable machine-readable identifier for the configuration. |
-| `brand` | text | — | Camera-system brand used to group and order the system list. |
-| `list_name` | text | — | Compact `brand · lens (teleconverter)` label used in the grouped list and point details. |
-| `display_name` | text | — | Legacy short system label retained for traceability. |
-| `body` | text | — | Camera body. |
-| `lens` | text | — | Lens used in the configuration. |
-| `teleconverter` | text | — | Teleconverter configuration; `none` when no TC is used. Built-in TC states are stated explicitly. |
-| `actual_focal_length_mm` | number | mm | Physical focal length after any engaged teleconverter. |
-| `actual_f_stop` | number | f-number | Physical working f-number after any engaged teleconverter. This is the aperture value relevant to exposure per unit sensor area. |
-| `equiv_focal_length_mm` | number | mm, 35mm equivalent | Focal length on a 35mm/full-frame camera that would give approximately the same angle of view. |
-| `equiv_f_stop` | number | 35mm-equivalent f-number | Format-normalized aperture, calculated as physical f-number × 35mm crop factor. See the detailed definition below. |
-| `system_weight_g` | integer | g | Total camera + lens + teleconverter weight used for the plotted configuration. |
-| `system_price_chf` | number | CHF | Snapshot total: sum of the selected current body + lens + external TC component prices. |
-| `price_checked_date` | date | YYYY-MM-DD | Date on which the price snapshot was researched. |
-| `price_component_ids` | text | — | Pipe-separated component IDs from `component_prices.csv` whose prices sum to the system total. |
-| `price_basis` | text | — | Method used to construct the total price. |
+- **Reach × aperture** — Z is viewed edge-on.
+- **Reach × weight/price** — equivalent f-stop is viewed edge-on.
+- **Aperture × weight/price** — reach is viewed edge-on.
 
-### `data/component_prices.csv`
+The cube can then be freely rotated by dragging and zoomed with the wheel/trackpad. Fixed overlay axis titles stay outside the data region. In a flattened preset, the hidden/edge-on dimension's title is hidden as well.
 
-This is the auditable price input table. System totals in `systems.csv` are the sum of the component IDs named in `price_component_ids`.
+Clicking a point or a row selects a system. Clicking empty plot space, or pressing **Clear selection**, deselects it.
 
-| Column | Type | Unit | Description |
-|---|---|---|---|
-| `component_id` | text | — | Stable ID referenced from `systems.csv`. |
-| `category` | text | — | `body`, `lens`, or `teleconverter`. |
-| `brand` | text | — | Component brand/system. |
-| `component_name` | text | — | Human-readable component name. |
-| `price_chf` | number | CHF | Selected Swiss new-item snapshot price. |
-| `source` | text | — | Toppreise.ch primary source or named fallback retailer. |
-| `source_url` | URL | — | Page/search used to audit the selected price. |
-| `price_checked_date` | date | YYYY-MM-DD | Research date. |
-| `notes` | text | — | Shipping, thin-coverage, fallback, or product-page caveats. |
+## Color coding and efficiency residuals
+
+Color can represent any of the four dimensions:
+
+- equivalent focal length
+- equivalent f-stop
+- system weight
+- system price
+
+For each color dimension there are two modes:
+
+- **Absolute value** — the raw value. Green means longer reach, faster/lower equivalent f-stop, lighter weight, or lower price.
+- **Efficiency residual** — observed value minus a linear-regression prediction from the other visible comparison dimensions. Green means more favorable than the fitted expectation.
+
+An efficiency residual is **not an absolute-performance ranking**. For example, the X-H2S + XF 500/5.6 can look better than a Z8 + 600/4 in *equivalent-f-stop residual* even though the Nikon has a much faster absolute equivalent f-number. The Fuji is much lighter and has more equivalent reach, so its aperture can be more exceptional relative to what the regression predicts for a system at that position. Switch to **Absolute value** when the question is simply “which aperture is faster?”
+
+When the color dimension is one of the three spatial axes, the corresponding least-squares average plane can be shown in the cube. If color is assigned to the fourth, size-encoded dimension, its residual uses all three spatial axes as predictors; that is a 4D hyperplane and cannot be drawn as a 2D plane, so the plane toggle is disabled.
 
 ## What “35mm-equivalent f-stop” means
 
-`equiv_f_stop` is a **format-equivalence metric**, not the physical aperture used by the lens.
+`equiv_f_stop` is a **format-equivalence metric**, not the physical aperture used by the lens:
 
 ```text
 35mm-equivalent f-stop = physical f-number × 35mm crop factor
@@ -64,140 +55,60 @@ This is the auditable price input table. System totals in `systems.csv` are the 
 
 Examples:
 
-- Micro Four Thirds: crop factor ≈ 2.0, so a physical **f/4** is approximately **f/8 equivalent**.
-- Fujifilm APS-C: crop factor ≈ 1.5, so a physical **f/5.6** is approximately **f/8.4–8.5 equivalent**.
-- Full frame: crop factor = 1.0, so physical and equivalent f-numbers are the same.
-- Fujifilm GFX 44×33: crop factor ≈ 0.79, so a physical **f/8** is approximately **f/6.3 equivalent**.
+- Micro Four Thirds: f/4 physical ≈ f/8 equivalent.
+- Fujifilm APS-C: f/5.6 physical ≈ f/8.5 equivalent.
+- Full frame: crop factor 1.0, so physical and equivalent f-numbers are the same.
+- Fujifilm GFX 44×33: crop factor ≈ 0.79, so f/8 physical ≈ f/6.3 equivalent.
 
-The metric is useful when comparing different sensor formats because, **at equivalent framing**, the equivalent f-number approximately identifies the full-frame setup that gives:
+At **equivalent framing**, equivalent f-stop approximately identifies the full-frame setup with the same depth of field and the same total light integrated over the whole sensor for the same shutter time and scene brightness. It does **not** change exposure per unit sensor area: a physical f/5.6 lens still exposes as f/5.6.
 
-1. the same depth of field, and
-2. the same total amount of light integrated over the whole sensor for the same shutter time and scene brightness.
+It also ignores lens transmission, sensor quantum efficiency, microlens efficiency, vignetting, aspect-ratio differences, and image processing.
 
-It does **not** mean that the physical exposure changes. A physical f/5.6 lens still delivers the image-plane illuminance associated with f/5.6. Equivalent f-stop is not a replacement for the actual f-number when setting exposure.
+## Source data
 
-The equivalence also ignores real-world differences such as:
+The application reads [`data/systems.csv`](data/systems.csv) at runtime; system values are not duplicated inside JavaScript. Component-level price inputs are in [`data/component_prices.csv`](data/component_prices.csv).
 
-- lens transmission (T-stop vs f-stop)
-- sensor quantum efficiency
-- microlens efficiency
-- vignetting
-- sensor aspect-ratio differences
-- processing and noise-reduction differences
+### `data/systems.csv` dictionary
 
-So `equiv_f_stop` is best interpreted as a compact cross-format normalization for depth of field and whole-sensor light collection, not as a claim that two cameras will produce numerically identical files.
+| Column | Type | Unit | Description |
+|---|---|---|---|
+| `system_id` | text | — | Stable machine-readable configuration ID. |
+| `brand` | text | — | Brand group used in the system table. |
+| `list_name` | text | — | Compact `brand + lens (teleconverter)` label. |
+| `display_name` | text | — | Human-readable configuration name. |
+| `body` | text | — | Camera body. |
+| `lens` | text | — | Lens. |
+| `teleconverter` | text | — | Teleconverter state; `none` when absent. |
+| `actual_focal_length_mm` | number | mm | Physical focal length after any engaged teleconverter. |
+| `actual_f_stop` | number | f-number | Physical working f-number after any engaged teleconverter. |
+| `equiv_focal_length_mm` | number | mm, 35mm equivalent | Focal length normalized to full-frame angle of view. |
+| `equiv_f_stop` | number | 35mm-equivalent f-number | Physical f-number × format crop factor. |
+| `system_weight_g` | integer | g | Camera + lens + teleconverter weight used in the configuration. |
+| `system_price_chf` | number | CHF | Sum of the current Swiss component-price snapshot. |
+| `price_checked_date` | date | YYYY-MM-DD | Date the component-price snapshot was checked. |
+| `price_component_ids` | text | — | Pipe-separated component IDs used to calculate the system price when present. |
+| `price_basis` | text | — | Audit note describing how the total was constructed when present. |
 
-## Price snapshot methodology
+### `data/component_prices.csv` dictionary
 
-Prices were checked on **2026-08-28** for Switzerland.
+| Column | Description |
+|---|---|
+| `component_id` | Stable component ID used when calculating totals. |
+| `category` | Body, lens, or teleconverter. |
+| `brand` | Component brand/system. |
+| `component_name` | Human-readable component. |
+| `price_chf` | Swiss price snapshot in CHF. |
+| `source` | Toppreise.ch or named fallback source. |
+| `source_url` | Source/search URL used for auditability. |
+| `price_checked_date` | Snapshot date. |
+| `notes` | Shipping, fallback, coverage, or product-page caveats. |
 
-- **Primary source:** Toppreise.ch, because it aggregates many Swiss retailers and is substantially more comprehensive for this mixed-brand dataset than any single retailer.
-- **Fallback:** Galaxus or a current Swiss specialist retailer (Digifuchs) where a usable current Toppreise listing was not available or was materially less clear.
-- The value used is the **cheapest surfaced new-item price including shipping** where Toppreise exposes it.
-- A system total is a **component-by-component sum**, so the cheapest body, lens and teleconverter may come from different shops. It is not necessarily a single-cart bundle price.
-- Import offers can therefore be the cheapest row. Swiss-warranty offers may cost more.
-- Old/discontinued items can have thin or stale listing coverage; those cases are noted in `component_prices.csv`.
-- Prices are a snapshot, not a live feed. They will drift after the check date.
+## Price methodology
 
-## Visualization dimensions and comparison modes
+Prices are a **28 August 2026 snapshot**, not a guarantee. Toppreise.ch is the primary source because it aggregates Swiss retailers across brands; Galaxus or a Swiss specialist retailer (for example Digifuchs) is used as a fallback where a clean Toppreise listing was not available; the exact fallback is documented in the component table.
 
-The explorer has four available dimensions:
-
-- **Equivalent focal length** — `equiv_focal_length_mm`
-- **Equivalent f-stop** — `equiv_f_stop`
-- **System weight** — `system_weight_g`
-- **System price** — `system_price_chf`
-
-The X, Y and (where applicable) Z selectors can use any of these dimensions. Duplicate axes are prevented automatically.
-
-### 2D comparison
-
-Select **2D comparison** to compare any two dimensions directly. The third spatial axis is genuinely removed, not merely flattened. Only the two relevant axis titles are shown, fixed outside the plotting area so they remain legible. The average-plane option becomes an **average trend line** for the selected two-dimensional relationship. Point size is constant so it does not silently add another variable.
-
-### 3D comparison
-
-Select **3D comparison** to place any three of the four dimensions on X, Y and Z. The selected dimensions are always listed in fixed X/Y/Z badges above the plot rather than as moving labels that can rotate through the data. Drag rotates the cube and the mouse wheel/trackpad zooms it. The fourth dimension is simply unused until selected as an axis or color dimension.
-
-### Experimental 4D
-
-**Experimental 4D** is deliberately an explicit opt-in mode. X, Y and Z use three dimensions and the one remaining dimension controls **point size**, so all four variables are visible at once. The interface labels the fourth/size dimension clearly. Switch the comparison-mode selector back to 2D or 3D to turn 4D off.
-
-A four-dimensional regression hyperplane can be calculated for residual colors but cannot be meaningfully drawn inside the 3D SVG, so the average-plane display is disabled in 4D mode.
-
-## Color coding
-
-Color coding has two independent controls.
-
-### Dimension
-
-Color can represent any dimension currently participating in the selected comparison:
-
-- equivalent focal length
-- equivalent f-stop
-- total system weight
-- system price
-
-In 4D mode all four are available because all four participate.
-
-### Mode
-
-For every available color dimension, choose either:
-
-- **Absolute value** — the raw value of that dimension.
-- **Efficiency residual** — observed value minus the least-squares value predicted from the other active comparison dimension(s).
-
-The regression therefore adapts to the comparison mode:
-
-- in **2D**, one dimension is predicted from the other;
-- in **3D**, one dimension is predicted from the other two;
-- in **4D**, one dimension is predicted from the other three.
-
-Coefficients are calculated in the browser from the current CSV; nothing is hard-coded.
-
-### Residual interpretation: efficiency, not absolute performance
-
-A residual is always:
-
-```text
-observed value − value predicted from the other active dimensions
-```
-
-Residual mode is a **trade-off efficiency score relative to this particular dataset**, not an absolute ranking. A system can have a worse raw aperture but a better aperture residual if that aperture is unusually good for the combination of reach, weight (and, in 4D, price). Use **Absolute value** when the question is simply “which has the faster aperture / longer reach / lower weight / lower price?”
-
-The green-to-red scale always orients green toward the favorable direction:
-
-- **Focal length:** greener = longer.
-- **Equivalent f-stop:** greener = lower/faster.
-- **Weight:** greener = lighter.
-- **Price:** greener = cheaper.
-
-In residual mode those statements mean “more favorable than predicted”; in absolute mode they refer directly to the raw value.
-
-### Why X-H2S + XF 500/5.6 can beat Z8 + 600/4 TC in aperture residual
-
-This is intentional, not a sign error. In the original three-variable reach/aperture/weight comparison, the fitted equivalent-aperture plane was approximately:
-
-```text
-expected equivalent f-number
-≈ 5.786 + 0.01185 × equivalent focal length (mm) − 2.363 × weight (kg)
-```
-
-- **Fujifilm X-H2S + XF 500/5.6:** actual ≈ **f/8.53 equivalent**; the model expected about **f/10.10** for a 762 mm-equivalent system around 2.0 kg. Residual ≈ **−1.57** — unusually fast for that light, long-reaching package.
-- **Nikon Z8 + Z 600mm f/4 TC (TC off):** actual = **f/4 equivalent**; the model expected about **f/3.04** for a 600 mm system around 4.17 kg. Residual ≈ **+0.96**. Its absolute aperture is far faster, but it is not unusually fast relative to the fitted weight/reach trade-off.
-
-Thus **Absolute equivalent f-stop** correctly ranks the Nikon much better. **Efficiency residual** asks a different question. If price is added to the active comparison, the residual changes again because the model has another predictor.
-
-## Average reference display
-
-In 2D the checkbox displays an **average trend line**. In 3D it displays the least-squares **average plane** for the selected color dimension. In experimental 4D the corresponding reference is a hyperplane, so it is calculated for residuals but not drawn.
-
-## Interaction and selection
-
-- Click a point or a row in the grouped system table to select the same system and show its details.
-- **Clear selection** removes the highlight and popup.
-- In 3D/4D, drag to rotate and use the wheel/trackpad to zoom. There are intentionally no rotation/tilt/zoom sliders.
-- Equivalent-f-stop axis ticks are drawn from the actual f-stop-equivalent values present in the dataset rather than generic integer intervals.
+The displayed system price is the sum of body + lens + any required external teleconverter. Where `price_component_ids` is present, it records the exact components used in that sum. A built-in teleconverter is already part of the lens price and is not added again. Prices can move quickly and may reflect imports, warranty variants, temporary promotions, cashback, stock differences, or seller-specific conditions. They are comparison inputs, not purchasing recommendations.
 
 ## Publishing
 
-The project is a dependency-free static site and can be served directly by GitHub Pages. `index.html`, `styles.css`, `app.js`, `data/systems.csv`, and `data/component_prices.csv` should remain in the repository. The visualization reads `systems.csv` using a relative URL; the component price table exists for auditability and maintenance.
+The project is a dependency-free static site deployed through GitHub Pages. `.nojekyll` explicitly marks it as static content.

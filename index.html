@@ -9,44 +9,38 @@
 </head>
 <body><main>
 <h1>Birding System Explorer</h1>
-<div class="sub">Reach × equivalent aperture × total system weight × Swiss price</div>
+<div class="sub">Reach × equivalent aperture × weight × Swiss price</div>
 <div class="toolbar">
   <div class="selectors">
-    <label class="control">Comparison mode<select id="comparisonMode"><option value="3d">3D comparison</option><option value="2d">2D comparison</option><option value="4d">Experimental 4D</option></select></label>
-    <label class="control">X axis<select id="axisX"></select></label>
-    <label class="control">Y axis<select id="axisY"></select></label>
-    <label class="control" id="axisZWrap">Z axis<select id="axisZ"></select></label>
-    <label class="control">Color dimension<select id="colorDimension"></select></label>
+    <label class="control">Z axis<select id="zMetric"><option value="weight">System weight</option><option value="price">System price</option></select></label>
+    <label class="control">Color dimension<select id="colorDimension"><option value="fl">Equivalent focal length</option><option value="fstop">Equivalent f-stop</option><option value="weight">System weight</option><option value="price">System price</option></select></label>
     <label class="control">Color mode<select id="colorMode"><option value="residual">Efficiency residual</option><option value="absolute">Absolute value</option></select></label>
   </div>
   <div class="controls">
     <label><input id="planeToggle" type="checkbox" checked> <span id="planeLabel">Average plane</span></label>
     <label><input id="idToggle" type="checkbox" checked> Point IDs</label>
-    <button type="button" data-preset="reach-aperture">Reach × aperture</button>
-    <button type="button" data-preset="reach-weight">Reach × weight</button>
-    <button type="button" data-preset="aperture-weight">Aperture × weight</button>
-    <button type="button" data-preset="reach-price">Reach × price</button>
-    <button id="resetView" type="button">Reset rotation</button>
     <button id="clearSelection" type="button">Clear selection</button>
   </div>
 </div>
+<div class="viewbar" aria-label="Preset views"><span class="label">Preset view:</span><button class="viewbtn" type="button" data-view="reach-aperture">Reach × aperture</button><button class="viewbtn" type="button" data-view="reach-z">Reach × weight</button><button class="viewbtn" type="button" data-view="aperture-z">Aperture × weight</button></div>
 <div class="chartgrid">
   <section>
-    <div id="viewMeta" class="view-meta" aria-live="polite"></div>
     <div class="card plotwrap">
-      <svg id="plot" viewBox="0 0 900 650" aria-label="Interactive camera system comparison"></svg>
-      <div id="axisXTitle" class="axis-title axis-x"></div><div id="axisYTitle" class="axis-title axis-y"></div><div id="axisZTitle" class="axis-title axis-z"></div>
+      <svg id="plot" viewBox="0 0 900 650" aria-label="Interactive 3D camera system comparison"></svg>
+      <div id="axisXTitle" class="axis-title pos-bottom">35mm-equiv. focal length</div>
+      <div id="axisYTitle" class="axis-title pos-left">35mm-equiv. f-stop</div>
+      <div id="axisZTitle" class="axis-title pos-right">System weight</div>
       <div id="pointPopup" class="point-popup" hidden></div>
     </div>
-    <div id="interactionHint" class="hint">Drag to rotate · wheel/trackpad to zoom · click a point to inspect.</div>
+    <div class="hint">Drag to rotate · wheel/trackpad to zoom · click a point to inspect · click empty plot space to deselect.</div>
   </section>
   <aside class="side">
     <section class="card"><strong id="legendTitle"></strong><div class="legendbar" style="margin-top:10px"></div><div id="scale" class="scale"></div><p id="legendNote" class="hint"></p></section>
     <section class="card"><strong>Equivalent f-stop</strong><p class="explain"><b>35mm-equivalent f-stop = physical f-number × format crop factor.</b></p><p class="explain">At equivalent framing it approximates the full-frame f-number with the same depth of field and whole-sensor light collection. It does not change exposure per unit sensor area.</p></section>
-    <section class="card"><strong id="sizeTitle">Point size</strong><div id="sizeNote" class="hint"></div><div style="height:50px;display:flex;align-items:end;justify-content:space-around;margin-top:6px"><span class="dot" style="width:12px;height:12px;background:#888"></span><span class="dot" style="width:23px;height:23px;background:#888"></span><span class="dot" style="width:35px;height:35px;background:#888"></span></div><div id="sizeScale" class="scale"></div></section>
+    <section class="card"><strong>Point size</strong><div id="sizeNote" class="hint"></div><div style="height:50px;display:flex;align-items:end;justify-content:space-around;margin-top:6px"><span class="dot" style="width:12px;height:12px;background:#888"></span><span class="dot" style="width:23px;height:23px;background:#888"></span><span class="dot" style="width:35px;height:35px;background:#888"></span></div><div id="sizeScale" class="scale"></div></section>
     <section class="card" id="detail"><strong>Select a system</strong><p class="hint">Click any point or system below.</p></section>
   </aside>
 </div>
-<section class="systems"><strong>Systems</strong><div class="system-note">Grouped by brand. Total price is a 28 Aug 2026 Swiss component-price snapshot: Toppreise.ch primary, Galaxus/Digifuchs fallback where needed. See the README and <code>data/component_prices.csv</code>.</div><div id="systemList" class="systemlist"></div></section>
+<section class="systems"><strong>Systems</strong><div class="system-note">Grouped by brand. Price is a 28 Aug 2026 Swiss component-price snapshot: Toppreise.ch primary, Galaxus fallback where needed. See <code>data/component_prices.csv</code>.</div><div id="systemList" class="systemlist"></div></section>
 </main>
 <script src="app.js"></script></body></html>
