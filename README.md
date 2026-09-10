@@ -27,6 +27,15 @@ The cube can then be freely rotated by dragging and zoomed with the wheel/trackp
 
 Clicking a point or a row selects a system. Clicking empty plot space, or pressing **Clear selection**, deselects it.
 
+## Rumored Sony additions
+
+Two provisional Sony systems were added on **10 September 2026** from Sony Alpha Rumors reporting:
+
+- **Sony FE 400mm f/4.5 GM OSS** — rumored 994 g lens weight; paired with the Alpha 1 II this gives a 1.737 kg system.
+- **Sony FE 600mm f/6.3 GM OSS** — rumored 995 g lens weight; paired with the Alpha 1 II this gives a 1.738 kg system.
+
+These rows are deliberately labelled **rumored** in the system list. As of the update date they were not treated as official Sony specifications. Their lens-price inputs use Sony Alpha Rumors' leaked European estimates of roughly **€3,000** and **€4,200**, converted to CHF at the 10 September 2026 EUR/CHF spot rate. Those prices are estimates for comparison only, not Swiss retail quotes.
+
 ## Color coding and efficiency residuals
 
 Color can represent any of the four dimensions:
@@ -84,8 +93,8 @@ The application reads [`data/systems.csv`](data/systems.csv) at runtime; system 
 | `equiv_focal_length_mm` | number | mm, 35mm equivalent | Focal length normalized to full-frame angle of view. |
 | `equiv_f_stop` | number | 35mm-equivalent f-number | Physical f-number × format crop factor. |
 | `system_weight_g` | integer | g | Camera + lens + teleconverter weight used in the configuration. |
-| `system_price_chf` | number | CHF | Sum of the current Swiss component-price snapshot. |
-| `price_checked_date` | date | YYYY-MM-DD | Date the component-price snapshot was checked. |
+| `system_price_chf` | number | CHF | Sum of the current Swiss component-price snapshot or clearly marked rumor estimate. |
+| `price_checked_date` | date | YYYY-MM-DD | Date the component-price snapshot or estimate was checked. |
 | `price_component_ids` | text | — | Pipe-separated component IDs used to calculate the system price when present. |
 | `price_basis` | text | — | Audit note describing how the total was constructed when present. |
 
@@ -97,15 +106,17 @@ The application reads [`data/systems.csv`](data/systems.csv) at runtime; system 
 | `category` | Body, lens, or teleconverter. |
 | `brand` | Component brand/system. |
 | `component_name` | Human-readable component. |
-| `price_chf` | Swiss price snapshot in CHF. |
-| `source` | Toppreise.ch or named fallback source. |
+| `price_chf` | Swiss price snapshot in CHF or clearly marked converted rumor estimate. |
+| `source` | Toppreise.ch, named fallback source, or rumor source. |
 | `source_url` | Source/search URL used for auditability. |
-| `price_checked_date` | Snapshot date. |
-| `notes` | Shipping, fallback, coverage, or product-page caveats. |
+| `price_checked_date` | Snapshot/estimate date. |
+| `notes` | Shipping, fallback, coverage, rumor, or product-page caveats. |
 
 ## Price methodology
 
-Prices are a **28 August 2026 snapshot**, not a guarantee. Toppreise.ch is the primary source because it aggregates Swiss retailers across brands; Galaxus or a Swiss specialist retailer (for example Digifuchs) is used as a fallback where a clean Toppreise listing was not available; the exact fallback is documented in the component table.
+Production-gear prices are a **28 August 2026 snapshot**, not a guarantee. Toppreise.ch is the primary source because it aggregates Swiss retailers across brands; Galaxus or a Swiss specialist retailer (for example Digifuchs) is used as a fallback where a clean Toppreise listing was not available; the exact fallback is documented in the component table.
+
+The two rumored Sony lenses are an explicit exception: their 10 September 2026 lens-price inputs come from leaked European estimates reported by Sony Alpha Rumors and are converted to CHF for plotting. They are not Swiss store prices.
 
 The displayed system price is the sum of body + lens + any required external teleconverter. Where `price_component_ids` is present, it records the exact components used in that sum. A built-in teleconverter is already part of the lens price and is not added again. Prices can move quickly and may reflect imports, warranty variants, temporary promotions, cashback, stock differences, or seller-specific conditions. They are comparison inputs, not purchasing recommendations.
 
