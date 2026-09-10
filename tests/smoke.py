@@ -14,7 +14,7 @@ def rows(path):
     with path.open(newline='',encoding='utf-8') as f:
         r=csv.DictReader(f); return r.fieldnames or [],list(r)
 def main():
-    fields,data=rows(SYSTEMS);assert SYS_REQUIRED<=set(fields),f'Missing systems columns: {sorted(SYS_REQUIRED-set(fields))}';assert len(data)==31,f'Expected 31 systems, got {len(data)}';ids=[r['system_id'] for r in data];assert len(ids)==len(set(ids))
+    fields,data=rows(SYSTEMS);assert SYS_REQUIRED<=set(fields),f'Missing systems columns: {sorted(SYS_REQUIRED-set(fields))}';assert len(data)==33,f'Expected 33 systems, got {len(data)}';ids=[r['system_id'] for r in data];assert len(ids)==len(set(ids))
     for n,r in enumerate(data,2):
         for c in SYS_REQUIRED: assert r[c].strip(),f'Blank {c} row {n}'
         for c in SYS_NUM:
