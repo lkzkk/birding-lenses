@@ -11,7 +11,7 @@ A small static comparison tool for long-reach bird-photography kits.
 
 The chart intentionally focuses on three dimensions only:
 
-- 35mm-equivalent focal length (reach)
+- 35mm-equivalent focal length (reach; Fujifilm X APS-C uses the conventional 1.5× factor)
 - 35mm-equivalent f-stop
 - total kit weight
 
@@ -33,7 +33,7 @@ Reach uses a single dual-handle range slider; weight uses a single maximum slide
 
 ## Color and axes
 
-Color is independent of filtering and can show neutral points, an absolute metric, or an efficiency residual. Filtered-out points are always grey. Point size can optionally represent kit price; this is off by default. The average plane is available only in residual-color modes and shows the regression-predicted trade-off surface for active kits.
+Color is independent of filtering and can show neutral points, an absolute metric, or an efficiency residual. Filtered-out points are always grey. Residuals use a fixed full-dataset regression by default; an optional checkbox recalculates the residual model using only currently active filtered kits. Point size can optionally represent kit price; this is off by default. The average plane is available only in residual-color modes and shows the regression-predicted trade-off surface from the same residual baseline. Showing the plane does not change the cube orientation.
 
 The three spatial axes use restrained, low-saturation colors; each axis label and its tick labels use the same color as the corresponding axis so the labels remain understandable after rotating the cube.
 
@@ -46,6 +46,14 @@ Among kits passing all non-Pareto filters, a kit is Pareto-efficient if no other
 - at least as light,
 
 with at least one strict improvement.
+
+## Default ranked-list order
+
+The stable row number is assigned from the full dataset by **brand (alphabetical) → reach residual (best/highest first)**. Reach residual uses the same full-dataset linear-regression definition as the chart's reach-residual mode: actual equivalent focal length minus the value predicted from equivalent aperture and kit weight. The row number stays attached to the kit even when the table is sorted another way.
+
+## OM System 150–400 built-in TC
+
+Both end states are represented: 400mm F4.5 with the built-in TC disengaged (800mm-equivalent F9) and 500mm F5.6 with the built-in 1.25× TC engaged (1000mm-equivalent F11.2). OM System's official specification is recorded in `data/spec_sources.csv`.
 
 ## Data sources
 

@@ -14,13 +14,16 @@
       <h1>Birding Kit Explorer</h1>
       <div class="sub">Reach × equivalent aperture × kit weight</div>
     </div>
-    <div class="info-help">
-      <button class="info-button" type="button" aria-label="About the comparison metrics" aria-describedby="infoPopover">i</button>
-      <div class="info-popover" id="infoPopover" role="tooltip">
+    <div class="header-actions">
+      <a class="coffee-button" href="https://buymeacoffee.com/lkzk" target="_blank" rel="noopener">☕ Buy me a coffee</a>
+      <div class="info-help" id="infoHelp">
+        <button class="info-button" id="infoButton" type="button" aria-label="About the comparison metrics" aria-controls="infoPopover" aria-expanded="false">i</button>
+        <div class="info-popover" id="infoPopover" role="dialog" aria-label="Comparison metric explanations" aria-hidden="true">
         <section><strong>Pareto frontier</strong><p>A kit is Pareto-efficient when no other currently eligible kit is at least as long-reaching, at least as fast (lower equivalent f-number), and at least as light, with at least one strict improvement.</p></section>
         <section><strong>Equivalent focal length and aperture</strong><p>Equivalent focal length = actual focal length × crop factor. Equivalent aperture = actual f-number × crop factor. The latter compares depth of field and total light at equivalent framing; it is <em>not</em> the f-number used for exposure. Fujifilm X APS-C uses the conventional 1.5× factor here.</p><p><a href="https://www.dpreview.com/articles/2666934640/what-is-equivalence-and-why-should-i-care/" target="_blank" rel="noopener">DPReview: What is equivalence?</a> · <a href="https://www.dpreview.com/learn/equivalence-in-a-nutshell/" target="_blank" rel="noopener">Equivalence in a nutshell</a></p></section>
-        <section><strong>Residuals</strong><p>A residual is the actual value minus the value predicted by a linear regression from the other two chart dimensions, using the currently active kits. Positive reach residual means more reach than predicted. For aperture and weight, a negative residual is favorable because the kit is faster or lighter than predicted. Residuals describe trade-off efficiency, not overall image quality.</p></section>
-        <section><strong>Average plane</strong><p>In a residual mode, the plane is the ordinary least-squares prediction surface for the selected metric from the other two dimensions. Points on the plane have zero residual; points on opposite sides deviate from the model in opposite directions. When enabled, the cube rotates edge-on to make the plane read approximately as a line. The automatic edge-on orientation puts the favorable residual direction above the line: greener points above it are better than the average trade-off predicted from the other two dimensions; redder points below it are worse than predicted.</p></section>
+        <section><strong>Residuals</strong><p>A residual is the actual value minus the value predicted by a linear regression from the other two chart dimensions. By default the regression is fitted to the full kit dataset, so a kit keeps the same residual when filters change. Enable “Recalculate residuals using filtered kits only” to refit the model to the currently active kits instead. Positive reach residual means more reach than predicted. For aperture and weight, a negative residual is favorable because the kit is faster or lighter than predicted. Residuals describe trade-off efficiency, not overall image quality.</p></section>
+        <section><strong>Average plane</strong><p>In a residual mode, the plane is the ordinary least-squares prediction surface for the selected metric from the other two dimensions. Every point on the plane has zero residual; points on opposite sides have positive or negative residuals. In practical terms, points on the favorable side of the plane perform better than the model expects for that combination of the other two dimensions, while points on the other side perform worse. Green always marks the favorable residual direction. The cube is not reoriented automatically; you can rotate it yourself until the plane appears nearly as a line if that makes the separation easier to read.</p></section>
+        </div>
       </div>
     </div>
   </header>
@@ -112,6 +115,7 @@
           </label>
           <label class="check-control"><input id="planeToggle" type="checkbox"> Average plane</label>
           <label class="check-control"><input id="sizePriceToggle" type="checkbox"> Point size = price</label>
+          <label class="check-control residual-scope-control"><input id="recalcResidualToggle" type="checkbox"> Recalculate residuals using filtered kits only</label>
         </div>
       </div>
     </div>
@@ -174,6 +178,6 @@
     </div>
   </section>
 </main>
-<script src="app.js?v=20260915e"></script>
+<script src="app-loader.js?v=20260915g"></script>
 </body>
 </html>
