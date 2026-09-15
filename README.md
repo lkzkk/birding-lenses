@@ -1,125 +1,71 @@
-# Birding System Explorer
+# Birding Kit Explorer
 
-## AI-slop disclosure
+A small static comparison tool for long-reach bird-photography kits.
 
-This project is, deliberately and unapologetically, **vibecoded AI slop**. The HTML, JavaScript, regression logic, documentation, and much of the data wrangling were produced iteratively with ChatGPT rather than through a conventional software-development process. It is a personal exploratory tool, not a polished or independently audited product.
+## Vocabulary
 
-That means the code may contain inelegant decisions, browser quirks, stale prices, or statistical assumptions that deserve scrutiny. The source data are kept separate and human-readable specifically so the inputs can be inspected, corrected, and argued with. Treat the visualization as an exploratory tool—not as an authoritative camera-buying oracle.
+- **System / brand** means the camera mount/brand family: Canon, Fujifilm, Nikon, OM System or Sony.
+- **Kit** means one specific body + lens + teleconverter configuration.
 
-## What it compares
+## Current comparison dimensions
 
-The core 3D model always uses:
+The chart intentionally focuses on three dimensions only:
 
-- **X:** 35mm-equivalent focal length
-- **Y:** 35mm-equivalent f-stop
-- **Z:** either total system weight or total Swiss system price
-- **Point size:** automatically uses whichever of weight or price is *not* on Z
+- 35mm-equivalent focal length (reach)
+- 35mm-equivalent f-stop
+- total kit weight
 
-So weight and price are both visible at the same time. The **Z axis** selector simply swaps which one gets spatial position and which one gets marker size.
+Price is retained in the source files for later purchasing work, but it is not currently shown or used by the UI.
 
-There is only one 3D model. Three buttons set useful rotation presets of that same cube:
+## Filters
 
-- **Reach × aperture** — Z is viewed edge-on.
-- **Reach × weight/price** — equivalent f-stop is viewed edge-on.
-- **Aperture × weight/price** — reach is viewed edge-on.
+All filters behave the same way. A filtered-out kit is **not removed**: it remains faintly visible in the chart and ranked table, but cannot be selected or added to the shortlist while filtered out.
 
-The cube can then be freely rotated by dragging and zoomed with the wheel/trackpad. Fixed overlay axis titles stay outside the data region. In a flattened preset, the hidden/edge-on dimension's title is hidden as well.
+This applies to:
 
-Clicking a point or a row selects a system. Clicking empty plot space, or pressing **Clear selection**, deselects it.
+- reach range
+- maximum kit weight
+- lens type
+- status
+- system / brand
+- Pareto-efficient-only mode
 
-## Rumored Sony additions
+Reach and weight use sliders. Pareto mode is a filter, not a color encoding.
 
-Two provisional Sony systems were added on **10 September 2026** from Sony Alpha Rumors reporting:
+## Color and axes
 
-- **Sony FE 400mm f/4.5 GM OSS** — rumored 994 g lens weight; paired with the Alpha 1 II this gives a 1.737 kg system.
-- **Sony FE 600mm f/6.3 GM OSS** — rumored 995 g lens weight; paired with the Alpha 1 II this gives a 1.738 kg system.
+Color is independent of filtering and can show neutral points, an absolute metric, or an efficiency residual. Filtered-out points are always grey.
 
-These rows are deliberately labelled **rumored** in the system list. As of the update date they were not treated as official Sony specifications. Their lens-price inputs use Sony Alpha Rumors' leaked European estimates of roughly **€3,000** and **€4,200**, converted to CHF at the 10 September 2026 EUR/CHF spot rate. Those prices are estimates for comparison only, not Swiss retail quotes.
+The three spatial axes use restrained, low-saturation colors; each axis label and its tick labels use the same color as the corresponding axis so the labels remain understandable after rotating the cube.
 
-## Color coding and efficiency residuals
+## Pareto frontier
 
-Color can represent any of the four dimensions:
+Among kits passing all non-Pareto filters, a kit is Pareto-efficient if no other candidate is simultaneously:
 
-- equivalent focal length
-- equivalent f-stop
-- system weight
-- system price
+- at least as long-reaching,
+- at least as fast (lower equivalent f-number), and
+- at least as light,
 
-For each color dimension there are two modes:
+with at least one strict improvement.
 
-- **Absolute value** — the raw value. Green means longer reach, faster/lower equivalent f-stop, lighter weight, or lower price.
-- **Efficiency residual** — observed value minus a linear-regression prediction from the other visible comparison dimensions. Green means more favorable than the fitted expectation.
+## Data sources
 
-An efficiency residual is **not an absolute-performance ranking**. For example, the X-H2S + XF 500/5.6 can look better than a Z8 + 600/4 in *equivalent-f-stop residual* even though the Nikon has a much faster absolute equivalent f-number. The Fuji is much lighter and has more equivalent reach, so its aperture can be more exceptional relative to what the regression predicts for a system at that position. Switch to **Absolute value** when the question is simply “which aperture is faster?”
+- `data/systems.csv` is the runtime kit dataset.
+- `data/component_prices.csv` retains the price-source audit trail for future purchase decisions.
+- `data/spec_sources.csv` records fresh official source checks relevant to the latest specification updates.
 
-When the color dimension is one of the three spatial axes, the corresponding least-squares average plane can be shown in the cube. If color is assigned to the fourth, size-encoded dimension, its residual uses all three spatial axes as predictors; that is a 4D hyperplane and cannot be drawn as a 2D plane, so the plane toggle is disabled.
+### Sony 400/4.5 GM and 600/6.3 GM — 15 September 2026
 
-## What “35mm-equivalent f-stop” means
+The previous rumor rows have been replaced with the officially announced **FE 400mm F4.5 GM OSS** and **FE 600mm F6.3 GM OSS**.
 
-`equiv_f_stop` is a **format-equivalence metric**, not the physical aperture used by the lens:
+Sony's official European announcement gives:
 
-```text
-35mm-equivalent f-stop = physical f-number × 35mm crop factor
-```
+- FE 400mm F4.5 GM OSS: 994 g excluding tripod foot; approximately EUR 2,800; availability from the end of September 2026.
+- FE 600mm F6.3 GM OSS: 995 g excluding tripod foot; approximately EUR 3,900; availability from the end of September 2026.
+- Both support SEL14TC and SEL20TC teleconverters.
 
-Examples:
-
-- Micro Four Thirds: f/4 physical ≈ f/8 equivalent.
-- Fujifilm APS-C: f/5.6 physical ≈ f/8.5 equivalent.
-- Full frame: crop factor 1.0, so physical and equivalent f-numbers are the same.
-- Fujifilm GFX 44×33: crop factor ≈ 0.79, so f/8 physical ≈ f/6.3 equivalent.
-
-At **equivalent framing**, equivalent f-stop approximately identifies the full-frame setup with the same depth of field and the same total light integrated over the whole sensor for the same shutter time and scene brightness. It does **not** change exposure per unit sensor area: a physical f/5.6 lens still exposes as f/5.6.
-
-It also ignores lens transmission, sensor quantum efficiency, microlens efficiency, vignetting, aspect-ratio differences, and image processing.
-
-## Source data
-
-The application reads [`data/systems.csv`](data/systems.csv) at runtime; system values are not duplicated inside JavaScript. Component-level price inputs are in [`data/component_prices.csv`](data/component_prices.csv).
-
-### `data/systems.csv` dictionary
-
-| Column | Type | Unit | Description |
-|---|---|---|---|
-| `system_id` | text | — | Stable machine-readable configuration ID. |
-| `brand` | text | — | Brand group used in the system table. |
-| `list_name` | text | — | Compact `brand + lens (teleconverter)` label. |
-| `display_name` | text | — | Human-readable configuration name. |
-| `body` | text | — | Camera body. |
-| `lens` | text | — | Lens. |
-| `teleconverter` | text | — | Teleconverter state; `none` when absent. |
-| `actual_focal_length_mm` | number | mm | Physical focal length after any engaged teleconverter. |
-| `actual_f_stop` | number | f-number | Physical working f-number after any engaged teleconverter. |
-| `equiv_focal_length_mm` | number | mm, 35mm equivalent | Focal length normalized to full-frame angle of view. |
-| `equiv_f_stop` | number | 35mm-equivalent f-number | Physical f-number × format crop factor. |
-| `system_weight_g` | integer | g | Camera + lens + teleconverter weight used in the configuration. |
-| `system_price_chf` | number | CHF | Sum of the current Swiss component-price snapshot or clearly marked rumor estimate. |
-| `price_checked_date` | date | YYYY-MM-DD | Date the component-price snapshot or estimate was checked. |
-| `price_component_ids` | text | — | Pipe-separated component IDs used to calculate the system price when present. |
-| `price_basis` | text | — | Audit note describing how the total was constructed when present. |
-
-### `data/component_prices.csv` dictionary
-
-| Column | Description |
-|---|---|
-| `component_id` | Stable component ID used when calculating totals. |
-| `category` | Body, lens, or teleconverter. |
-| `brand` | Component brand/system. |
-| `component_name` | Human-readable component. |
-| `price_chf` | Swiss price snapshot in CHF or clearly marked converted rumor estimate. |
-| `source` | Toppreise.ch, named fallback source, or rumor source. |
-| `source_url` | Source/search URL used for auditability. |
-| `price_checked_date` | Snapshot/estimate date. |
-| `notes` | Shipping, fallback, coverage, rumor, or product-page caveats. |
-
-## Price methodology
-
-Production-gear prices are a **28 August 2026 snapshot**, not a guarantee. Toppreise.ch is the primary source because it aggregates Swiss retailers across brands; Galaxus or a Swiss specialist retailer (for example Digifuchs) is used as a fallback where a clean Toppreise listing was not available; the exact fallback is documented in the component table.
-
-The two rumored Sony lenses are an explicit exception: their 10 September 2026 lens-price inputs come from leaked European estimates reported by Sony Alpha Rumors and are converted to CHF for plotting. They are not Swiss store prices.
-
-The displayed system price is the sum of body + lens + any required external teleconverter. Where `price_component_ids` is present, it records the exact components used in that sum. A built-in teleconverter is already part of the lens price and is not added again. Prices can move quickly and may reflect imports, warranty variants, temporary promotions, cashback, stock differences, or seller-specific conditions. They are comparison inputs, not purchasing recommendations.
+The launch-price estimates were converted to CHF at EUR/CHF 0.944895 on 15 September 2026. They are retained only for the dormant price dataset and are **not Swiss street prices**.
 
 ## Publishing
 
-The project is a dependency-free static site deployed through GitHub Pages. `.nojekyll` explicitly marks it as static content.
+Dependency-free static site deployed through GitHub Pages.

@@ -4,43 +4,135 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>Birding System Explorer</title>
+<title>Birding Kit Explorer</title>
 <link rel="stylesheet" href="styles.css">
 </head>
-<body><main>
-<h1>Birding System Explorer</h1>
-<div class="sub">Reach × equivalent aperture × weight × Swiss price</div>
-<div class="toolbar">
-  <div class="selectors">
-    <label class="control">Z axis<select id="zMetric"><option value="weight">System weight</option><option value="price">System price</option></select></label>
-    <label class="control">Color dimension<select id="colorDimension"><option value="fl">Equivalent focal length</option><option value="fstop">Equivalent f-stop</option><option value="weight">System weight</option><option value="price">System price</option></select></label>
-    <label class="control">Color mode<select id="colorMode"><option value="residual">Efficiency residual</option><option value="absolute">Absolute value</option></select></label>
-  </div>
-  <div class="controls">
-    <label><input id="planeToggle" type="checkbox" checked> <span id="planeLabel">Average plane</span></label>
-    <label><input id="idToggle" type="checkbox" checked> Point IDs</label>
-    <button id="clearSelection" type="button">Clear selection</button>
-  </div>
-</div>
-<div class="viewbar" aria-label="Preset views"><span class="label">Preset view:</span><button class="viewbtn" type="button" data-view="reach-aperture">Reach × aperture</button><button class="viewbtn" type="button" data-view="reach-z">Reach × weight</button><button class="viewbtn" type="button" data-view="aperture-z">Aperture × weight</button></div>
-<div class="chartgrid">
-  <section>
-    <div class="card plotwrap">
-      <svg id="plot" viewBox="0 0 900 650" aria-label="Interactive 3D camera system comparison"></svg>
-      <div id="axisXTitle" class="axis-title pos-bottom">35mm-equiv. focal length</div>
-      <div id="axisYTitle" class="axis-title pos-left">35mm-equiv. f-stop</div>
-      <div id="axisZTitle" class="axis-title pos-right">System weight</div>
-      <div id="pointPopup" class="point-popup" hidden></div>
+<body>
+<main>
+  <header class="pagehead">
+    <div>
+      <h1>Birding Kit Explorer</h1>
+      <div class="sub">Reach × equivalent aperture × kit weight</div>
     </div>
-    <div class="hint">Drag to rotate · wheel/trackpad to zoom · click a point to inspect · click empty plot space to deselect.</div>
+  </header>
+
+  <section class="filterbar card">
+    <div class="filter-grid">
+      <div class="slider-control reach-control">
+        <div class="slider-head"><span>Reach range</span><strong id="reachRangeValue"></strong></div>
+        <label class="slider-row"><span>Min</span><input id="minReach" type="range" step="10"><output id="minReachValue"></output></label>
+        <label class="slider-row"><span>Max</span><input id="maxReach" type="range" step="10"><output id="maxReachValue"></output></label>
+      </div>
+      <div class="slider-control weight-control">
+        <div class="slider-head"><span>Max kit weight</span><strong id="maxWeightValue"></strong></div>
+        <label class="slider-row"><span>Max</span><input id="maxWeight" type="range" step="0.05"><output></output></label>
+      </div>
+      <label>Lens type
+        <select id="lensType"><option value="all">All</option><option value="prime">Prime</option><option value="zoom">Zoom</option></select>
+      </label>
+      <label>Status
+        <select id="statusFilter"><option value="all">Current + rumored</option><option value="current">Current only</option><option value="rumored">Rumored only</option></select>
+      </label>
+      <label>Pareto filter
+        <select id="paretoMode"><option value="all">All kits</option><option value="only">Pareto-efficient only</option></select>
+      </label>
+    </div>
+    <div class="brandfilter" id="brandFilter"><span class="brandfilter-label">System / brand</span></div>
+    <div class="filterfoot">
+      <div id="filterSummary" class="summary"></div>
+      <button id="resetFilters" type="button">Reset filters</button>
+    </div>
   </section>
-  <aside class="side">
-    <section class="card"><strong id="legendTitle"></strong><div class="legendbar" style="margin-top:10px"></div><div id="scale" class="scale"></div><p id="legendNote" class="hint"></p></section>
-    <section class="card"><strong>Equivalent f-stop</strong><p class="explain"><b>35mm-equivalent f-stop = physical f-number × format crop factor.</b></p><p class="explain">At equivalent framing it approximates the full-frame f-number with the same depth of field and whole-sensor light collection. It does not change exposure per unit sensor area.</p></section>
-    <section class="card"><strong>Point size</strong><div id="sizeNote" class="hint"></div><div style="height:50px;display:flex;align-items:end;justify-content:space-around;margin-top:6px"><span class="dot" style="width:12px;height:12px;background:#888"></span><span class="dot" style="width:23px;height:23px;background:#888"></span><span class="dot" style="width:35px;height:35px;background:#888"></span></div><div id="sizeScale" class="scale"></div></section>
-    <section class="card" id="detail"><strong>Select a system</strong><p class="hint">Click any point or system below.</p></section>
-  </aside>
-</div>
-<section class="systems"><strong>Systems</strong><div class="system-note">Grouped by brand. Production-gear prices are the 28 Aug 2026 Swiss component-price snapshot (Toppreise.ch primary; Galaxus fallback where needed). The two Sony 400/4.5 GM and 600/6.3 GM rows are clearly marked rumors and use Sony Alpha Rumors' leaked European price estimates converted to CHF on 10 Sep 2026. See <code>data/component_prices.csv</code>.</div><div id="systemList" class="systemlist"></div></section>
+
+  <section class="analysisbar">
+    <div class="viewbar" aria-label="Trade-off views">
+      <span class="label">Trade-off view:</span>
+      <button class="viewbtn" data-view="reach-aperture" type="button">Reach × aperture</button>
+      <button class="viewbtn" data-view="reach-weight" type="button">Reach × weight</button>
+      <button class="viewbtn" data-view="aperture-weight" type="button">Aperture × weight</button>
+    </div>
+    <div class="analysis-controls">
+      <label>Color
+        <select id="colorMode">
+          <option value="neutral">Neutral</option>
+          <optgroup label="Absolute metric">
+            <option value="abs-fl">Reach</option>
+            <option value="abs-fstop">Equivalent aperture</option>
+            <option value="abs-weight">Weight</option>
+          </optgroup>
+          <optgroup label="Advanced: efficiency residual">
+            <option value="res-fl">Reach residual</option>
+            <option value="res-fstop">Aperture residual</option>
+            <option value="res-weight">Weight residual</option>
+          </optgroup>
+        </select>
+      </label>
+      <label class="inline"><input id="planeToggle" type="checkbox"> Average plane</label>
+      <label class="inline"><input id="focusToggle" type="checkbox" checked> Focus selected kit</label>
+      <button id="clearSelection" type="button">Clear selection</button>
+    </div>
+  </section>
+
+  <div class="chartgrid">
+    <section>
+      <div class="card plotwrap">
+        <svg id="plot" viewBox="0 0 940 670" aria-label="Interactive 3D birding kit comparison"></svg>
+        <div id="pointPopup" class="point-popup" hidden></div>
+      </div>
+      <div class="hint">Drag to rotate · wheel to zoom · click a point to inspect · click empty plot space to deselect.</div>
+    </section>
+
+    <aside class="side">
+      <section class="card legendcard">
+        <strong id="legendTitle">Neutral points</strong>
+        <div id="legendBar" class="legendbar neutral" style="margin-top:10px"></div>
+        <div id="scale" class="scale"></div>
+        <p id="legendNote" class="hint">Color is deliberately not encoding brand.</p>
+      </section>
+
+      <section class="card" id="detail">
+        <strong>Select a kit</strong>
+        <p class="hint">Selection focuses the chart. Use “Compare” to add up to five kits to the shortlist.</p>
+      </section>
+
+      <section class="card frontier-card">
+        <strong>Pareto frontier</strong>
+        <p class="explain">Among kits passing the non-Pareto filters, a kit is Pareto-efficient when no other active candidate is simultaneously <b>longer-reaching, faster, and lighter</b>, with at least one strict improvement.</p>
+        <div id="paretoSummary" class="statline"></div>
+      </section>
+    </aside>
+  </div>
+
+  <section class="compare-section card">
+    <div class="sectionhead">
+      <div><strong>Shortlist comparison</strong><span class="sectionnote">2–5 kits works best</span></div>
+      <button id="clearCompare" type="button">Clear shortlist</button>
+    </div>
+    <div id="compareEmpty" class="empty">Add kits from the chart detail or ranked table.</div>
+    <div class="compare-wrap"><table id="compareTable" hidden><thead><tr><th>Kit</th><th>Body</th><th>Eq. FL</th><th>Eq. f-stop</th><th>Weight</th><th></th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="rank-section">
+    <div class="sectionhead">
+      <div><strong>Ranked kits</strong><span class="sectionnote">Sort any metric; every filter greys out excluded kits rather than removing them.</span></div>
+      <div id="tableCount" class="summary"></div>
+    </div>
+    <div class="card table-wrap">
+      <table id="rankTable">
+        <thead><tr>
+          <th data-sort="name">Kit <span class="sortmark"></span></th>
+          <th data-sort="body">Body <span class="sortmark"></span></th>
+          <th data-sort="fl" class="num">Eq. FL <span class="sortmark"></span></th>
+          <th data-sort="fstop" class="num">Eq. f <span class="sortmark"></span></th>
+          <th data-sort="weight" class="num">Weight <span class="sortmark"></span></th>
+          <th data-sort="pareto">Pareto <span class="sortmark"></span></th>
+          <th>Compare</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
 </main>
-<script src="app.js?v=cdc3504"></script></body></html>
+<script src="app.js?v=20260915"></script>
+</body>
+</html>
