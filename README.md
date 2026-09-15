@@ -26,11 +26,10 @@ This applies to:
 - reach range
 - maximum kit weight
 - lens type
-- status
 - system / brand
 - Pareto-efficient-only mode
 
-Reach and weight use sliders. Pareto mode is a filter, not a color encoding.
+Reach uses a single dual-handle range slider; weight uses a single maximum slider. Lens type and Pareto mode use radio controls. Pareto mode is a filter, not a color encoding.
 
 ## Color and axes
 

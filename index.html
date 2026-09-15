@@ -6,6 +6,19 @@
 <meta name="color-scheme" content="light dark">
 <title>Birding Kit Explorer</title>
 <link rel="stylesheet" href="styles.css">
+<style>
+/* control refinement */
+.filter-grid{grid-template-columns:minmax(290px,1.8fr) minmax(210px,1.2fr) minmax(210px,1fr) minmax(210px,1fr);align-items:stretch}
+.dual-range{position:relative;height:30px;margin:2px 2px 0}.range-track{position:absolute;left:0;right:0;top:13px;height:4px;border-radius:999px;background:var(--border);overflow:hidden}.range-fill{position:absolute;top:0;bottom:0;background:var(--accent);border-radius:999px}
+.range-thumb{position:absolute;left:0;top:0;width:100%;height:30px;margin:0;padding:0;background:transparent;pointer-events:none;appearance:none;-webkit-appearance:none}
+.range-thumb::-webkit-slider-runnable-track{height:4px;background:transparent;border:0}.range-thumb::-moz-range-track{height:4px;background:transparent;border:0}
+.range-thumb::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:16px;height:16px;border-radius:50%;border:2px solid var(--panel);background:var(--accent);box-shadow:0 0 0 1px var(--accent);margin-top:-6px;pointer-events:auto;cursor:grab}
+.range-thumb::-moz-range-thumb{width:16px;height:16px;border-radius:50%;border:2px solid var(--panel);background:var(--accent);box-shadow:0 0 0 1px var(--accent);pointer-events:auto;cursor:grab}
+.range-values{display:flex;justify-content:space-between;color:var(--text);font-size:10px;font-variant-numeric:tabular-nums;margin-top:0}.single-range{display:block;margin-top:8px}.single-range input{width:100%}
+.radio-control{border:1px solid var(--border);border-radius:9px;padding:7px 10px 9px;margin:0;min-width:0;background:color-mix(in srgb,var(--panel) 96%,var(--bg))}.radio-control legend{padding:0 4px;color:var(--muted);font-size:11px}.radio-control label{display:inline-flex;align-items:center;gap:5px;color:var(--text);font-size:12px;margin:2px 12px 0 0;cursor:pointer}.radio-control input{margin:0;accent-color:var(--accent)}
+@media(max-width:1180px){.filter-grid{grid-template-columns:repeat(2,minmax(240px,1fr))}}
+@media(max-width:760px){.filter-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <main>
@@ -20,22 +33,26 @@
     <div class="filter-grid">
       <div class="slider-control reach-control">
         <div class="slider-head"><span>Reach range</span><strong id="reachRangeValue"></strong></div>
-        <label class="slider-row"><span>Min</span><input id="minReach" type="range" step="10"><output id="minReachValue"></output></label>
-        <label class="slider-row"><span>Max</span><input id="maxReach" type="range" step="10"><output id="maxReachValue"></output></label>
+        <div class="dual-range" aria-label="Reach range">
+          <div class="range-track"><div id="reachFill" class="range-fill"></div></div>
+          <input id="minReach" class="range-thumb range-thumb-min" type="range" step="10" aria-label="Minimum equivalent reach">
+          <input id="maxReach" class="range-thumb range-thumb-max" type="range" step="10" aria-label="Maximum equivalent reach">
+        </div>
+        <div class="range-values"><output id="minReachValue"></output><output id="maxReachValue"></output></div>
       </div>
       <div class="slider-control weight-control">
         <div class="slider-head"><span>Max kit weight</span><strong id="maxWeightValue"></strong></div>
-        <label class="slider-row"><span>Max</span><input id="maxWeight" type="range" step="0.05"><output></output></label>
+        <label class="single-range"><input id="maxWeight" type="range" step="0.05" aria-label="Maximum kit weight"></label>
       </div>
-      <label>Lens type
-        <select id="lensType"><option value="all">All</option><option value="prime">Prime</option><option value="zoom">Zoom</option></select>
-      </label>
-      <label>Status
-        <select id="statusFilter"><option value="all">Current + rumored</option><option value="current">Current only</option><option value="rumored">Rumored only</option></select>
-      </label>
-      <label>Pareto filter
-        <select id="paretoMode"><option value="all">All kits</option><option value="only">Pareto-efficient only</option></select>
-      </label>
+      <fieldset class="radio-control" id="lensType"><legend>Lens type</legend>
+        <label><input type="radio" name="lensType" value="all" checked> All</label>
+        <label><input type="radio" name="lensType" value="prime"> Prime</label>
+        <label><input type="radio" name="lensType" value="zoom"> Zoom</label>
+      </fieldset>
+      <fieldset class="radio-control" id="paretoMode"><legend>Pareto filter</legend>
+        <label><input type="radio" name="paretoMode" value="all" checked> All kits</label>
+        <label><input type="radio" name="paretoMode" value="only"> Efficient only</label>
+      </fieldset>
     </div>
     <div class="brandfilter" id="brandFilter"><span class="brandfilter-label">System / brand</span></div>
     <div class="filterfoot">
@@ -133,6 +150,6 @@
     </div>
   </section>
 </main>
-<script src="app.js?v=20260915"></script>
+<script src="app.js?v=20260915b"></script>
 </body>
 </html>

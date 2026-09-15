@@ -28,7 +28,6 @@ const S=records.map((r,i)=>({
   i,id:r.system_id,brand:r.brand,name:r.list_name,displayName:r.display_name,body:r.body,lens:r.lens,tc:r.teleconverter,
   fl:+r.equiv_focal_length_mm,fstop:+r.equiv_f_stop,weight:+r.system_weight_g/1000,
   actualFl:+r.actual_focal_length_mm,actualF:+r.actual_f_stop,
-  rumor:(r.status||'').toLowerCase()==='rumored'||/rumor/i.test(r.system_id+r.list_name+r.lens+r.price_basis),
   zoom:/\d+\s*[-–]\s*\d+/.test(r.lens)
 }));
 const brands=[...new Set(S.map(s=>s.brand))].sort();
@@ -51,14 +50,15 @@ const nrm=(v,d)=>(v-ranges[d][0])/(ranges[d][1]-ranges[d][0])*2-1;
 function project([x,y,z]){const cy=Math.cos(yaw),sy=Math.sin(yaw),x1=x*cy-z*sy,z1=x*sy+z*cy,cp=Math.cos(pitch),sp=Math.sin(pitch),y1=y*cp-z1*sp,z2=y*sp+z1*cp,sc=220*zoom;return[470+x1*sc,330-y1*sc,z2]}
 function coords(s){return[nrm(s.fl,'fl'),nrm(s.fstop,'fstop'),nrm(s.weight,'weight')]}
 
+function radioValue(name){return document.querySelector(`input[name="${name}"]:checked`)?.value||'all'}
+function setRadio(name,value){const el=document.querySelector(`input[name="${name}"][value="${value}"]`);if(el)el.checked=true}
 function getFilters(){
   const checked=[...brandFilter.querySelectorAll('input:checked')].map(x=>x.value);
-  return{min:+$('minReach').value,max:+$('maxReach').value,maxW:+$('maxWeight').value,lens:$('lensType').value,status:$('statusFilter').value,brands:new Set(checked),pareto:$('paretoMode').value};
+  return{min:+$('minReach').value,max:+$('maxReach').value,maxW:+$('maxWeight').value,lens:radioValue('lensType'),brands:new Set(checked),pareto:radioValue('paretoMode')};
 }
 function passesNonPareto(s,f){
   return s.fl>=f.min&&s.fl<=f.max&&s.weight<=f.maxW&&f.brands.has(s.brand)&&
-    (f.lens==='all'||(f.lens==='zoom')===s.zoom)&&
-    (f.status==='all'||(f.status==='rumored')===s.rumor);
+    (f.lens==='all'||(f.lens==='zoom')===s.zoom);
 }
 function dominates(a,b){return a.fl>=b.fl&&a.fstop<=b.fstop&&a.weight<=b.weight&&(a.fl>b.fl||a.fstop<b.fstop||a.weight<b.weight)}
 function computeFrontier(ids){const out=new Set();for(const i of ids){let dominated=false;for(const j of ids){if(i!==j&&dominates(S[j],S[i])){dominated=true;break}}if(!dominated)out.add(i)}return out}
@@ -104,11 +104,14 @@ function drawAxes(g){
   drawSegment(g,[-1,-1,-1],[1,-1,-1],{stroke:'var(--axis-reach)','stroke-width':'2.5'});
   drawSegment(g,[-1,-1,-1],[-1,1,-1],{stroke:'var(--axis-aperture)','stroke-width':'2.5'});
   drawSegment(g,[-1,-1,-1],[-1,-1,1],{stroke:'var(--axis-weight)','stroke-width':'2.5'});
-  const tick=(d,n)=>Array.from({length:n},(_,i)=>ranges[d][0]+(ranges[d][1]-ranges[d][0])*i/(n-1));
-  for(const v of tick('fl',6)){const p=project([nrm(v,'fl'),-1,-1]);tx(p[0],p[1]+16,`${Math.round(v)}`,{'text-anchor':'middle',fill:'var(--axis-reach)'},g)}
-  const fvals=[...new Set(S.map(s=>s.fstop))].sort((a,b)=>a-b);const fstep=Math.max(1,Math.ceil(fvals.length/8));
-  for(const[vIdx,v]of fvals.entries()){if(vIdx%fstep)continue;const p=project([-1,nrm(v,'fstop'),-1]);tx(p[0]-8,p[1]+3,`f/${+v.toFixed(2)}`,{'text-anchor':'end',fill:'var(--axis-aperture)'},g)}
-  for(const v of tick('weight',5)){const p=project([-1,-1,nrm(v,'weight')]);tx(p[0]-8,p[1]+3,`${v.toFixed(1)}kg`,{'text-anchor':'end',fill:'var(--axis-weight)'},g)}
+  const axisVisible=(a,b)=>{const A=project(a),B=project(b);return Math.hypot(B[0]-A[0],B[1]-A[1])>=55},linearTicks=(d,n)=>Array.from({length:n},(_,i)=>ranges[d][0]+(ranges[d][1]-ranges[d][0])*i/(n-1));
+  const showReach=axisVisible([-1,-1,-1],[1,-1,-1]),showAperture=axisVisible([-1,-1,-1],[-1,1,-1]),showWeight=axisVisible([-1,-1,-1],[-1,-1,1]);
+  const reachStep=(ranges.fl[1]-ranges.fl[0])>350?100:50,reachTicks=[];
+  for(let v=Math.ceil(ranges.fl[0]/reachStep)*reachStep;v<=Math.floor(ranges.fl[1]/reachStep)*reachStep;v+=reachStep)reachTicks.push(v);
+  if(showReach)for(const v of reachTicks){const p=project([nrm(v,'fl'),-1,-1]);tx(p[0],p[1]+16,`${Math.round(v)}`,{'text-anchor':'middle',fill:'var(--axis-reach)'},g)}
+  const standardFStops=[1,1.4,2,2.8,4,5.6,8,11,16,22,32].filter(v=>v>=ranges.fstop[0]&&v<=ranges.fstop[1]);
+  if(showAperture)for(const v of standardFStops){const p=project([-1,nrm(v,'fstop'),-1]);tx(p[0]-8,p[1]+3,`f/${v}`,{'text-anchor':'end',fill:'var(--axis-aperture)'},g)}
+  if(showWeight)for(const v of linearTicks('weight',5)){const p=project([-1,-1,nrm(v,'weight')]);tx(p[0]-8,p[1]+3,`${v.toFixed(1)}kg`,{'text-anchor':'end',fill:'var(--axis-weight)'},g)}
   axisTitle(g,[-1,-1,-1],[1,-1,-1],'Reach','axis-reach');
   axisTitle(g,[-1,-1,-1],[-1,1,-1],'Equivalent aperture','axis-aperture');
   axisTitle(g,[-1,-1,-1],[-1,-1,1],'Kit weight','axis-weight');
@@ -143,11 +146,11 @@ function render(){
 function showPopup(i,p){const s=S[i];popup.hidden=false;popup.style.left=`${p[0]/940*100}%`;popup.style.top=`${p[1]/670*100}%`;popup.dataset.side=p[0]>650?'left':'right';popup.innerHTML=`<strong>${s.name}</strong><span>${Math.round(s.fl)} mm eq · f/${s.fstop} eq · ${s.weight.toFixed(3)} kg</span>`}
 function updatePopupSelected(){if(selected===null){if(hovered===null)popup.hidden=true;return}showPopup(selected,project(coords(S[selected])))}
 function updateViewButtons(){document.querySelectorAll('.viewbtn').forEach(b=>b.classList.toggle('active',b.dataset.view===activeView))}
-function useView(v){activeView=v;if(v==='reach-aperture'){yaw=0;pitch=0}else if(v==='reach-weight'){yaw=0;pitch=Math.PI/2}else if(v==='aperture-weight'){yaw=Math.PI/2;pitch=0}render()}
+function useView(v){activeView=v;if(v==='reach-aperture'){yaw=0;pitch=0}else if(v==='reach-weight'){yaw=0;pitch=-Math.PI/2}else if(v==='aperture-weight'){yaw=Math.PI/2;pitch=0}render()}
 
 function select(i){
   if(!activeSet.has(i))return;selected=i;const s=S[i],isP=frontier.has(i);
-  detail.innerHTML=`<strong>${s.name}</strong><div class="subline">${s.body}${s.rumor?' · <span class="rumor">rumored</span>':''}</div><div class="detailgrid"><div>Equivalent reach</div><div>${Math.round(s.fl)} mm</div><div>Equivalent aperture</div><div>f/${s.fstop}</div><div>Kit weight</div><div>${s.weight.toFixed(3)} kg</div><div>Lens type</div><div>${s.zoom?'Zoom':'Prime'}</div><div>Pareto-efficient</div><div>${isP?'Yes':'No'}</div></div><div class="detail-actions"><button id="detailCompare" type="button">${shortlist.includes(i)?'Remove from compare':'Add to compare'}</button><button id="detailClear" type="button">Deselect</button></div>`;
+  detail.innerHTML=`<strong>${s.name}</strong><div class="subline">${s.body}</div><div class="detailgrid"><div>Equivalent reach</div><div>${Math.round(s.fl)} mm</div><div>Equivalent aperture</div><div>f/${s.fstop}</div><div>Kit weight</div><div>${s.weight.toFixed(3)} kg</div><div>Lens type</div><div>${s.zoom?'Zoom':'Prime'}</div><div>Pareto-efficient</div><div>${isP?'Yes':'No'}</div></div><div class="detail-actions"><button id="detailCompare" type="button">${shortlist.includes(i)?'Remove from compare':'Add to compare'}</button><button id="detailClear" type="button">Deselect</button></div>`;
   $('detailCompare').onclick=()=>toggleCompare(i);$('detailClear').onclick=clearSelection;render();renderTable();
 }
 function clearSelection(){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class="hint">Selection focuses the chart. Use “Compare” to add up to five kits to the shortlist.</p>';render();renderTable()}
@@ -167,7 +170,7 @@ function sortedIds(){
 function renderTable(){
   const ids=sortedIds(),tb=$('rankTable').querySelector('tbody');tb.innerHTML='';
   for(const i of ids){const s=S[i],active=activeSet.has(i),tr=document.createElement('tr');if(i===selected)tr.classList.add('row-selected');if(!active)tr.classList.add('row-filtered');if(active&&selected!==null&&$('focusToggle').checked&&!focused(i))tr.classList.add('row-dim');const inShort=shortlist.includes(i);
-    tr.innerHTML=`<td class="systemcell"><div class="systemname">${s.name}</div><div class="subline">${s.lens}${s.rumor?' · <span class="rumor">rumored</span>':''}</div></td><td>${s.body}</td><td class="metric-cell">${Math.round(s.fl)} mm${metricBar(s.fl,'fl')}</td><td class="metric-cell">f/${s.fstop}${metricBar(s.fstop,'fstop')}</td><td class="metric-cell">${s.weight.toFixed(3)} kg${metricBar(s.weight,'weight')}</td><td>${frontier.has(i)&&baseSet.has(i)?'<span class="pareto-badge">frontier</span>':''}</td><td><button class="compare-btn ${inShort?'in':''}" data-compare="${i}" ${!active&&!inShort?'disabled':''}>${inShort?'✓ Compare':'+ Compare'}</button></td>`;
+    tr.innerHTML=`<td class="systemcell"><div class="systemname">${s.name}</div><div class="subline">${s.lens}</div></td><td>${s.body}</td><td class="metric-cell">${Math.round(s.fl)} mm${metricBar(s.fl,'fl')}</td><td class="metric-cell">f/${s.fstop}${metricBar(s.fstop,'fstop')}</td><td class="metric-cell">${s.weight.toFixed(3)} kg${metricBar(s.weight,'weight')}</td><td>${frontier.has(i)&&baseSet.has(i)?'<span class="pareto-badge">frontier</span>':''}</td><td><button class="compare-btn ${inShort?'in':''}" data-compare="${i}" ${!active&&!inShort?'disabled':''}>${inShort?'✓ Compare':'+ Compare'}</button></td>`;
     tr.addEventListener('click',e=>{if(active&&!e.target.closest('button'))select(i)});tb.appendChild(tr);
   }
   tb.querySelectorAll('[data-compare]').forEach(b=>b.onclick=e=>{e.stopPropagation();toggleCompare(+b.dataset.compare)});
@@ -176,7 +179,9 @@ function renderTable(){
 }
 
 function updateSliderLabels(){
-  $('minReachValue').textContent=`${Math.round(+$('minReach').value)} mm`;$('maxReachValue').textContent=`${Math.round(+$('maxReach').value)} mm`;$('reachRangeValue').textContent=`${Math.round(+$('minReach').value)}–${Math.round(+$('maxReach').value)} mm eq.`;$('maxWeightValue').textContent=`${(+$('maxWeight').value).toFixed(2)} kg`;
+  const lo=$('minReach'),hi=$('maxReach'),min=+lo.value,max=+hi.value,span=(+lo.max-+lo.min)||1,left=(min-+lo.min)/span*100,right=(+lo.max-max)/span*100;
+  $('minReachValue').textContent=`${Math.round(min)} mm`;$('maxReachValue').textContent=`${Math.round(max)} mm`;$('reachRangeValue').textContent=`${Math.round(min)}–${Math.round(max)} mm eq.`;$('maxWeightValue').textContent=`${(+$('maxWeight').value).toFixed(2)} kg`;
+  $('reachFill').style.left=`${left}%`;$('reachFill').style.right=`${right}%`;lo.style.zIndex=min>max-60?'5':'3';hi.style.zIndex='4';
 }
 function syncReach(changed){const lo=$('minReach'),hi=$('maxReach');if(+lo.value>+hi.value){if(changed==='min')hi.value=lo.value;else lo.value=hi.value}}
 function refresh(){
@@ -187,12 +192,12 @@ function refresh(){
   render();renderTable();renderCompare();
 }
 function resetFilters(){
-  brandFilter.querySelectorAll('input').forEach(cb=>cb.checked=true);$('minReach').value=flMin;$('maxReach').value=flMax;$('maxWeight').value=wMax;$('lensType').value='all';$('statusFilter').value='all';$('paretoMode').value='all';refresh();
+  brandFilter.querySelectorAll('input').forEach(cb=>cb.checked=true);$('minReach').value=flMin;$('maxReach').value=flMax;$('maxWeight').value=wMax;setRadio('lensType','all');setRadio('paretoMode','all');refresh();
 }
 
 $('minReach').value=flMin;$('maxReach').value=flMax;$('maxWeight').value=wMax;
 $('minReach').addEventListener('input',()=>{syncReach('min');refresh()});$('maxReach').addEventListener('input',()=>{syncReach('max');refresh()});$('maxWeight').addEventListener('input',refresh);
-['lensType','statusFilter','paretoMode','colorMode'].forEach(id=>$(id).addEventListener('change',refresh));$('focusToggle').addEventListener('change',refresh);brandFilter.addEventListener('change',refresh);$('resetFilters').onclick=resetFilters;$('clearSelection').onclick=clearSelection;$('clearCompare').onclick=()=>{shortlist=[];renderCompare();renderTable();render()};$('planeToggle').addEventListener('change',render);document.querySelectorAll('.viewbtn').forEach(b=>b.onclick=()=>useView(b.dataset.view));
+document.querySelectorAll('input[name="lensType"],input[name="paretoMode"]').forEach(el=>el.addEventListener('change',refresh));$('colorMode').addEventListener('change',refresh);$('focusToggle').addEventListener('change',refresh);brandFilter.addEventListener('change',refresh);$('resetFilters').onclick=resetFilters;$('clearSelection').onclick=clearSelection;$('clearCompare').onclick=()=>{shortlist=[];renderCompare();renderTable();render()};$('planeToggle').addEventListener('change',render);document.querySelectorAll('.viewbtn').forEach(b=>b.onclick=()=>useView(b.dataset.view));
 document.querySelectorAll('#rankTable th[data-sort]').forEach(h=>h.onclick=()=>{const k=h.dataset.sort;if(sort.key===k)sort.dir*=-1;else{sort.key=k;sort.dir=k==='fl'?-1:1}renderTable()});
 
 svg.addEventListener('pointerdown',e=>{if(e.button!==0&&e.button!==undefined)return;const hit=e.target.closest?.('[data-i]');pointer={id:e.pointerId,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,drag:false,hit:hit?+hit.dataset.i:null}});

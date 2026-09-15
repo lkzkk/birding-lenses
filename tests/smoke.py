@@ -34,12 +34,15 @@ def main():
     assert {'lens-fe400f45','lens-fe600f63','tc-sony14','tc-sony20'}<=sids
 
     html=HTML.read_text(encoding='utf-8'); js=JS.read_text(encoding='utf-8'); css=CSS.read_text(encoding='utf-8')
-    for marker in ['id="minReach" type="range"','id="maxReach" type="range"','id="maxWeight" type="range"','id="lensType"','id="statusFilter"','id="paretoMode"','System / brand','id="colorMode"','id="plot"','id="rankTable"']:
+    for marker in ['id="minReach" class="range-thumb range-thumb-min" type="range"','id="maxReach" class="range-thumb range-thumb-max" type="range"','id="reachFill"','id="maxWeight" type="range"','name="lensType"','name="paretoMode"','System / brand','id="colorMode"','id="plot"','id="rankTable"']:
         assert marker in html, marker
+    assert 'statusFilter' not in html
     for marker in ['data-filtered-i','activeSet','computeFrontier','colorFor','axis-reach','axis-aperture','axis-weight','pointerEvents']:
         assert marker in js or marker in css, marker
     assert 'Highlight frontier' not in html
     assert 'type="number"' not in html
+    assert "pitch=-Math.PI/2" in js
+    assert 'standardFStops' in js and 'reachStep' in js
     print(f'Smoke validation passed: {len(rows)} kits, {len(comps)} component price rows, {len(specs)} fresh spec-source rows.')
 
 if __name__=='__main__': main()
