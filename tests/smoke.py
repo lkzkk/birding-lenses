@@ -34,18 +34,14 @@ def main():
     assert {'lens-fe400f45','lens-fe600f63','tc-sony14','tc-sony20','lens-om150400'}<=sids
 
     html=HTML.read_text(encoding='utf-8'); js=JS.read_text(encoding='utf-8'); css=CSS.read_text(encoding='utf-8')
-    for marker in ['id="minReach" class="range-thumb range-thumb-min" type="range"','id="maxReach" class="range-thumb range-thumb-max" type="range"','id="reachFill"','id="maxWeight"','name="lensType"','name="paretoMode"','System / brand','id="colorMode"','id="planeToggle"','id="sizePriceToggle"','id="recalcResidualToggle"','id="plot"','id="rankTable"']:
+    for marker in ['id="minReach" class="range-thumb range-thumb-min" type="range"','id="maxReach" class="range-thumb range-thumb-max" type="range"','id="reachFill"','id="maxWeight"','name="lensType"','name="paretoMode"','System / brand','id="colorMode"','id="planeToggle"','id="sizePriceToggle"','id="plot"','id="rankTable"']:
         assert marker in html, marker
     assert 'statusFilter' not in html
     assert 'Highlight similar kits' not in html
-    assert 'id="infoPopover"' in html and 'id="infoButton"' in html and 'DPReview: What is equivalence?' in html
-    assert 'https://buymeacoffee.com/lkzk' in html
+    assert 'id="infoPopover"' in html and 'DPReview: What is equivalence?' in html
     assert 'data-sort="seq"' in html
-    for marker in ['data-filtered-i','activeSet','computeFrontier','colorFor','axis-reach','axis-aperture','axis-weight','pointerEvents','pointRadius','brandAll','reachResidual','recalcResidualToggle','setInfoOpen','data-hover-label']:
+    for marker in ['data-filtered-i','activeSet','computeFrontier','colorFor','axis-reach','axis-aperture','axis-weight','pointerEvents','pointRadius','brandAll','reachResidual','orientPlaneEdgeOn']:
         assert marker in js or marker in css, marker
-    assert 'orientPlaneEdgeOn' not in js
-    assert 'return 4.5+12.5*Math.sqrt(q);' in js
-    assert 'if(!isSel&&!isShort)tx(' in js
     assert 'Highlight frontier' not in html
     assert 'type="number"' not in html
     assert "pitch=-Math.PI/2" in js

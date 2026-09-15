@@ -78,11 +78,9 @@ for(const s of S)s.reachResidual=s.fl-expected(s,fullReachModel);
 function colorState(ids){
   const mode=$('colorMode').value;if(mode==='neutral')return{mode};
   const[kind,dep]=mode.split('-'),pred={fl:['fstop','weight'],fstop:['fl','weight'],weight:['fl','fstop']}[dep];
-  const recalc=kind==='res'&&$('recalcResidualToggle')?.checked;
-  const modelIds=recalc?ids:fullIds,model=fit(dep,pred[0],pred[1],modelIds);
-  const valueIds=ids.length?ids:fullIds;
-  let vals=valueIds.map(i=>kind==='abs'?S[i][dep]:S[i][dep]-expected(S[i],model));if(!vals.length)vals=[0];
-  const lo=Math.min(...vals),hi=Math.max(...vals),maxabs=Math.max(Math.abs(lo),Math.abs(hi))||1;return{mode,kind,dep,model,lo,hi,maxabs,recalc};
+  const base=ids.length?ids:S.map(s=>s.i),model=fit(dep,pred[0],pred[1],base);
+  let vals=base.map(i=>kind==='abs'?S[i][dep]:S[i][dep]-expected(S[i],model));if(!vals.length)vals=[0];
+  const lo=Math.min(...vals),hi=Math.max(...vals),maxabs=Math.max(Math.abs(lo),Math.abs(hi))||1;return{mode,kind,dep,model,lo,hi,maxabs};
 }
 function colorFor(s,cs){
   if(cs.mode==='neutral')return'var(--neutral)';let score;
@@ -91,12 +89,11 @@ function colorFor(s,cs){
   score=Math.max(0,Math.min(1,score));return`hsl(${score*120} 72% 43%)`;
 }
 function updateLegend(cs){
-  const bar=$('legendBar'),recalc=$('recalcResidualToggle');bar.className='legendbar '+(cs.mode==='neutral'?'neutral':'metric');
-  if(recalc)recalc.disabled=cs.mode==='neutral'||cs.kind!=='res';
+  const bar=$('legendBar');bar.className='legendbar '+(cs.mode==='neutral'?'neutral':'metric');
   if(cs.mode==='neutral'){$('legendTitle').textContent='Neutral color';$('scale').innerHTML='';$('legendNote').textContent='Active kits use one neutral color. Every filtered-out kit is faint grey.';$('planeToggle').disabled=true;$('planeToggle').checked=false;return}
   const names={fl:'Reach',fstop:'Equivalent aperture',weight:'Kit weight'},better={fl:'longer',fstop:'faster / lower f-number',weight:'lighter'};
   $('legendTitle').textContent=`${names[cs.dep]} — ${cs.kind==='abs'?'absolute':'efficiency residual'}`;
-  $('legendNote').textContent=cs.kind==='abs'?`Green = ${better[cs.dep]}; red = less favorable. Filtered-out kits stay grey.`:`Green = ${better[cs.dep]} than predicted from the other two metrics. ${cs.recalc?'Regression uses only currently active filtered kits.':'Regression uses the full dataset.'} Filtered-out kits stay grey.`;
+  $('legendNote').textContent=cs.kind==='abs'?`Green = ${better[cs.dep]}; red = less favorable. Filtered-out kits stay grey.`:`Green = ${better[cs.dep]} than predicted from the other two metrics. Filtered-out kits stay grey.`;
   $('planeToggle').disabled=cs.kind!=='res';if(cs.kind!=='res')$('planeToggle').checked=false;
   if(cs.kind==='abs'){const good=cs.dep==='fl'?cs.hi:cs.lo,bad=cs.dep==='fl'?cs.lo:cs.hi,mid=(cs.lo+cs.hi)/2;const f=v=>cs.dep==='fl'?`${Math.round(v)} mm`:cs.dep==='weight'?`${v.toFixed(2)} kg`:`f/${v.toFixed(2)}`;$('scale').innerHTML=`<span>${f(good)}</span><span>${f(mid)}</span><span>${f(bad)}</span>`}
   else $('scale').innerHTML='<span>better</span><span>expected</span><span>worse</span>';
@@ -118,7 +115,7 @@ function drawAxes(g){
   if(showReach)for(const v of reachTicks){const p=project([nrm(v,'fl'),-1,-1]);tx(p[0],p[1]+16,`${Math.round(v)}`,{'text-anchor':'middle',fill:'var(--axis-reach)'},g)}
   const standardFStops=[1,1.4,2,2.8,4,5.6,8,11,16,22,32].filter(v=>v>=ranges.fstop[0]&&v<=ranges.fstop[1]);
   if(showAperture)for(const v of standardFStops){const p=project([-1,nrm(v,'fstop'),-1]);tx(p[0]-8,p[1]+3,`f/${v}`,{'text-anchor':'end',fill:'var(--axis-aperture)'},g)}
-  if(showWeight)for(const v o linearTicks('weight',5)){const p=project([-1,-1,nrm(v,'weight')]);tx(p[0]-8,p[1]+3,`${v.toFixed(1)}kg`,{'text-anchor':'end',fill:'var(--axis-weight)'},g)}
+  if(showWeight)for(const v of linearTicks('weight',5)){const p=project([-1,-1,nrm(v,'weight')]);tx(p[0]-8,p[1]+3,`${v.toFixed(1)}kg`,{'text-anchor':'end',fill:'var(--axis-weight)'},g)}
   axisTitle(g,[-1,-1,-1],[1,-1,-1],'Reach','axis-reach');
   axisTitle(g,[-1,-1,-1],[-1,1,-1],'Equivalent aperture','axis-aperture');
   axisTitle(g,[-1,-1,-1],[-1,-1,1],'Kit weight','axis-weight');
@@ -127,22 +124,32 @@ function drawAxes(g){
 function pointRadius(s){
   if(!$('sizePriceToggle').checked)return 7;
   const [lo,hi]=ranges.price,q=Math.max(0,Math.min(1,(s.price-lo)/((hi-lo)||1)));
-  return 4.5+12.5*Math.sqrt(q);
+  return 6+9*Math.sqrt(q);
 }
 function pointLabel(s){return s.name.split(' — ').slice(1).join(' — ')}
 
 const cube=[[-1,-1,-1],[1,-1,-1],[-1,1,-1],[1,1,-1],[-1,-1,1],[1,-1,1],[-1,1,1],[1,1,1]],edges=[[0,1],[0,2],[0,4],[1,3],[1,5],[2,3],[2,6],[3,7],[4,5],[4,6],[5,7],[6,7]];
+function orientPlaneEdgeOn(cs){
+  if(cs.kind!=='res'||!cs.model)return;
+  const m=cs.model,raw=q=>({fl:ranges.fl[0]+(q[0]+1)/2*(ranges.fl[1]-ranges.fl[0]),fstop:ranges.fstop[0]+(q[1]+1)/2*(ranges.fstop[1]-ranges.fstop[0]),weight:ranges.weight[0]+(q[2]+1)/2*(ranges.weight[1]-ranges.weight[0])}),fn=q=>{const v=raw(q);return v[m.dep]-expected(v,m)};
+  let n=[(fn([1,0,0])-fn([-1,0,0]))/2,(fn([0,1,0])-fn([0,-1,0]))/2,(fn([0,0,1])-fn([0,0,-1]))/2];
+  const favorable=m.dep==='fl'?1:-1,len=Math.hypot(...n);if(len<1e-8)return;n=n.map(x=>x/len*favorable);
+  const h=Math.hypot(n[0],n[2]);
+  if(h<1e-8){yaw=0;pitch=n[1]>=0?0:Math.PI}
+  else{const sy=-n[0]/h,cy=-n[2]/h;yaw=Math.atan2(sy,cy);pitch=Math.atan2(h,n[1])}
+  activeView='custom';
+}
 function drawPlane(g,cs){
   if(!$('planeToggle').checked||cs.kind!=='res'||activeIds.length<3)return;
   const m=cs.model,raw=q=>({fl:ranges.fl[0]+(q[0]+1)/2*(ranges.fl[1]-ranges.fl[0]),fstop:ranges.fstop[0]+(q[1]+1)/2*(ranges.fstop[1]-ranges.fstop[0]),weight:ranges.weight[0]+(q[2]+1)/2*(ranges.weight[1]-ranges.weight[0])}),fn=q=>{const s=raw(q);return s[m.dep]-expected(s,m)};
   const pts=[],add=q=>{if(!pts.some(p=>Math.hypot(p[0]-q[0],p[1]-q[1],p[2]-q[2])<1e-6))pts.push(q)};
-  for(const[ia,ib]of edges){const A=cube[ia],B=cube[ib],ga=fn(A),gb=fn(B);if(Math.abs(ga)<1e-9)add(A);if(Math.abs(gb)<1e-9)if(B);if(ga*gb<0){const t=ga/(ga-gb);add([A[0]+t*(B[0]-A[0]),A[1]+t*(B[1]-A[1]),A[2]+t*(B[2]-A[2])])}}
+  for(const[ia,ib]of edges){const A=cube[ia],B=cube[ib],ga=fn(A),gb=fn(B);if(Math.abs(ga)<1e-9)add(A);if(Math.abs(gb)<1e-9)add(B);if(ga*gb<0){const t=ga/(ga-gb);add([A[0]+t*(B[0]-A[0]),A[1]+t*(B[1]-A[1]),A[2]+t*(B[2]-A[2])])}}
   if(pts.length<3)return;const pp=pts.map(project),cx=pp.reduce((a,p)=>a+p[0],0)/pp.length,cy=pp.reduce((a,p)=>a+p[1],0)/pp.length;pp.sort((a,b)=>Math.atan2(a[1]-cy,a[0]-cx)-Math.atan2(b[1]-cy,b[0]-cx));mk('polygon',{points:pp.map(p=>`${p[0]},${p[1]}`).join(' '),fill:'var(--plane)','fill-opacity':'.15',stroke:'var(--plane)','stroke-width':'1.6','stroke-dasharray':'7 5','pointer-events':'none'},g);
 }
 
 function render(){
   const cs=colorState(activeIds);updateLegend(cs);svg.innerHTML='';const g=mk('g');drawAxes(g);drawPlane(g,cs);
-  const pts=S.map(s=>({i:s.i,s,p:project(coords(s)})).sort((a,b)=>a.p[2]-b.p[2]);
+  const pts=S.map(s=>({i:s.i,s,p:project(coords(s))})).sort((a,b)=>a.p[2]-b.p[2]);
   for(const{i,s,p}of pts){
     const active=activeSet.has(i),isSel=i===selected,isShort=shortlist.includes(i);
     const grp=mk('g',active?{'data-i':i}:{'data-filtered-i':i},g);grp.style.opacity=active?'1':'.18';if(!active)grp.style.pointerEvents='none';
@@ -150,7 +157,7 @@ function render(){
     mk('circle',{cx:p[0],cy:p[1],r,fill,stroke:isSel?'var(--accent)':isShort&&active?'var(--text)':active?'rgba(255,255,255,.9)':'var(--grid)','stroke-width':isSel?'3':'1.2',style:`cursor:${active?'pointer':'default'}`},grp);
     if(active&&(isSel||isShort))tx(p[0]+10,p[1]-9,pointLabel(s),{'font-size':'10','font-weight':isSel?'800':'650'},g);
     if(active){
-      grp.addEventListener('mouseenter',()=>{hovered=i;showPopup(i,p);const old=svg.querySelector('[data-hover-label]');if(old)old.remove();if(!isSel&&!isShort)tx(p[0]+10,p[1]-9,pointLabel(s),{'font-size':'10','font-weight':'650','data-hover-label':'1'},svg)});
+      grp.addEventListener('mouseenter',()=>{hovered=i;showPopup(i,p);const old=svg.querySelector('[data-hover-label]');if(old)old.remove();tx(p[0]+10,p[1]-9,pointLabel(s),{'font-size':'10','font-weight':'650','data-hover-label':'1'},svg)});
       grp.addEventListener('mouseleave',()=>{hovered=null;const old=svg.querySelector('[data-hover-label]');if(old)old.remove();if(selected===null)popup.hidden=true;else updatePopupSelected()});
     }
   }
@@ -209,19 +216,8 @@ function resetFilters(){
 
 $('minReach').value=flMin;$('maxReach').value=flMax;$('maxWeight').value=wMax;
 $('minReach').addEventListener('input',()=>{syncReach('min');refresh()});$('maxReach').addEventListener('input',()=>{syncReach('max');refresh()});$('maxWeight').addEventListener('input',refresh);
-document.querySelectorAll('input[name="lensType"],input[name="paretoMode"]').forEach(el=>el.addEventListener('change',refresh));
-$('colorMode').addEventListener('change',refresh);
-$('sizePriceToggle').addEventListener('change',()=>{if(selected!==null)select(selected);else refresh()});
-$('recalcResidualToggle')?.addEventListener('change',refresh);
-brandFilter.addEventListener('change',e=>{const all=$('brandAll'),boxes=[...brandFilter.querySelectorAll('input[data-brand]')];if(e.target===all){boxes.forEach(cb=>cb.checked=all.checked);all.indeterminate=false}else{const n=boxes.filter(cb=>cb.checked).length;all.checked=n===boxes.length;all.indeterminate=n>0&&n<boxes.length}refresh()});
-$('resetFilters').onclick=resetFilters;$('clearSelection').onclick=clearSelection;$('clearCompare').onclick=()=>{shortlist=[];renderCompare();renderTable();render()};$('planeToggle').addEventListener('change',render);document.querySelectorAll('.viewbtn').forEach(b=>b.onclick=()=>useView(b.dataset.view));
+document.querySelectorAll('input[name="lensType"],input[name="paretoMode"]').forEach(el=>el.addEventListener('change',refresh));$('colorMode').addEventListener('change',()=>{refresh();if($('planeToggle').checked){orientPlaneEdgeOn(colorState(activeIds));render()}});$('sizePriceToggle').addEventListener('change',()=>{if(selected!==null)select(selected);else refresh()});brandFilter.addEventListener('change',e=>{const all=$('brandAll'),boxes=[...brandFilter.querySelectorAll('input[data-brand]')];if(e.target===all){boxes.forEach(cb=>cb.checked=all.checked);all.indeterminate=false}else{const n=boxes.filter(cb=>cb.checked).length;all.checked=n===boxes.length;all.indeterminate=n>0&&n<boxes.length}refresh()});$('resetFilters').onclick=resetFilters;$('clearSelection').onclick=clearSelection;$('clearCompare').onclick=()=>{shortlist=[];renderCompare();renderTable();render()};$('planeToggle').addEventListener('change',()=>{if($('planeToggle').checked)orientPlaneEdgeOn(colorState(activeIds));render()});document.querySelectorAll('.viewbtn').forEach(b=>b.onclick=()=>useView(b.dataset.view));
 document.querySelectorAll('#rankTable th[data-sort]').forEach(h=>h.onclick=()=>{const k=h.dataset.sort;if(sort.key===k)sort.dir*=-1;else{sort.key=k;sort.dir=k==='fl'?-1:1}renderTable()});
-
-const infoHelp=$('infoHelp'),infoButton=$('infoButton'),infoPopover=$('infoPopover');
-function setInfoOpen(open){if(!infoHelp||!infoButton||!infoPopover)return;infoHelp.classList.toggle('is-open',open);infoButton.setAttribute('aria-expanded',String(open));infoPopover.setAttribute('aria-hidden',String(!open))}
-infoButton?.addEventListener('click',e=>{e.stopPropagation();setInfoOpen(!infoHelp.classList.contains('is-open'))});
-document.addEventListener('pointerdown',e=>{if(infoHelp?.classList.contains('is-open')&&!infoHelp.contains(e.target))setInfoOpen(false)});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')setInfoOpen(false)});
 
 svg.addEventListener('pointerdown',e=>{if(e.button!==0&&e.button!==undefined)return;const hit=e.target.closest?.('[data-i]');pointer={id:e.pointerId,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,drag:false,hit:hit?+hit.dataset.i:null}});
 svg.addEventListener('pointermove',e=>{if(!pointer||pointer.id!==e.pointerId)return;const moved=Math.hypot(e.clientX-pointer.sx,e.clientY-pointer.sy);if(!pointer.drag&&moved>5){pointer.drag=true;activeView='custom';try{svg.setPointerCapture(e.pointerId)}catch(_){}}if(!pointer.drag)return;const dx=e.clientX-pointer.lx,dy=e.clientY-pointer.ly;pointer.lx=e.clientX;pointer.ly=e.clientY;yaw+=dx*.01;pitch=Math.max(-1.48,Math.min(1.48,pitch+dy*.008));render()});
