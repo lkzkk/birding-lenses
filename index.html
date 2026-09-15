@@ -6,19 +6,6 @@
 <meta name="color-scheme" content="light dark">
 <title>Birding Kit Explorer</title>
 <link rel="stylesheet" href="styles.css">
-<style>
-/* control refinement */
-.filter-grid{grid-template-columns:minmax(290px,1.8fr) minmax(210px,1.2fr) minmax(210px,1fr) minmax(210px,1fr);align-items:stretch}
-.dual-range{position:relative;height:30px;margin:2px 2px 0}.range-track{position:absolute;left:0;right:0;top:13px;height:4px;border-radius:999px;background:var(--border);overflow:hidden}.range-fill{position:absolute;top:0;bottom:0;background:var(--accent);border-radius:999px}
-.range-thumb{position:absolute;left:0;top:0;width:100%;height:30px;margin:0;padding:0;background:transparent;pointer-events:none;appearance:none;-webkit-appearance:none}
-.range-thumb::-webkit-slider-runnable-track{height:4px;background:transparent;border:0}.range-thumb::-moz-range-track{height:4px;background:transparent;border:0}
-.range-thumb::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:16px;height:16px;border-radius:50%;border:2px solid var(--panel);background:var(--accent);box-shadow:0 0 0 1px var(--accent);margin-top:-6px;pointer-events:auto;cursor:grab}
-.range-thumb::-moz-range-thumb{width:16px;height:16px;border-radius:50%;border:2px solid var(--panel);background:var(--accent);box-shadow:0 0 0 1px var(--accent);pointer-events:auto;cursor:grab}
-.range-values{display:flex;justify-content:space-between;color:var(--text);font-size:10px;font-variant-numeric:tabular-nums;margin-top:0}.single-range{display:block;margin-top:8px}.single-range input{width:100%}
-.radio-control{border:1px solid var(--border);border-radius:9px;padding:7px 10px 9px;margin:0;min-width:0;background:color-mix(in srgb,var(--panel) 96%,var(--bg))}.radio-control legend{padding:0 4px;color:var(--muted);font-size:11px}.radio-control label{display:inline-flex;align-items:center;gap:5px;color:var(--text);font-size:12px;margin:2px 12px 0 0;cursor:pointer}.radio-control input{margin:0;accent-color:var(--accent)}
-@media(max-width:1180px){.filter-grid{grid-template-columns:repeat(2,minmax(240px,1fr))}}
-@media(max-width:760px){.filter-grid{grid-template-columns:1fr}}
-</style>
 </head>
 <body>
 <main>
@@ -29,10 +16,18 @@
     </div>
   </header>
 
-  <section class="filterbar card">
-    <div class="filter-grid">
-      <div class="slider-control reach-control">
-        <div class="slider-head"><span>Reach range</span><strong id="reachRangeValue"></strong></div>
+  <section class="panel card filters-panel">
+    <div class="panel-head">
+      <div>
+        <strong>Filters</strong>
+        <span class="panel-note">Filtered-out kits stay faintly visible but cannot be selected.</span>
+      </div>
+      <button id="resetFilters" type="button">Reset filters</button>
+    </div>
+
+    <div class="filter-controls">
+      <div class="filter-section reach-section">
+        <div class="control-head"><span>Reach range</span><strong id="reachRangeValue"></strong></div>
         <div class="dual-range" aria-label="Reach range">
           <div class="range-track"><div id="reachFill" class="range-fill"></div></div>
           <input id="minReach" class="range-thumb range-thumb-min" type="range" step="10" aria-label="Minimum equivalent reach">
@@ -40,59 +35,81 @@
         </div>
         <div class="range-values"><output id="minReachValue"></output><output id="maxReachValue"></output></div>
       </div>
-      <div class="slider-control weight-control">
-        <div class="slider-head"><span>Max kit weight</span><strong id="maxWeightValue"></strong></div>
-        <label class="single-range"><input id="maxWeight" type="range" step="0.05" aria-label="Maximum kit weight"></label>
+
+      <div class="filter-section weight-section">
+        <div class="control-head"><span>Maximum kit weight</span><strong id="maxWeightValue"></strong></div>
+        <input id="maxWeight" class="weight-slider" type="range" step="0.05" aria-label="Maximum kit weight">
       </div>
-      <fieldset class="radio-control" id="lensType"><legend>Lens type</legend>
-        <label><input type="radio" name="lensType" value="all" checked> All</label>
-        <label><input type="radio" name="lensType" value="prime"> Prime</label>
-        <label><input type="radio" name="lensType" value="zoom"> Zoom</label>
-      </fieldset>
-      <fieldset class="radio-control" id="paretoMode"><legend>Pareto filter</legend>
-        <label><input type="radio" name="paretoMode" value="all" checked> All kits</label>
-        <label><input type="radio" name="paretoMode" value="only"> Efficient only</label>
-        <div class="control-note">Read below for explanation.</div>
-      </fieldset>
+
+      <div class="filter-section">
+        <div class="control-head"><span>Lens type</span></div>
+        <div class="choice-row" id="lensType">
+          <label><input type="radio" name="lensType" value="all" checked> All</label>
+          <label><input type="radio" name="lensType" value="prime"> Prime</label>
+          <label><input type="radio" name="lensType" value="zoom"> Zoom</label>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="control-head"><span>Pareto filter</span></div>
+        <div class="choice-row" id="paretoMode">
+          <label><input type="radio" name="paretoMode" value="all" checked> All kits</label>
+          <label><input type="radio" name="paretoMode" value="only"> Efficient only</label>
+        </div>
+        <div class="micro-note">Read below for explanation.</div>
+      </div>
     </div>
-    <div class="brandfilter" id="brandFilter"><span class="brandfilter-label">System / brand</span></div>
-    <div class="filterfoot">
-      <div id="filterSummary" class="summary"></div>
-      <button id="resetFilters" type="button">Reset filters</button>
+
+    <div class="brand-row">
+      <span class="brand-label">System / brand</span>
+      <div class="brandfilter" id="brandFilter"></div>
     </div>
+    <div id="filterSummary" class="summary filter-summary"></div>
   </section>
 
-  <section class="analysisbar">
-    <div class="viewbar" aria-label="Trade-off views">
-      <span class="label">Trade-off view:</span>
-      <button class="viewbtn" data-view="reach-aperture" type="button">Reach × aperture</button>
-      <button class="viewbtn" data-view="reach-weight" type="button">Reach × weight</button>
-      <button class="viewbtn" data-view="aperture-weight" type="button">Aperture × weight</button>
-    </div>
-    <div class="analysis-controls">
-      <fieldset class="encoding-control">
-        <legend>Visual encoding</legend>
-        <label>Color
-          <select id="colorMode">
-            <option value="neutral">Neutral</option>
-            <optgroup label="Absolute metric">
-              <option value="abs-fl">Reach</option>
-              <option value="abs-fstop">Equivalent aperture</option>
-              <option value="abs-weight">Weight</option>
-            </optgroup>
-            <optgroup label="Advanced: efficiency residual">
-              <option value="res-fl">Reach residual</option>
-              <option value="res-fstop">Aperture residual</option>
-              <option value="res-weight">Weight residual</option>
-            </optgroup>
-          </select>
-        </label>
-        <label class="inline"><input id="planeToggle" type="checkbox"> Average plane</label>
-        <label class="inline"><input id="sizePriceToggle" type="checkbox"> Use point size to represent price</label>
-        <div class="control-note encoding-note">Average plane is the regression-predicted trade-off surface for the selected residual color metric; it is available only in residual modes.</div>
-      </fieldset>
-      <label class="inline focus-control"><input id="focusToggle" type="checkbox" checked> Highlight similar kits</label>
+  <section class="panel card visual-panel">
+    <div class="panel-head">
+      <div>
+        <strong>Visual options</strong>
+        <span class="panel-note">Change the view without changing which kits pass the filters.</span>
+      </div>
       <button id="clearSelection" type="button">Clear selection</button>
+    </div>
+
+    <div class="visual-grid">
+      <div class="visual-section preset-section">
+        <div class="section-label">Presets</div>
+        <div class="viewbar" aria-label="Trade-off views">
+          <button class="viewbtn" data-view="reach-aperture" type="button">Reach × aperture</button>
+          <button class="viewbtn" data-view="reach-weight" type="button">Reach × weight</button>
+          <button class="viewbtn" data-view="aperture-weight" type="button">Aperture × weight</button>
+        </div>
+      </div>
+
+      <div class="visual-section options-section">
+        <div class="section-label">Options</div>
+        <div class="options-row">
+          <input id="focusToggle" type="checkbox" hidden aria-hidden="true">
+          <label class="select-control">Color
+            <select id="colorMode">
+              <option value="neutral">Neutral</option>
+              <optgroup label="Absolute metric">
+                <option value="abs-fl">Reach</option>
+                <option value="abs-fstop">Equivalent aperture</option>
+                <option value="abs-weight">Weight</option>
+              </optgroup>
+              <optgroup label="Advanced: efficiency residual">
+                <option value="res-fl">Reach residual</option>
+                <option value="res-fstop">Aperture residual</option>
+                <option value="res-weight">Weight residual</option>
+              </optgroup>
+            </select>
+          </label>
+          <label class="check-control"><input id="planeToggle" type="checkbox"> Average plane</label>
+          <label class="check-control"><input id="sizePriceToggle" type="checkbox"> Point size = price</label>
+        </div>
+        <div class="micro-note">Average plane shows the regression-predicted trade-off surface for the selected residual color metric and is available only in residual modes.</div>
+      </div>
     </div>
   </section>
 
@@ -102,20 +119,20 @@
         <svg id="plot" viewBox="0 0 940 670" aria-label="Interactive 3D birding kit comparison"></svg>
         <div id="pointPopup" class="point-popup" hidden></div>
       </div>
-      <div class="hint">Drag to rotate · wheel to zoom · click a point to inspect · click empty plot space to deselect.</div>
+      <div class="hint chart-hint">Drag to rotate · wheel to zoom · click a point to inspect · click empty plot space to deselect.</div>
     </section>
 
     <aside class="side">
       <section class="card legendcard">
         <strong id="legendTitle">Neutral points</strong>
-        <div id="legendBar" class="legendbar neutral" style="margin-top:10px"></div>
+        <div id="legendBar" class="legendbar neutral"></div>
         <div id="scale" class="scale"></div>
         <p id="legendNote" class="hint">Color is deliberately not encoding brand.</p>
       </section>
 
       <section class="card" id="detail">
         <strong>Select a kit</strong>
-        <p class="hint">Selection can highlight similar kits. Use “Compare” to add up to five kits to the shortlist.</p>
+        <p class="hint">Use “Compare” to add up to five kits to the shortlist.</p>
       </section>
 
       <section class="card frontier-card">
@@ -139,7 +156,7 @@
 
   <section class="rank-section">
     <div class="sectionhead">
-      <div><strong>Ranked kits</strong><span class="sectionnote">Sort any metric; every filter greys out excluded kits rather than removing them.</span></div>
+      <div><strong>Ranked kits</strong><span class="sectionnote">Sort any metric; filtered-out kits remain visible.</span></div>
       <div id="tableCount" class="summary"></div>
     </div>
     <div class="card table-wrap">
@@ -157,6 +174,14 @@
     </div>
   </section>
 </main>
-<script src="app.js?v=20260915c"></script>
+<script src="app.js?v=20260915d"></script>
+<script>
+(()=>{
+  const detail=document.getElementById('detail');
+  const clean=()=>{const p=detail?.querySelector('.hint');if(p&&/highlight similar kits/i.test(p.textContent))p.textContent='Use “Compare” to add up to five kits to the shortlist.'};
+  if(detail)new MutationObserver(clean).observe(detail,{childList:true,subtree:true});
+  clean();
+})();
+</script>
 </body>
 </html>
