@@ -5,7 +5,7 @@ A small static comparison tool for long-reach bird-photography kits.
 ## Vocabulary
 
 - **System / brand** means the camera mount/brand family: Canon, Fujifilm, Nikon, OM System or Sony.
-- **Kit** means one specific body + lens + teleconverter configuration.
+- **Kit** means one specific body + lens + teleconverter configuration. Kit names are normalized as **Brand — Camera — Lens (+ teleconverter when used)**; zoom operating focal length is shown explicitly.
 
 ## Current comparison dimensions
 
@@ -15,7 +15,7 @@ The chart intentionally focuses on three dimensions only:
 - 35mm-equivalent f-stop
 - total kit weight
 
-Price is retained in the source files for later purchasing work, but it is not currently shown or used by the UI.
+Price is retained in the source files and can optionally be encoded by point size. This is off by default so the main comparison remains focused on reach, equivalent aperture and weight.
 
 ## Filters
 
@@ -33,7 +33,7 @@ Reach uses a single dual-handle range slider; weight uses a single maximum slide
 
 ## Color and axes
 
-Color is independent of filtering and can show neutral points, an absolute metric, or an efficiency residual. Filtered-out points are always grey.
+Color is independent of filtering and can show neutral points, an absolute metric, or an efficiency residual. Filtered-out points are always grey. Point size can optionally represent kit price; this is off by default. The average plane is available only in residual-color modes and shows the regression-predicted trade-off surface for active kits.
 
 The three spatial axes use restrained, low-saturation colors; each axis label and its tick labels use the same color as the corresponding axis so the labels remain understandable after rotating the cube.
 

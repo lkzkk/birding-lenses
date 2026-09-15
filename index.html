@@ -52,6 +52,7 @@
       <fieldset class="radio-control" id="paretoMode"><legend>Pareto filter</legend>
         <label><input type="radio" name="paretoMode" value="all" checked> All kits</label>
         <label><input type="radio" name="paretoMode" value="only"> Efficient only</label>
+        <div class="control-note">Read below for explanation.</div>
       </fieldset>
     </div>
     <div class="brandfilter" id="brandFilter"><span class="brandfilter-label">System / brand</span></div>
@@ -69,23 +70,28 @@
       <button class="viewbtn" data-view="aperture-weight" type="button">Aperture × weight</button>
     </div>
     <div class="analysis-controls">
-      <label>Color
-        <select id="colorMode">
-          <option value="neutral">Neutral</option>
-          <optgroup label="Absolute metric">
-            <option value="abs-fl">Reach</option>
-            <option value="abs-fstop">Equivalent aperture</option>
-            <option value="abs-weight">Weight</option>
-          </optgroup>
-          <optgroup label="Advanced: efficiency residual">
-            <option value="res-fl">Reach residual</option>
-            <option value="res-fstop">Aperture residual</option>
-            <option value="res-weight">Weight residual</option>
-          </optgroup>
-        </select>
-      </label>
-      <label class="inline"><input id="planeToggle" type="checkbox"> Average plane</label>
-      <label class="inline"><input id="focusToggle" type="checkbox" checked> Focus selected kit</label>
+      <fieldset class="encoding-control">
+        <legend>Visual encoding</legend>
+        <label>Color
+          <select id="colorMode">
+            <option value="neutral">Neutral</option>
+            <optgroup label="Absolute metric">
+              <option value="abs-fl">Reach</option>
+              <option value="abs-fstop">Equivalent aperture</option>
+              <option value="abs-weight">Weight</option>
+            </optgroup>
+            <optgroup label="Advanced: efficiency residual">
+              <option value="res-fl">Reach residual</option>
+              <option value="res-fstop">Aperture residual</option>
+              <option value="res-weight">Weight residual</option>
+            </optgroup>
+          </select>
+        </label>
+        <label class="inline"><input id="planeToggle" type="checkbox"> Average plane</label>
+        <label class="inline"><input id="sizePriceToggle" type="checkbox"> Use point size to represent price</label>
+        <div class="control-note encoding-note">Average plane is the regression-predicted trade-off surface for the selected residual color metric; it is available only in residual modes.</div>
+      </fieldset>
+      <label class="inline focus-control"><input id="focusToggle" type="checkbox" checked> Highlight similar kits</label>
       <button id="clearSelection" type="button">Clear selection</button>
     </div>
   </section>
@@ -109,7 +115,7 @@
 
       <section class="card" id="detail">
         <strong>Select a kit</strong>
-        <p class="hint">Selection focuses the chart. Use “Compare” to add up to five kits to the shortlist.</p>
+        <p class="hint">Selection can highlight similar kits. Use “Compare” to add up to five kits to the shortlist.</p>
       </section>
 
       <section class="card frontier-card">
@@ -120,13 +126,15 @@
     </aside>
   </div>
 
-  <section class="compare-section card">
+  <section class="compare-section">
     <div class="sectionhead">
       <div><strong>Shortlist comparison</strong><span class="sectionnote">2–5 kits works best</span></div>
       <button id="clearCompare" type="button">Clear shortlist</button>
     </div>
-    <div id="compareEmpty" class="empty">Add kits from the chart detail or ranked table.</div>
-    <div class="compare-wrap"><table id="compareTable" hidden><thead><tr><th>Kit</th><th>Body</th><th>Eq. FL</th><th>Eq. f-stop</th><th>Weight</th><th></th></tr></thead><tbody></tbody></table></div>
+    <div class="card compare-card">
+      <div id="compareEmpty" class="empty">Add kits from the chart detail or ranked table.</div>
+      <div class="compare-wrap"><table id="compareTable" hidden><thead><tr><th>Kit configuration</th><th>Eq. FL</th><th>Eq. f-stop</th><th>Weight</th><th></th></tr></thead><tbody></tbody></table></div>
+    </div>
   </section>
 
   <section class="rank-section">
@@ -137,8 +145,7 @@
     <div class="card table-wrap">
       <table id="rankTable">
         <thead><tr>
-          <th data-sort="name">Kit <span class="sortmark"></span></th>
-          <th data-sort="body">Body <span class="sortmark"></span></th>
+          <th data-sort="name">Kit configuration <span class="sortmark"></span></th>
           <th data-sort="fl" class="num">Eq. FL <span class="sortmark"></span></th>
           <th data-sort="fstop" class="num">Eq. f <span class="sortmark"></span></th>
           <th data-sort="weight" class="num">Weight <span class="sortmark"></span></th>
@@ -150,6 +157,6 @@
     </div>
   </section>
 </main>
-<script src="app.js?v=20260915b"></script>
+<script src="app.js?v=20260915c"></script>
 </body>
 </html>

@@ -26,7 +26,7 @@ try{
 
 const S=records.map((r,i)=>({
   i,id:r.system_id,brand:r.brand,name:r.list_name,displayName:r.display_name,body:r.body,lens:r.lens,tc:r.teleconverter,
-  fl:+r.equiv_focal_length_mm,fstop:+r.equiv_f_stop,weight:+r.system_weight_g/1000,
+  fl:+r.equiv_focal_length_mm,fstop:+r.equiv_f_stop,weight:+r.system_weight_g/1000,price:+r.system_price_chf,
   actualFl:+r.actual_focal_length_mm,actualF:+r.actual_f_stop,
   zoom:/\d+\s*[-–]\s*\d+/.test(r.lens)
 }));
@@ -34,12 +34,13 @@ const brands=[...new Set(S.map(s=>s.brand))].sort();
 const ranges={
   fl:[Math.min(...S.map(s=>s.fl)),Math.max(...S.map(s=>s.fl))],
   fstop:[Math.min(...S.map(s=>s.fstop)),Math.max(...S.map(s=>s.fstop))],
-  weight:[Math.min(...S.map(s=>s.weight)),Math.max(...S.map(s=>s.weight))]
+  weight:[Math.min(...S.map(s=>s.weight)),Math.max(...S.map(s=>s.weight))],
+  price:[Math.min(...S.map(s=>s.price)),Math.max(...S.map(s=>s.price))]
 };
 const flMin=Math.floor(ranges.fl[0]/10)*10,flMax=Math.ceil(ranges.fl[1]/10)*10,wMax=Math.ceil(ranges.weight[1]*20)/20;
 $('minReach').min=$('maxReach').min=flMin;$('minReach').max=$('maxReach').max=flMax;
 $('maxWeight').min=Math.floor(ranges.weight[0]*20)/20;$('maxWeight').max=wMax;
-brands.forEach(b=>{const l=document.createElement('label');l.innerHTML=`<input type="checkbox" value="${b}" checked> ${b}`;brandFilter.appendChild(l)});
+const allBrandsLabel=document.createElement('label');allBrandsLabel.className='brand-all';allBrandsLabel.innerHTML='<input id="brandAll" type="checkbox" checked> Select all';brandFilter.appendChild(allBrandsLabel);brands.forEach(b=>{const l=document.createElement('label');l.innerHTML=`<input type="checkbox" data-brand="1" value="${b}" checked> ${b}`;brandFilter.appendChild(l)});
 
 let selected=null,shortlist=[],hovered=null,sort={key:'fl',dir:-1},yaw=-38*Math.PI/180,pitch=24*Math.PI/180,zoom=1,pointer=null,activeView='custom';
 let baseIds=[],activeIds=[],baseSet=new Set(),activeSet=new Set(),frontier=new Set();
@@ -53,7 +54,7 @@ function coords(s){return[nrm(s.fl,'fl'),nrm(s.fstop,'fstop'),nrm(s.weight,'weig
 function radioValue(name){return document.querySelector(`input[name="${name}"]:checked`)?.value||'all'}
 function setRadio(name,value){const el=document.querySelector(`input[name="${name}"][value="${value}"]`);if(el)el.checked=true}
 function getFilters(){
-  const checked=[...brandFilter.querySelectorAll('input:checked')].map(x=>x.value);
+  const checked=[...brandFilter.querySelectorAll('input[data-brand]:checked')].map(x=>x.value);
   return{min:+$('minReach').value,max:+$('maxReach').value,maxW:+$('maxWeight').value,lens:radioValue('lensType'),brands:new Set(checked),pareto:radioValue('paretoMode')};
 }
 function passesNonPareto(s,f){
@@ -117,6 +118,13 @@ function drawAxes(g){
   axisTitle(g,[-1,-1,-1],[-1,-1,1],'Kit weight','axis-weight');
 }
 
+function pointRadius(s){
+  if(!$('sizePriceToggle').checked)return 7;
+  const [lo,hi]=ranges.price,q=Math.max(0,Math.min(1,(s.price-lo)/((hi-lo)||1)));
+  return 6+9*Math.sqrt(q);
+}
+function pointLabel(s){return s.name.split(' — ').slice(1).join(' — ')}
+
 function focused(i){if(selected===null||!$('focusToggle').checked)return true;if(i===selected||shortlist.includes(i))return true;const a=S[selected],b=S[i];return Math.abs(a.fl-b.fl)<=100&&Math.abs(a.weight-b.weight)<=a.weight*.25}
 const cube=[[-1,-1,-1],[1,-1,-1],[-1,1,-1],[1,1,-1],[-1,-1,1],[1,-1,1],[-1,1,1],[1,1,1]],edges=[[0,1],[0,2],[0,4],[1,3],[1,5],[2,3],[2,6],[3,7],[4,5],[4,6],[5,7],[6,7]];
 function drawPlane(g,cs){
@@ -133,44 +141,44 @@ function render(){
   for(const{i,s,p}of pts){
     const active=activeSet.has(i),isSel=i===selected,isShort=shortlist.includes(i),dim=active&&!focused(i);
     const grp=mk('g',active?{'data-i':i}:{'data-filtered-i':i},g);grp.style.opacity=active?(dim?'.18':'1'):'.18';if(!active)grp.style.pointerEvents='none';
-    const r=isSel?10:isShort&&active?9:7,fill=active?colorFor(s,cs):'var(--filtered)';
+    const baseR=pointRadius(s),r=isSel?baseR+3:isShort&&active?baseR+2:baseR,fill=active?colorFor(s,cs):'var(--filtered)';
     mk('circle',{cx:p[0],cy:p[1],r,fill,stroke:isSel?'var(--accent)':isShort&&active?'var(--text)':active?'rgba(255,255,255,.9)':'var(--grid)','stroke-width':isSel?'3':'1.2',style:`cursor:${active?'pointer':'default'}`},grp);
-    if(active&&(isSel||isShort))tx(p[0]+10,p[1]-9,s.name.replace(/^.+? \+ /,''),{'font-size':'10','font-weight':isSel?'800':'650'},g);
+    if(active&&(isSel||isShort))tx(p[0]+10,p[1]-9,pointLabel(s),{'font-size':'10','font-weight':isSel?'800':'650'},g);
     if(active){
-      grp.addEventListener('mouseenter',()=>{hovered=i;showPopup(i,p);const old=svg.querySelector('[data-hover-label]');if(old)old.remove();tx(p[0]+10,p[1]-9,s.name.replace(/^.+? \+ /,''),{'font-size':'10','font-weight':'650','data-hover-label':'1'},svg)});
+      grp.addEventListener('mouseenter',()=>{hovered=i;showPopup(i,p);const old=svg.querySelector('[data-hover-label]');if(old)old.remove();tx(p[0]+10,p[1]-9,pointLabel(s),{'font-size':'10','font-weight':'650','data-hover-label':'1'},svg)});
       grp.addEventListener('mouseleave',()=>{hovered=null;const old=svg.querySelector('[data-hover-label]');if(old)old.remove();if(selected===null)popup.hidden=true;else updatePopupSelected()});
     }
   }
   updatePopupSelected();updateViewButtons();
 }
-function showPopup(i,p){const s=S[i];popup.hidden=false;popup.style.left=`${p[0]/940*100}%`;popup.style.top=`${p[1]/670*100}%`;popup.dataset.side=p[0]>650?'left':'right';popup.innerHTML=`<strong>${s.name}</strong><span>${Math.round(s.fl)} mm eq · f/${s.fstop} eq · ${s.weight.toFixed(3)} kg</span>`}
+function showPopup(i,p){const s=S[i];popup.hidden=false;popup.style.left=`${p[0]/940*100}%`;popup.style.top=`${p[1]/670*100}%`;popup.dataset.side=p[0]>650?'left':'right';popup.innerHTML=`<strong>${s.name}</strong><span>${Math.round(s.fl)} mm eq · f/${s.fstop} eq · ${s.weight.toFixed(3)} kg${$('sizePriceToggle').checked?` · CHF ${Math.round(s.price).toLocaleString('de-CH')}`:''}</span>`}
 function updatePopupSelected(){if(selected===null){if(hovered===null)popup.hidden=true;return}showPopup(selected,project(coords(S[selected])))}
 function updateViewButtons(){document.querySelectorAll('.viewbtn').forEach(b=>b.classList.toggle('active',b.dataset.view===activeView))}
 function useView(v){activeView=v;if(v==='reach-aperture'){yaw=0;pitch=0}else if(v==='reach-weight'){yaw=0;pitch=-Math.PI/2}else if(v==='aperture-weight'){yaw=Math.PI/2;pitch=0}render()}
 
 function select(i){
   if(!activeSet.has(i))return;selected=i;const s=S[i],isP=frontier.has(i);
-  detail.innerHTML=`<strong>${s.name}</strong><div class="subline">${s.body}</div><div class="detailgrid"><div>Equivalent reach</div><div>${Math.round(s.fl)} mm</div><div>Equivalent aperture</div><div>f/${s.fstop}</div><div>Kit weight</div><div>${s.weight.toFixed(3)} kg</div><div>Lens type</div><div>${s.zoom?'Zoom':'Prime'}</div><div>Pareto-efficient</div><div>${isP?'Yes':'No'}</div></div><div class="detail-actions"><button id="detailCompare" type="button">${shortlist.includes(i)?'Remove from compare':'Add to compare'}</button><button id="detailClear" type="button">Deselect</button></div>`;
+  detail.innerHTML=`<strong>${s.name}</strong><div class="detailgrid"><div>Equivalent reach</div><div>${Math.round(s.fl)} mm</div><div>Equivalent aperture</div><div>f/${s.fstop}</div><div>Kit weight</div><div>${s.weight.toFixed(3)} kg</div>${$('sizePriceToggle').checked?`<div>Price snapshot</div><div>CHF ${Math.round(s.price).toLocaleString('de-CH')}</div>`:''}<div>Lens type</div><div>${s.zoom?'Zoom':'Prime'}</div><div>Pareto-efficient</div><div>${isP?'Yes':'No'}</div></div><div class="detail-actions"><button id="detailCompare" type="button">${shortlist.includes(i)?'Remove from compare':'Add to compare'}</button><button id="detailClear" type="button">Deselect</button></div>`;
   $('detailCompare').onclick=()=>toggleCompare(i);$('detailClear').onclick=clearSelection;render();renderTable();
 }
-function clearSelection(){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class="hint">Selection focuses the chart. Use “Compare” to add up to five kits to the shortlist.</p>';render();renderTable()}
+function clearSelection(){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class="hint">Selection can highlight similar kits. Use “Compare” to add up to five kits to the shortlist.</p>';render();renderTable()}
 function toggleCompare(i){
   const p=shortlist.indexOf(i);if(p>=0)shortlist.splice(p,1);else{if(!activeSet.has(i))return;if(shortlist.length>=5){alert('Shortlist is limited to five kits.');return}shortlist.push(i)}
   if(selected===i)select(i);render();renderTable();renderCompare();
 }
 function renderCompare(){
   const table=$('compareTable'),empty=$('compareEmpty'),tb=table.querySelector('tbody');tb.innerHTML='';if(!shortlist.length){table.hidden=true;empty.hidden=false;return}empty.hidden=true;table.hidden=false;
-  for(const i of shortlist){const s=S[i],tr=document.createElement('tr');tr.innerHTML=`<td><strong>${s.name}</strong>${!activeSet.has(i)?'<div class="subline">currently filtered out</div>':''}</td><td>${s.body}</td><td class="num">${Math.round(s.fl)} mm</td><td class="num">f/${s.fstop}</td><td class="num">${s.weight.toFixed(3)} kg</td><td><button data-remove="${i}">Remove</button></td>`;tb.appendChild(tr)}
+  for(const i of shortlist){const s=S[i],tr=document.createElement('tr');tr.innerHTML=`<td><strong>${s.name}</strong>${!activeSet.has(i)?'<div class="subline">currently filtered out</div>':''}</td><td class="num">${Math.round(s.fl)} mm</td><td class="num">f/${s.fstop}</td><td class="num">${s.weight.toFixed(3)} kg</td><td><button data-remove="${i}">Remove</button></td>`;tb.appendChild(tr)}
   tb.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>toggleCompare(+b.dataset.remove));
 }
 function metricBar(v,d){const[lo,hi]=ranges[d],pct=(v-lo)/((hi-lo)||1)*100;return`<div class="barbg"><div class="barfill" style="width:${pct}%"></div></div>`}
 function sortedIds(){
-  const ids=S.map(s=>s.i),key=sort.key,dir=sort.dir;ids.sort((ia,ib)=>{const a=S[ia],b=S[ib];let va=key==='name'?a.name:key==='body'?a.body:key==='pareto'?(frontier.has(ia)?1:0):a[key],vb=key==='name'?b.name:key==='body'?b.body:key==='pareto'?(frontier.has(ib)?1:0):b[key];return(typeof va==='string'?va.localeCompare(vb):va-vb)*dir});return ids;
+  const ids=S.map(s=>s.i),key=sort.key,dir=sort.dir;ids.sort((ia,ib)=>{const a=S[ia],b=S[ib];let va=key==='name'?a.name:key==='pareto'?(frontier.has(ia)?1:0):a[key],vb=key==='name'?b.name:key==='pareto'?(frontier.has(ib)?1:0):b[key];return(typeof va==='string'?va.localeCompare(vb):va-vb)*dir});return ids;
 }
 function renderTable(){
   const ids=sortedIds(),tb=$('rankTable').querySelector('tbody');tb.innerHTML='';
   for(const i of ids){const s=S[i],active=activeSet.has(i),tr=document.createElement('tr');if(i===selected)tr.classList.add('row-selected');if(!active)tr.classList.add('row-filtered');if(active&&selected!==null&&$('focusToggle').checked&&!focused(i))tr.classList.add('row-dim');const inShort=shortlist.includes(i);
-    tr.innerHTML=`<td class="systemcell"><div class="systemname">${s.name}</div><div class="subline">${s.lens}</div></td><td>${s.body}</td><td class="metric-cell">${Math.round(s.fl)} mm${metricBar(s.fl,'fl')}</td><td class="metric-cell">f/${s.fstop}${metricBar(s.fstop,'fstop')}</td><td class="metric-cell">${s.weight.toFixed(3)} kg${metricBar(s.weight,'weight')}</td><td>${frontier.has(i)&&baseSet.has(i)?'<span class="pareto-badge">frontier</span>':''}</td><td><button class="compare-btn ${inShort?'in':''}" data-compare="${i}" ${!active&&!inShort?'disabled':''}>${inShort?'✓ Compare':'+ Compare'}</button></td>`;
+    tr.innerHTML=`<td class="systemcell"><div class="systemname">${s.name}</div></td><td class="metric-cell">${Math.round(s.fl)} mm${metricBar(s.fl,'fl')}</td><td class="metric-cell">f/${s.fstop}${metricBar(s.fstop,'fstop')}</td><td class="metric-cell">${s.weight.toFixed(3)} kg${metricBar(s.weight,'weight')}</td><td>${frontier.has(i)&&baseSet.has(i)?'<span class="pareto-badge">frontier</span>':''}</td><td><button class="compare-btn ${inShort?'in':''}" data-compare="${i}" ${!active&&!inShort?'disabled':''}>${inShort?'✓ Compare':'+ Compare'}</button></td>`;
     tr.addEventListener('click',e=>{if(active&&!e.target.closest('button'))select(i)});tb.appendChild(tr);
   }
   tb.querySelectorAll('[data-compare]').forEach(b=>b.onclick=e=>{e.stopPropagation();toggleCompare(+b.dataset.compare)});
@@ -188,16 +196,16 @@ function refresh(){
   rebuildFilters();updateSliderLabels();
   $('filterSummary').textContent=`${activeIds.length} active kits · ${S.length-activeIds.length} filtered out but still visible`;
   $('paretoSummary').textContent=`${frontier.size} of ${baseIds.length} kits passing non-Pareto filters are on the frontier`;
-  if(selected!==null&&!activeSet.has(selected)){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class="hint">Selection focuses the chart. Use “Compare” to add up to five kits to the shortlist.</p>'}
+  if(selected!==null&&!activeSet.has(selected)){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class="hint">Selection can highlight similar kits. Use “Compare” to add up to five kits to the shortlist.</p>'}
   render();renderTable();renderCompare();
 }
 function resetFilters(){
-  brandFilter.querySelectorAll('input').forEach(cb=>cb.checked=true);$('minReach').value=flMin;$('maxReach').value=flMax;$('maxWeight').value=wMax;setRadio('lensType','all');setRadio('paretoMode','all');refresh();
+  brandFilter.querySelectorAll('input').forEach(cb=>{cb.checked=true;cb.indeterminate=false});$('minReach').value=flMin;$('maxReach').value=flMax;$('maxWeight').value=wMax;setRadio('lensType','all');setRadio('paretoMode','all');refresh();
 }
 
 $('minReach').value=flMin;$('maxReach').value=flMax;$('maxWeight').value=wMax;
 $('minReach').addEventListener('input',()=>{syncReach('min');refresh()});$('maxReach').addEventListener('input',()=>{syncReach('max');refresh()});$('maxWeight').addEventListener('input',refresh);
-document.querySelectorAll('input[name="lensType"],input[name="paretoMode"]').forEach(el=>el.addEventListener('change',refresh));$('colorMode').addEventListener('change',refresh);$('focusToggle').addEventListener('change',refresh);brandFilter.addEventListener('change',refresh);$('resetFilters').onclick=resetFilters;$('clearSelection').onclick=clearSelection;$('clearCompare').onclick=()=>{shortlist=[];renderCompare();renderTable();render()};$('planeToggle').addEventListener('change',render);document.querySelectorAll('.viewbtn').forEach(b=>b.onclick=()=>useView(b.dataset.view));
+document.querySelectorAll('input[name="lensType"],input[name="paretoMode"]').forEach(el=>el.addEventListener('change',refresh));$('colorMode').addEventListener('change',refresh);$('focusToggle').addEventListener('change',refresh);$('sizePriceToggle').addEventListener('change',()=>{if(selected!==null)select(selected);else refresh()});brandFilter.addEventListener('change',e=>{const all=$('brandAll'),boxes=[...brandFilter.querySelectorAll('input[data-brand]')];if(e.target===all){boxes.forEach(cb=>cb.checked=all.checked);all.indeterminate=false}else{const n=boxes.filter(cb=>cb.checked).length;all.checked=n===boxes.length;all.indeterminate=n>0&&n<boxes.length}refresh()});$('resetFilters').onclick=resetFilters;$('clearSelection').onclick=clearSelection;$('clearCompare').onclick=()=>{shortlist=[];renderCompare();renderTable();render()};$('planeToggle').addEventListener('change',render);document.querySelectorAll('.viewbtn').forEach(b=>b.onclick=()=>useView(b.dataset.view));
 document.querySelectorAll('#rankTable th[data-sort]').forEach(h=>h.onclick=()=>{const k=h.dataset.sort;if(sort.key===k)sort.dir*=-1;else{sort.key=k;sort.dir=k==='fl'?-1:1}renderTable()});
 
 svg.addEventListener('pointerdown',e=>{if(e.button!==0&&e.button!==undefined)return;const hit=e.target.closest?.('[data-i]');pointer={id:e.pointerId,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,drag:false,hit:hit?+hit.dataset.i:null}});
