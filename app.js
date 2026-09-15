@@ -42,7 +42,7 @@ $('minReach').min=$('maxReach').min=flMin;$('minReach').max=$('maxReach').max=fl
 $('maxWeight').min=Math.floor(ranges.weight[0]*20)/20;$('maxWeight').max=wMax;
 const allBrandsLabel=document.createElement('label');allBrandsLabel.className='brand-all';allBrandsLabel.innerHTML='<input id="brandAll" type="checkbox" checked> Select all';brandFilter.appendChild(allBrandsLabel);brands.forEach(b=>{const l=document.createElement('label');l.innerHTML=`<input type="checkbox" data-brand="1" value="${b}" checked> ${b}`;brandFilter.appendChild(l)});
 
-let selected=null,shortlist=[],hovered=null,sort={key:'fl',dir:-1},yaw=-38*Math.PI/180,pitch=24*Math.PI/180,zoom=1,pointer=null,activeView='custom';
+let selected=null,shortlist=[],hovered=null,sort={key:'seq',dir:1},yaw=-38*Math.PI/180,pitch=24*Math.PI/180,zoom=1,pointer=null,activeView='custom';
 let baseIds=[],activeIds=[],baseSet=new Set(),activeSet=new Set(),frontier=new Set();
 
 const mk=(tag,a={},p=svg)=>{const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(a))e.setAttribute(k,v);p.appendChild(e);return e};
@@ -72,6 +72,9 @@ function rebuildFilters(){
 function solve3(A,b){const m=A.map((r,i)=>[...r,b[i]]);for(let c=0;c<3;c++){let p=c;for(let r=c+1;r<3;r++)if(Math.abs(m[r][c])>Math.abs(m[p][c]))p=r;[m[c],m[p]]=[m[p],m[c]];const q=m[c][c];if(Math.abs(q)<1e-12)return[0,0,0];for(let j=c;j<4;j++)m[c][j]/=q;for(let r=0;r<3;r++)if(r!==c){const f=m[r][c];for(let j=c;j<4;j++)m[r][j]-=f*m[c][j]}}return m.map(r=>r[3])}
 function fit(dep,p1,p2,ids){let n=0,s1=0,s2=0,sd=0,s11=0,s22=0,s12=0,s1d=0,s2d=0;for(const i of ids){const s=S[i],x=s[p1],y=s[p2],d=s[dep];n++;s1+=x;s2+=y;sd+=d;s11+=x*x;s22+=y*y;s12+=x*y;s1d+=x*d;s2d+=y*d}if(n<3)return{dep,p1,p2,a:0,b:0,c:0};const[a,b,c]=solve3([[n,s1,s2],[s1,s11,s12],[s2,s12,s22]],[sd,s1d,s2d]);return{dep,p1,p2,a,b,c}}
 function expected(s,m){return m.a+m.b*s[m.p1]+m.c*s[m.p2]}
+const fullIds=S.map(s=>s.i),fullReachModel=fit('fl','fstop','weight',fullIds);
+for(const s of S)s.reachResidual=s.fl-expected(s,fullReachModel);
+[...S].sort((a,b)=>a.brand.localeCompare(b.brand)||b.reachResidual-a.reachResidual||b.fl-a.fl||a.name.localeCompare(b.name)).forEach((s,idx)=>s.seq=idx+1);
 function colorState(ids){
   const mode=$('colorMode').value;if(mode==='neutral')return{mode};
   const[kind,dep]=mode.split('-'),pred={fl:['fstop','weight'],fstop:['fl','weight'],weight:['fl','fstop']}[dep];
@@ -125,8 +128,17 @@ function pointRadius(s){
 }
 function pointLabel(s){return s.name.split(' — ').slice(1).join(' — ')}
 
-function focused(i){if(selected===null||!$('focusToggle').checked)return true;if(i===selected||shortlist.includes(i))return true;const a=S[selected],b=S[i];return Math.abs(a.fl-b.fl)<=100&&Math.abs(a.weight-b.weight)<=a.weight*.25}
 const cube=[[-1,-1,-1],[1,-1,-1],[-1,1,-1],[1,1,-1],[-1,-1,1],[1,-1,1],[-1,1,1],[1,1,1]],edges=[[0,1],[0,2],[0,4],[1,3],[1,5],[2,3],[2,6],[3,7],[4,5],[4,6],[5,7],[6,7]];
+function orientPlaneEdgeOn(cs){
+  if(cs.kind!=='res'||!cs.model)return;
+  const m=cs.model,raw=q=>({fl:ranges.fl[0]+(q[0]+1)/2*(ranges.fl[1]-ranges.fl[0]),fstop:ranges.fstop[0]+(q[1]+1)/2*(ranges.fstop[1]-ranges.fstop[0]),weight:ranges.weight[0]+(q[2]+1)/2*(ranges.weight[1]-ranges.weight[0])}),fn=q=>{const v=raw(q);return v[m.dep]-expected(v,m)};
+  let n=[(fn([1,0,0])-fn([-1,0,0]))/2,(fn([0,1,0])-fn([0,-1,0]))/2,(fn([0,0,1])-fn([0,0,-1]))/2];
+  const favorable=m.dep==='fl'?1:-1,len=Math.hypot(...n);if(len<1e-8)return;n=n.map(x=>x/len*favorable);
+  const h=Math.hypot(n[0],n[2]);
+  if(h<1e-8){yaw=0;pitch=n[1]>=0?0:Math.PI}
+  else{const sy=-n[0]/h,cy=-n[2]/h;yaw=Math.atan2(sy,cy);pitch=Math.atan2(h,n[1])}
+  activeView='custom';
+}
 function drawPlane(g,cs){
   if(!$('planeToggle').checked||cs.kind!=='res'||activeIds.length<3)return;
   const m=cs.model,raw=q=>({fl:ranges.fl[0]+(q[0]+1)/2*(ranges.fl[1]-ranges.fl[0]),fstop:ranges.fstop[0]+(q[1]+1)/2*(ranges.fstop[1]-ranges.fstop[0]),weight:ranges.weight[0]+(q[2]+1)/2*(ranges.weight[1]-ranges.weight[0])}),fn=q=>{const s=raw(q);return s[m.dep]-expected(s,m)};
@@ -139,8 +151,8 @@ function render(){
   const cs=colorState(activeIds);updateLegend(cs);svg.innerHTML='';const g=mk('g');drawAxes(g);drawPlane(g,cs);
   const pts=S.map(s=>({i:s.i,s,p:project(coords(s))})).sort((a,b)=>a.p[2]-b.p[2]);
   for(const{i,s,p}of pts){
-    const active=activeSet.has(i),isSel=i===selected,isShort=shortlist.includes(i),dim=active&&!focused(i);
-    const grp=mk('g',active?{'data-i':i}:{'data-filtered-i':i},g);grp.style.opacity=active?(dim?'.18':'1'):'.18';if(!active)grp.style.pointerEvents='none';
+    const active=activeSet.has(i),isSel=i===selected,isShort=shortlist.includes(i);
+    const grp=mk('g',active?{'data-i':i}:{'data-filtered-i':i},g);grp.style.opacity=active?'1':'.18';if(!active)grp.style.pointerEvents='none';
     const baseR=pointRadius(s),r=isSel?baseR+3:isShort&&active?baseR+2:baseR,fill=active?colorFor(s,cs):'var(--filtered)';
     mk('circle',{cx:p[0],cy:p[1],r,fill,stroke:isSel?'var(--accent)':isShort&&active?'var(--text)':active?'rgba(255,255,255,.9)':'var(--grid)','stroke-width':isSel?'3':'1.2',style:`cursor:${active?'pointer':'default'}`},grp);
     if(active&&(isSel||isShort))tx(p[0]+10,p[1]-9,pointLabel(s),{'font-size':'10','font-weight':isSel?'800':'650'},g);
@@ -161,7 +173,7 @@ function select(i){
   detail.innerHTML=`<strong>${s.name}</strong><div class="detailgrid"><div>Equivalent reach</div><div>${Math.round(s.fl)} mm</div><div>Equivalent aperture</div><div>f/${s.fstop}</div><div>Kit weight</div><div>${s.weight.toFixed(3)} kg</div>${$('sizePriceToggle').checked?`<div>Price snapshot</div><div>CHF ${Math.round(s.price).toLocaleString('de-CH')}</div>`:''}<div>Lens type</div><div>${s.zoom?'Zoom':'Prime'}</div><div>Pareto-efficient</div><div>${isP?'Yes':'No'}</div></div><div class="detail-actions"><button id="detailCompare" type="button">${shortlist.includes(i)?'Remove from compare':'Add to compare'}</button><button id="detailClear" type="button">Deselect</button></div>`;
   $('detailCompare').onclick=()=>toggleCompare(i);$('detailClear').onclick=clearSelection;render();renderTable();
 }
-function clearSelection(){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class="hint">Selection can highlight similar kits. Use “Compare” to add up to five kits to the shortlist.</p>';render();renderTable()}
+function clearSelection(){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class="hint">Use “Compare” to add up to five kits to the shortlist.</p>';render();renderTable()}
 function toggleCompare(i){
   const p=shortlist.indexOf(i);if(p>=0)shortlist.splice(p,1);else{if(!activeSet.has(i))return;if(shortlist.length>=5){alert('Shortlist is limited to five kits.');return}shortlist.push(i)}
   if(selected===i)select(i);render();renderTable();renderCompare();
@@ -177,8 +189,8 @@ function sortedIds(){
 }
 function renderTable(){
   const ids=sortedIds(),tb=$('rankTable').querySelector('tbody');tb.innerHTML='';
-  for(const i of ids){const s=S[i],active=activeSet.has(i),tr=document.createElement('tr');if(i===selected)tr.classList.add('row-selected');if(!active)tr.classList.add('row-filtered');if(active&&selected!==null&&$('focusToggle').checked&&!focused(i))tr.classList.add('row-dim');const inShort=shortlist.includes(i);
-    tr.innerHTML=`<td class="systemcell"><div class="systemname">${s.name}</div></td><td class="metric-cell">${Math.round(s.fl)} mm${metricBar(s.fl,'fl')}</td><td class="metric-cell">f/${s.fstop}${metricBar(s.fstop,'fstop')}</td><td class="metric-cell">${s.weight.toFixed(3)} kg${metricBar(s.weight,'weight')}</td><td>${frontier.has(i)&&baseSet.has(i)?'<span class="pareto-badge">frontier</span>':''}</td><td><button class="compare-btn ${inShort?'in':''}" data-compare="${i}" ${!active&&!inShort?'disabled':''}>${inShort?'✓ Compare':'+ Compare'}</button></td>`;
+  for(const i of ids){const s=S[i],active=activeSet.has(i),tr=document.createElement('tr');if(i===selected)tr.classList.add('row-selected');if(!active)tr.classList.add('row-filtered');const inShort=shortlist.includes(i);
+    tr.innerHTML=`<td class="num ranknum">${s.seq}</td><td class="systemcell"><div class="systemname">${s.name}</div></td><td class="metric-cell">${Math.round(s.fl)} mm${metricBar(s.fl,'fl')}</td><td class="metric-cell">f/${s.fstop}${metricBar(s.fstop,'fstop')}</td><td class="metric-cell">${s.weight.toFixed(3)} kg${metricBar(s.weight,'weight')}</td><td>${frontier.has(i)&&baseSet.has(i)?'<span class="pareto-badge">frontier</span>':''}</td><td><button class="compare-btn ${inShort?'in':''}" data-compare="${i}" ${!active&&!inShort?'disabled':''}>${inShort?'✓ Compare':'+ Compare'}</button></td>`;
     tr.addEventListener('click',e=>{if(active&&!e.target.closest('button'))select(i)});tb.appendChild(tr);
   }
   tb.querySelectorAll('[data-compare]').forEach(b=>b.onclick=e=>{e.stopPropagation();toggleCompare(+b.dataset.compare)});
@@ -195,8 +207,7 @@ function syncReach(changed){const lo=$('minReach'),hi=$('maxReach');if(+lo.value
 function refresh(){
   rebuildFilters();updateSliderLabels();
   $('filterSummary').textContent=`${activeIds.length} active kits · ${S.length-activeIds.length} filtered out but still visible`;
-  $('paretoSummary').textContent=`${frontier.size} of ${baseIds.length} kits passing non-Pareto filters are on the frontier`;
-  if(selected!==null&&!activeSet.has(selected)){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class="hint">Selection can highlight similar kits. Use “Compare” to add up to five kits to the shortlist.</p>'}
+  if(selected!==null&&!activeSet.has(selected)){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class="hint">Use “Compare” to add up to five kits to the shortlist.</p>'}
   render();renderTable();renderCompare();
 }
 function resetFilters(){
@@ -205,7 +216,7 @@ function resetFilters(){
 
 $('minReach').value=flMin;$('maxReach').value=flMax;$('maxWeight').value=wMax;
 $('minReach').addEventListener('input',()=>{syncReach('min');refresh()});$('maxReach').addEventListener('input',()=>{syncReach('max');refresh()});$('maxWeight').addEventListener('input',refresh);
-document.querySelectorAll('input[name="lensType"],input[name="paretoMode"]').forEach(el=>el.addEventListener('change',refresh));$('colorMode').addEventListener('change',refresh);$('focusToggle').addEventListener('change',refresh);$('sizePriceToggle').addEventListener('change',()=>{if(selected!==null)select(selected);else refresh()});brandFilter.addEventListener('change',e=>{const all=$('brandAll'),boxes=[...brandFilter.querySelectorAll('input[data-brand]')];if(e.target===all){boxes.forEach(cb=>cb.checked=all.checked);all.indeterminate=false}else{const n=boxes.filter(cb=>cb.checked).length;all.checked=n===boxes.length;all.indeterminate=n>0&&n<boxes.length}refresh()});$('resetFilters').onclick=resetFilters;$('clearSelection').onclick=clearSelection;$('clearCompare').onclick=()=>{shortlist=[];renderCompare();renderTable();render()};$('planeToggle').addEventListener('change',render);document.querySelectorAll('.viewbtn').forEach(b=>b.onclick=()=>useView(b.dataset.view));
+document.querySelectorAll('input[name="lensType"],input[name="paretoMode"]').forEach(el=>el.addEventListener('change',refresh));$('colorMode').addEventListener('change',()=>{refresh();if($('planeToggle').checked){orientPlaneEdgeOn(colorState(activeIds));render()}});$('sizePriceToggle').addEventListener('change',()=>{if(selected!==null)select(selected);else refresh()});brandFilter.addEventListener('change',e=>{const all=$('brandAll'),boxes=[...brandFilter.querySelectorAll('input[data-brand]')];if(e.target===all){boxes.forEach(cb=>cb.checked=all.checked);all.indeterminate=false}else{const n=boxes.filter(cb=>cb.checked).length;all.checked=n===boxes.length;all.indeterminate=n>0&&n<boxes.length}refresh()});$('resetFilters').onclick=resetFilters;$('clearSelection').onclick=clearSelection;$('clearCompare').onclick=()=>{shortlist=[];renderCompare();renderTable();render()};$('planeToggle').addEventListener('change',()=>{if($('planeToggle').checked)orientPlaneEdgeOn(colorState(activeIds));render()});document.querySelectorAll('.viewbtn').forEach(b=>b.onclick=()=>useView(b.dataset.view));
 document.querySelectorAll('#rankTable th[data-sort]').forEach(h=>h.onclick=()=>{const k=h.dataset.sort;if(sort.key===k)sort.dir*=-1;else{sort.key=k;sort.dir=k==='fl'?-1:1}renderTable()});
 
 svg.addEventListener('pointerdown',e=>{if(e.button!==0&&e.button!==undefined)return;const hit=e.target.closest?.('[data-i]');pointer={id:e.pointerId,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,drag:false,hit:hit?+hit.dataset.i:null}});

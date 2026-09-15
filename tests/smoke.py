@@ -18,7 +18,7 @@ def read(path):
 def main():
     fields,rows=read(SYSTEMS)
     assert SYS_REQUIRED<=set(fields)
-    assert len(rows)==33, f'Expected 33 kits, got {len(rows)}'
+    assert len(rows)==34, f'Expected 34 kits, got {len(rows)}'
     ids={r['system_id'] for r in rows}
     assert len(ids)==len(rows)
     assert 'a1ii-fe400f45' in ids and 'a1ii-fe600f63' in ids
@@ -31,18 +31,24 @@ def main():
     assert 'lens-fe400f45' in cids and 'lens-fe600f63' in cids
     _,specs=read(SPECS)
     sids={r['component_id'] for r in specs}
-    assert {'lens-fe400f45','lens-fe600f63','tc-sony14','tc-sony20'}<=sids
+    assert {'lens-fe400f45','lens-fe600f63','tc-sony14','tc-sony20','lens-om150400'}<=sids
 
     html=HTML.read_text(encoding='utf-8'); js=JS.read_text(encoding='utf-8'); css=CSS.read_text(encoding='utf-8')
-    for marker in ['id="minReach" class="range-thumb range-thumb-min" type="range"','id="maxReach" class="range-thumb range-thumb-max" type="range"','id="reachFill"','id="maxWeight" type="range"','name="lensType"','name="paretoMode"','Read below for explanation.','System / brand','id="colorMode"','id="planeToggle"','id="sizePriceToggle"','Highlight similar kits','id="plot"','id="rankTable"']:
+    for marker in ['id="minReach" class="range-thumb range-thumb-min" type="range"','id="maxReach" class="range-thumb range-thumb-max" type="range"','id="reachFill"','id="maxWeight"','name="lensType"','name="paretoMode"','System / brand','id="colorMode"','id="planeToggle"','id="sizePriceToggle"','id="plot"','id="rankTable"']:
         assert marker in html, marker
     assert 'statusFilter' not in html
-    for marker in ['data-filtered-i','activeSet','computeFrontier','colorFor','axis-reach','axis-aperture','axis-weight','pointerEvents','pointRadius','brandAll']:
+    assert 'Highlight similar kits' not in html
+    assert 'id="infoPopover"' in html and 'DPReview: What is equivalence?' in html
+    assert 'data-sort="seq"' in html
+    for marker in ['data-filtered-i','activeSet','computeFrontier','colorFor','axis-reach','axis-aperture','axis-weight','pointerEvents','pointRadius','brandAll','reachResidual','orientPlaneEdgeOn']:
         assert marker in js or marker in css, marker
     assert 'Highlight frontier' not in html
     assert 'type="number"' not in html
     assert "pitch=-Math.PI/2" in js
     assert 'standardFStops' in js and 'reachStep' in js
+    assert 'om1ii-150400-500-tc' in ids
+    assert next(r for r in rows if r['system_id']=='xh2s-150600-600')['equiv_focal_length_mm']=='900'
+    assert next(r for r in rows if r['system_id']=='xh2s-xf500f56')['equiv_focal_length_mm']=='750'
     assert all(' — ' in r['list_name'] for r in rows)
     assert all(r['list_name'].startswith(r['brand']+' — ') for r in rows)
     print(f'Smoke validation passed: {len(rows)} kits, {len(comps)} component price rows, {len(specs)} fresh spec-source rows.')

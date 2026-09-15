@@ -14,13 +14,21 @@
       <h1>Birding Kit Explorer</h1>
       <div class="sub">Reach × equivalent aperture × kit weight</div>
     </div>
+    <div class="info-help">
+      <button class="info-button" type="button" aria-label="About the comparison metrics" aria-describedby="infoPopover">i</button>
+      <div class="info-popover" id="infoPopover" role="tooltip">
+        <section><strong>Pareto frontier</strong><p>A kit is Pareto-efficient when no other currently eligible kit is at least as long-reaching, at least as fast (lower equivalent f-number), and at least as light, with at least one strict improvement.</p></section>
+        <section><strong>Equivalent focal length and aperture</strong><p>Equivalent focal length = actual focal length × crop factor. Equivalent aperture = actual f-number × crop factor. The latter compares depth of field and total light at equivalent framing; it is <em>not</em> the f-number used for exposure. Fujifilm X APS-C uses the conventional 1.5× factor here.</p><p><a href="https://www.dpreview.com/articles/2666934640/what-is-equivalence-and-why-should-i-care/" target="_blank" rel="noopener">DPReview: What is equivalence?</a> · <a href="https://www.dpreview.com/learn/equivalence-in-a-nutshell/" target="_blank" rel="noopener">Equivalence in a nutshell</a></p></section>
+        <section><strong>Residuals</strong><p>A residual is the actual value minus the value predicted by a linear regression from the other two chart dimensions, using the currently active kits. Positive reach residual means more reach than predicted. For aperture and weight, a negative residual is favorable because the kit is faster or lighter than predicted. Residuals describe trade-off efficiency, not overall image quality.</p></section>
+        <section><strong>Average plane</strong><p>In a residual mode, the plane is the ordinary least-squares prediction surface for the selected metric from the other two dimensions. Points on the plane have zero residual; points on opposite sides deviate from the model in opposite directions. When enabled, the cube rotates edge-on to make the plane read approximately as a line. The automatic edge-on orientation puts the favorable residual direction above the line: greener points above it are better than the average trade-off predicted from the other two dimensions; redder points below it are worse than predicted.</p></section>
+      </div>
+    </div>
   </header>
 
   <section class="panel card filters-panel">
     <div class="panel-head">
       <div>
         <strong>Filters</strong>
-        <span class="panel-note">Filtered-out kits stay faintly visible but cannot be selected.</span>
       </div>
       <button id="resetFilters" type="button">Reset filters</button>
     </div>
@@ -56,7 +64,6 @@
           <label><input type="radio" name="paretoMode" value="all" checked> All kits</label>
           <label><input type="radio" name="paretoMode" value="only"> Efficient only</label>
         </div>
-        <div class="micro-note">Read below for explanation.</div>
       </div>
     </div>
 
@@ -71,7 +78,6 @@
     <div class="panel-head">
       <div>
         <strong>Visual options</strong>
-        <span class="panel-note">Change the view without changing which kits pass the filters.</span>
       </div>
       <button id="clearSelection" type="button">Clear selection</button>
     </div>
@@ -89,7 +95,6 @@
       <div class="visual-section options-section">
         <div class="section-label">Options</div>
         <div class="options-row">
-          <input id="focusToggle" type="checkbox" hidden aria-hidden="true">
           <label class="select-control">Color
             <select id="colorMode">
               <option value="neutral">Neutral</option>
@@ -108,7 +113,6 @@
           <label class="check-control"><input id="planeToggle" type="checkbox"> Average plane</label>
           <label class="check-control"><input id="sizePriceToggle" type="checkbox"> Point size = price</label>
         </div>
-        <div class="micro-note">Average plane shows the regression-predicted trade-off surface for the selected residual color metric and is available only in residual modes.</div>
       </div>
     </div>
   </section>
@@ -135,11 +139,6 @@
         <p class="hint">Use “Compare” to add up to five kits to the shortlist.</p>
       </section>
 
-      <section class="card frontier-card">
-        <strong>Pareto frontier</strong>
-        <p class="explain">Among kits passing the non-Pareto filters, a kit is Pareto-efficient when no other active candidate is simultaneously <b>longer-reaching, faster, and lighter</b>, with at least one strict improvement.</p>
-        <div id="paretoSummary" class="statline"></div>
-      </section>
     </aside>
   </div>
 
@@ -162,6 +161,7 @@
     <div class="card table-wrap">
       <table id="rankTable">
         <thead><tr>
+          <th data-sort="seq" class="num rank-col"># <span class="sortmark"></span></th>
           <th data-sort="name">Kit configuration <span class="sortmark"></span></th>
           <th data-sort="fl" class="num">Eq. FL <span class="sortmark"></span></th>
           <th data-sort="fstop" class="num">Eq. f <span class="sortmark"></span></th>
@@ -174,14 +174,6 @@
     </div>
   </section>
 </main>
-<script src="app.js?v=20260915d"></script>
-<script>
-(()=>{
-  const detail=document.getElementById('detail');
-  const clean=()=>{const p=detail?.querySelector('.hint');if(p&&/highlight similar kits/i.test(p.textContent))p.textContent='Use “Compare” to add up to five kits to the shortlist.'};
-  if(detail)new MutationObserver(clean).observe(detail,{childList:true,subtree:true});
-  clean();
-})();
-</script>
+<script src="app.js?v=20260915e"></script>
 </body>
 </html>

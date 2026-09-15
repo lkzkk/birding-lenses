@@ -33,3 +33,12 @@ button,select,input{font:inherit}button,select{border:1px solid var(--border);ba
 
 @media(max-width:1120px){.filter-controls{grid-template-columns:1fr 1fr}.filter-section:nth-child(3){border-left:0}.filter-section:nth-child(n+3){border-top:1px solid var(--border)}.filter-section:nth-child(odd){padding-left:0}.filter-section:nth-child(even){padding-right:0}.visual-grid{grid-template-columns:1fr}.visual-section{padding:12px 0}.visual-section+.visual-section{border-left:0;border-top:1px solid var(--border)}.chartgrid{grid-template-columns:1fr}.side{grid-template-columns:repeat(3,1fr)}.systemcell{min-width:340px}}
 @media(max-width:720px){main{padding:12px}.panel-head{align-items:flex-start}.panel-head>div{display:grid;gap:2px}.filter-controls{grid-template-columns:1fr}.filter-section,.filter-section:first-child,.filter-section:last-child,.filter-section:nth-child(odd),.filter-section:nth-child(even){padding:11px 0;border-left:0;border-top:1px solid var(--border)}.filter-section:first-child{border-top:0}.brand-row{grid-template-columns:1fr;gap:7px}.side{grid-template-columns:1fr}.plotwrap{padding-left:34px;padding-right:34px}.systemcell{min-width:260px}.options-row{align-items:start;display:grid}.check-control{padding-bottom:0}}
+
+/* 2026-09-15 metric help and ranking */
+.pagehead{position:relative;display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.info-help{position:relative;margin-left:auto;z-index:30}
+.info-button{width:32px;height:32px;border-radius:50%;padding:0;font:700 16px/30px Georgia,serif;text-align:center;background:var(--panel);color:var(--muted)}
+.info-popover{position:absolute;right:0;top:40px;width:min(520px,calc(100vw - 36px));max-height:min(72vh,650px);overflow:auto;padding:15px 17px;background:var(--panel);border:1px solid var(--border);border-radius:12px;box-shadow:0 16px 46px rgba(0,0,0,.20);opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .14s ease,transform .14s ease,visibility .14s;pointer-events:none}
+.info-help:hover .info-popover,.info-button:hover + .info-popover,.info-help:focus-within .info-popover{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.info-popover section+section{border-top:1px solid var(--border);padding-top:11px;margin-top:11px}.info-popover p{margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.48}.info-popover a{color:var(--accent)}
+.rank-col,.ranknum{width:42px;text-align:right!important}.ranknum{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:700}
