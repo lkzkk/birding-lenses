@@ -13,8 +13,12 @@
 
   const lensType=document.getElementById('lensType');
   if(lensType&&!document.getElementById('tcFilter')){
-    lensType.closest('.filter-section')?.insertAdjacentHTML('beforeend',`<div class="control-head" style="margin-top:10px"><span>External teleconverter</span></div><div class="choice-row" id="tcFilter"><label><input id="tcNo" type="checkbox" checked> No TC</label><label><input id="tcYes" type="checkbox"> TC</label></div>`);
+    lensType.closest('.filter-section')?.insertAdjacentHTML('beforeend',`<div class="control-head" style="margin-top:10px"><span>External 1.4× teleconverter</span></div><div class="choice-row" id="tcFilter"><label><input id="tcNo" type="checkbox" checked> No 1.4× TC</label><label><input id="tcYes" type="checkbox"> 1.4× TC</label></div>`);
   }
+
+  replace('supplemental kit data',
+    "  const r=await fetch('data/systems.csv',{cache:'no-store'});\n  if(!r.ok)throw Error(`HTTP ${r.status}`);\n  records=parseCSV(await r.text());",
+    "  const [r,extra]=await Promise.all([fetch('data/systems.csv',{cache:'no-store'}),fetch('data/systems_additions.csv',{cache:'no-store'})]);\n  if(!r.ok)throw Error(`systems.csv HTTP ${r.status}`);\n  if(!extra.ok)throw Error(`systems_additions.csv HTTP ${extra.status}`);\n  records=[...parseCSV(await r.text()),...parseCSV(await extra.text())];");
 
   replace('teleconverter filter state',
     "return{min:+$('minReach').value,max:+$('maxReach').value,maxW:+$('maxWeight').value,lens:radioValue('lensType'),brands:new Set(checked),pareto:radioValue('paretoMode')};",
