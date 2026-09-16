@@ -8,7 +8,7 @@ SYSTEMS=ROOT/'data'/'systems.csv'
 COMPONENTS=ROOT/'data'/'component_prices.csv'
 SPECS=ROOT/'data'/'spec_sources.csv'
 COMPAT=ROOT/'data'/'teleconverter_compatibility.csv'
-HTML=ROOT/'index.html'; JS=ROOT/'app.js'; CSS=ROOT/'styles.css'; RUNTIME=ROOT/'runtime-wrapper.js'
+HTML=ROOT/'index.html'; JS=ROOT/'app.js'; CSS=ROOT/'styles.css'; UXCSS=ROOT/'interaction-fixes.css'; RUNTIME=ROOT/'runtime-wrapper.js'
 SYS_REQUIRED={'system_id','brand','list_name','body','lens','teleconverter','equiv_focal_length_mm','equiv_f_stop','system_weight_g'}
 BUILTIN_TC_LENSES={'lens-om150400','lens-z400f28tc','lens-z600f4tc'}
 
@@ -75,18 +75,25 @@ def main():
         assert any(builtin_disengaged(r) for r in native) and any(builtin_engaged(r) for r in native), f'{lens_id} native built-in states incomplete'
         assert any(builtin_disengaged(r) for r in external) and any(builtin_engaged(r) for r in external), f'{lens_id} external-TC built-in states incomplete'
 
-    html=HTML.read_text(encoding='utf-8'); js=JS.read_text(encoding='utf-8'); css=CSS.read_text(encoding='utf-8'); runtime=RUNTIME.read_text(encoding='utf-8')
+    html=HTML.read_text(encoding='utf-8'); js=JS.read_text(encoding='utf-8'); css=CSS.read_text(encoding='utf-8'); uxcss=UXCSS.read_text(encoding='utf-8'); runtime=RUNTIME.read_text(encoding='utf-8')
     for marker in ['id="minReach" class="range-thumb range-thumb-min" type="range"','id="maxReach" class="range-thumb range-thumb-max" type="range"','id="reachFill"','id="maxWeight"','name="lensType"','name="paretoMode"','System / brand','id="colorMode"','id="planeToggle"','id="sizePriceToggle"','id="recalcResidualToggle"','id="plot"','id="rankTable"']:
         assert marker in html, marker
     assert 'statusFilter' not in html
     assert 'Highlight similar kits' not in html
     assert 'id="infoPopover"' in html and 'id="infoButton"' in html and 'id="infoClose"' in html
     assert 'DPReview: What is equivalence?' in html and 'https://buymeacoffee.com/lkzk' in html
-    assert 'runtime-wrapper.js?v=20260916b' in html
+    assert 'interaction-fixes.css?v=20260916a' in html
+    assert 'runtime-wrapper.js?v=20260916c' in html
+    assert 'id="planeToggle" type="checkbox" disabled' in html
+    assert 'id="recalcResidualToggle" type="checkbox" disabled' in html
+    assert 'id="residualModeNote"' in html and 'Select an Advanced: efficiency residual color mode' in html
+    assert 'wheel to zoom' not in html
+    assert 'tap or click empty plot space to deselect' in html
     assert 'data-sort="seq"' in html
     for marker in ['data-filtered-i','activeSet','computeFrontier','colorFor','axis-reach','axis-aperture','axis-weight','pointerEvents','pointRadius','brandAll','reachResidual','orientPlaneEdgeOn']:
         assert marker in js or marker in css, marker
-    for marker in ['recalcResidualToggle','return 4.5+12.5*Math.sqrt(q);','hover label dedupe','color mode orientation','plane orientation','setInfoOpen','Regression uses the full dataset.','infoClose','teleconverter filter state','teleconverter pass','teleconverter reset','teleconverter listeners','id="tcFilter"','id="tcNo"','id="tcYes"']:
+    assert 'zoom=1,pointer=null' in js and 'sc=220*zoom' in js and "addEventListener('wheel'" in js
+    for marker in ['recalcResidualToggle','return 4.5+12.5*Math.sqrt(q);','hover label dedupe','color mode orientation','plane orientation','setInfoOpen','Regression uses the full dataset.','infoClose','teleconverter filter state','teleconverter pass','teleconverter reset','teleconverter listeners','id="tcFilter"','id="tcNo"','id="tcYes"','remove chart zoom state','fixed chart scale','hover capability','hover only on hover devices','mobile clear selection','mobile pointer interaction','hitTestPoint','setPointerCapture','residualModeNote']:
         assert marker in runtime, marker
     assert 'External teleconverter' in runtime
     assert '<input id="tcNo" type="checkbox" checked> No TC' in runtime
@@ -97,10 +104,18 @@ def main():
     assert "builtInOnly||(externalTc?f.tcYes:f.tcNo)" in runtime
     assert "document.querySelectorAll('#tcFilter input').forEach(el=>el.addEventListener('change',refresh));" in runtime
     assert "$('tcNo').checked=true;$('tcYes').checked=false;refresh();" in runtime
+    assert "hovered=null;popup.hidden=true" in runtime
+    assert "e.pointerType==='touch'?24:14" in runtime
+    assert "e.pointerType==='touch'?9:5" in runtime
+    assert "residualMode=cs.kind==='res'" in runtime
+    assert "recalc.disabled=!residualMode" in runtime and "plane.disabled=!residualMode" in runtime
     assert "$('colorMode').addEventListener('change',refresh);" in runtime
     assert "$('planeToggle').addEventListener('change',render);" in runtime
     assert "if(!isSel&&!isShort)tx(" in runtime
     assert '.info-close{' in css
+    assert '--info-popover-bg:#f7f9fd' in uxcss and '--info-popover-bg:#252a31' in uxcss
+    assert '.check-control:has(input:disabled)' in uxcss
+    assert '.plotwrap{padding:8px 10px 18px}' in uxcss
     assert 'Highlight frontier' not in html
     assert 'type="number"' not in html
     assert "pitch=-Math.PI/2" in js

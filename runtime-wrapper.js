@@ -29,6 +29,25 @@
     "document.querySelectorAll('input[name=\"lensType\"],input[name=\"paretoMode\"]').forEach(el=>el.addEventListener('change',refresh));",
     "document.querySelectorAll('input[name=\"lensType\"],input[name=\"paretoMode\"]').forEach(el=>el.addEventListener('change',refresh));document.querySelectorAll('#tcFilter input').forEach(el=>el.addEventListener('change',refresh));");
 
+  replace('remove chart zoom state',
+    "let selected=null,shortlist=[],hovered=null,sort={key:'seq',dir:1},yaw=-38*Math.PI/180,pitch=24*Math.PI/180,zoom=1,pointer=null,activeView='custom';",
+    "let selected=null,shortlist=[],hovered=null,sort={key:'seq',dir:1},yaw=-38*Math.PI/180,pitch=24*Math.PI/180,pointer=null,activeView='custom';");
+  replace('fixed chart scale',
+    "function project([x,y,z]){const cy=Math.cos(yaw),sy=Math.sin(yaw),x1=x*cy-z*sy,z1=x*sy+z*cy,cp=Math.cos(pitch),sp=Math.sin(pitch),y1=y*cp-z1*sp,z2=y*sp+z1*cp,sc=220*zoom;return[470+x1*sc,330-y1*sc,z2]}",
+    "function project([x,y,z]){const cy=Math.cos(yaw),sy=Math.sin(yaw),x1=x*cy-z*sy,z1=x*sy+z*cy,cp=Math.cos(pitch),sp=Math.sin(pitch),y1=y*cp-z1*sp,z2=y*sp+z1*cp,sc=220;return[470+x1*sc,330-y1*sc,z2]}");
+  replace('hover capability',
+    "let baseIds=[],activeIds=[],baseSet=new Set(),activeSet=new Set(),frontier=new Set();",
+    "let baseIds=[],activeIds=[],baseSet=new Set(),activeSet=new Set(),frontier=new Set();const hoverCapable=window.matchMedia?.('(hover: hover) and (pointer: fine)').matches??true;");
+  replace('hover only on hover devices',
+    "    if(active){\n      grp.addEventListener('mouseenter'",
+    "    if(active&&hoverCapable){\n      grp.addEventListener('mouseenter'");
+  replace('mobile clear selection',
+    "function clearSelection(){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class=\"hint\">Use “Compare” to add up to five kits to the shortlist.</p>';render();renderTable()}",
+    "function clearSelection(){selected=null;hovered=null;popup.hidden=true;detail.innerHTML='<strong>Select a kit</strong><p class=\"hint\">Use “Compare” to add up to five kits to the shortlist.</p>';render();renderTable()}");
+  replace('mobile pointer interaction',
+    "svg.addEventListener('pointerdown',e=>{if(e.button!==0&&e.button!==undefined)return;const hit=e.target.closest?.('[data-i]');pointer={id:e.pointerId,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,drag:false,hit:hit?+hit.dataset.i:null}});\nsvg.addEventListener('pointermove',e=>{if(!pointer||pointer.id!==e.pointerId)return;const moved=Math.hypot(e.clientX-pointer.sx,e.clientY-pointer.sy);if(!pointer.drag&&moved>5){pointer.drag=true;activeView='custom';try{svg.setPointerCapture(e.pointerId)}catch(_){}}if(!pointer.drag)return;const dx=e.clientX-pointer.lx,dy=e.clientY-pointer.ly;pointer.lx=e.clientX;pointer.ly=e.clientY;yaw+=dx*.01;pitch=Math.max(-1.48,Math.min(1.48,pitch+dy*.008));render()});\nsvg.addEventListener('pointerup',e=>{if(!pointer||pointer.id!==e.pointerId)return;const p=pointer;pointer=null;if(svg.hasPointerCapture(e.pointerId))svg.releasePointerCapture(e.pointerId);if(!p.drag){if(Number.isInteger(p.hit)&&activeSet.has(p.hit))select(p.hit);else clearSelection()}});\nsvg.addEventListener('pointercancel',()=>pointer=null);svg.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.65,Math.min(1.5,zoom*(e.deltaY>0?.94:1.06)));activeView='custom';render()},{passive:false});",
+    "function hitTestPoint(e){const rect=svg.getBoundingClientRect();if(!rect.width||!rect.height)return null;const sx=(e.clientX-rect.left)*940/rect.width,sy=(e.clientY-rect.top)*670/rect.height,px=rect.width/940,py=rect.height/670,limit=e.pointerType==='touch'?24:14;let best=null,bestDist=limit,bestDepth=-Infinity;for(const i of activeIds){const p=project(coords(S[i])),d=Math.hypot((p[0]-sx)*px,(p[1]-sy)*py);if(d<bestDist-.25||(Math.abs(d-bestDist)<=.25&&p[2]>bestDepth)){best=i;bestDist=d;bestDepth=p[2]}}return best}\nsvg.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;if(e.pointerType!=='mouse'){hovered=null;if(selected===null)popup.hidden=true}pointer={id:e.pointerId,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,drag:false,hit:hitTestPoint(e),threshold:e.pointerType==='touch'?9:5};try{svg.setPointerCapture(e.pointerId)}catch(_){}});\nsvg.addEventListener('pointermove',e=>{if(!pointer||pointer.id!==e.pointerId)return;const moved=Math.hypot(e.clientX-pointer.sx,e.clientY-pointer.sy);if(!pointer.drag&&moved>pointer.threshold){pointer.drag=true;activeView='custom'}if(!pointer.drag)return;const dx=e.clientX-pointer.lx,dy=e.clientY-pointer.ly;pointer.lx=e.clientX;pointer.ly=e.clientY;yaw+=dx*.01;pitch=Math.max(-1.48,Math.min(1.48,pitch+dy*.008));render()});\nsvg.addEventListener('pointerup',e=>{if(!pointer||pointer.id!==e.pointerId)return;const p=pointer;pointer=null;try{if(svg.hasPointerCapture(e.pointerId))svg.releasePointerCapture(e.pointerId)}catch(_){}if(!p.drag){if(Number.isInteger(p.hit)&&activeSet.has(p.hit))select(p.hit);else clearSelection()}});\nsvg.addEventListener('pointercancel',e=>{if(pointer?.id===e.pointerId)pointer=null});");
+
   replaceRe('residual scope',/function colorState\(ids\)\{[\s\S]*?\n\}\nfunction colorFor/,`function colorState(ids){
   const mode=$('colorMode').value;if(mode==='neutral')return{mode};
   const[kind,dep]=mode.split('-'),pred={fl:['fstop','weight'],fstop:['fl','weight'],weight:['fl','fstop']}[dep];
@@ -42,7 +61,7 @@ function colorFor`);
 
   replace('residual control state',
     "const bar=$('legendBar');bar.className='legendbar '+(cs.mode==='neutral'?'neutral':'metric');",
-    "const bar=$('legendBar'),recalc=$('recalcResidualToggle');bar.className='legendbar '+(cs.mode==='neutral'?'neutral':'metric');if(recalc)recalc.disabled=cs.mode==='neutral'||cs.kind!=='res';");
+    "const bar=$('legendBar'),recalc=$('recalcResidualToggle'),plane=$('planeToggle'),residualNote=$('residualModeNote'),residualMode=cs.kind==='res';bar.className='legendbar '+(cs.mode==='neutral'?'neutral':'metric');if(recalc){recalc.disabled=!residualMode;if(!residualMode)recalc.checked=false}if(plane)plane.disabled=!residualMode;if(residualNote)residualNote.hidden=residualMode;");
   replace('residual legend note',
     "$('legendNote').textContent=cs.kind==='abs'?`Green = ${better[cs.dep]}; red = less favorable. Filtered-out kits stay grey.`:`Green = ${better[cs.dep]} than predicted from the other two metrics. Filtered-out kits stay grey.`;",
     "$('legendNote').textContent=cs.kind==='abs'?`Green = ${better[cs.dep]}; red = less favorable. Filtered-out kits stay grey.`:`Green = ${better[cs.dep]} than predicted from the other two metrics. ${cs.recalc?'Regression uses only currently active filtered kits.':'Regression uses the full dataset.'} Filtered-out kits stay grey.`;");

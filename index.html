@@ -6,6 +6,7 @@
 <meta name="color-scheme" content="light dark">
 <title>Birding Kit Explorer</title>
 <link rel="stylesheet" href="styles.css?v=20260916b">
+<link rel="stylesheet" href="interaction-fixes.css?v=20260916a">
 </head>
 <body>
 <main>
@@ -31,9 +32,7 @@
 
   <section class="panel card filters-panel">
     <div class="panel-head">
-      <div>
-        <strong>Filters</strong>
-      </div>
+      <div><strong>Filters</strong></div>
       <button id="resetFilters" type="button">Reset filters</button>
     </div>
 
@@ -80,9 +79,7 @@
 
   <section class="panel card visual-panel">
     <div class="panel-head">
-      <div>
-        <strong>Visual options</strong>
-      </div>
+      <div><strong>Visual options</strong></div>
       <button id="clearSelection" type="button">Clear selection</button>
     </div>
 
@@ -114,9 +111,14 @@
               </optgroup>
             </select>
           </label>
-          <label class="check-control"><input id="planeToggle" type="checkbox"> Average plane</label>
           <label class="check-control"><input id="sizePriceToggle" type="checkbox"> Point size = price</label>
-          <label class="check-control residual-scope-control"><input id="recalcResidualToggle" type="checkbox"> Recalculate residuals using filtered kits only</label>
+          <div class="residual-controls">
+            <div class="residual-toggle-row">
+              <label class="check-control"><input id="planeToggle" type="checkbox" disabled> Average plane</label>
+              <label class="check-control residual-scope-control"><input id="recalcResidualToggle" type="checkbox" disabled> Recalculate residuals using filtered kits only</label>
+            </div>
+            <div id="residualModeNote" class="micro-note residual-mode-note">Select an Advanced: efficiency residual color mode to enable these options.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -128,7 +130,7 @@
         <svg id="plot" viewBox="0 0 940 670" aria-label="Interactive 3D birding kit comparison"></svg>
         <div id="pointPopup" class="point-popup" hidden></div>
       </div>
-      <div class="hint chart-hint">Drag to rotate · wheel to zoom · click a point to inspect · click empty plot space to deselect.</div>
+      <div class="hint chart-hint">Drag to rotate · tap or click a point to inspect · tap or click empty plot space to deselect.</div>
     </section>
 
     <aside class="side">
@@ -143,7 +145,6 @@
         <strong>Select a kit</strong>
         <p class="hint">Use “Compare” to add up to five kits to the shortlist.</p>
       </section>
-
     </aside>
   </div>
 
@@ -179,6 +180,6 @@
     </div>
   </section>
 </main>
-<script src="runtime-wrapper.js?v=20260916b"></script>
+<script src="runtime-wrapper.js?v=20260916c"></script>
 </body>
 </html>
