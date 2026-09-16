@@ -1,0 +1,5 @@
+brand,body,lens_component_id,lens_name,external_1_4x_supported,built_in_tc,expected_records,actual_records,status,notes
+OM System,OM System OM-1 II,lens-panaleica100400ii,Panasonic Leica DG Vario-Elmar 100-400mm F4.0-6.3 II,yes,no,2,2,complete,native + DMW-TC14 1.4x
+OM System,OM System OM-1 II,lens-panaleica50200,Panasonic Leica DG Vario-Elmarit 50-200mm F2.8-4.0,yes,no,2,2,complete,native + DMW-TC14 1.4x
+OM System,OM System OM-1 II,lens-panaleica200,Panasonic Leica DG Elmarit 200mm F2.8,yes,no,2,2,complete,native + bundled DMW-TC14 1.4x
+Sony,Sony Alpha 1 II,lens-sigma150600-e,Sigma 150-600mm F5-6.3 DG DN OS Sports (Sony E),no,no,1,1,complete,Sigma 1.4x teleconverter support is L-Mount only
