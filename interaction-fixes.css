@@ -7,14 +7,6 @@
 .residual-toggle-row .check-control{padding-bottom:0}
 .check-control:has(input:disabled){opacity:.48;color:var(--muted);cursor:not-allowed}
 .residual-mode-note{margin-top:1px}
-
-/* The audited external converter option is specifically 1.4×. */
-.control-head:has(+ #tcFilter) span{font-size:0}
-.control-head:has(+ #tcFilter) span::after{content:"External 1.4× teleconverter";font-size:11px}
-#tcFilter label{font-size:0}
-#tcFilter label:first-child::after{content:"No 1.4× TC";font-size:12px}
-#tcFilter label:last-child::after{content:"1.4× TC";font-size:12px}
-
 @media(max-width:720px){
   .plotwrap{padding:8px 10px 18px}
   .point-popup{max-width:min(280px,calc(100% - 20px));font-size:11px}
