@@ -11,6 +11,24 @@
     text=text.replace(re,to);
   };
 
+  const lensType=document.getElementById('lensType');
+  if(lensType&&!document.getElementById('tcFilter')){
+    lensType.closest('.filter-section')?.insertAdjacentHTML('beforeend',`<div class="control-head" style="margin-top:10px"><span>Teleconverter</span></div><div class="choice-row" id="tcFilter"><label><input id="tcNo" type="checkbox" checked> No TC</label><label><input id="tcYes" type="checkbox"> TC</label></div>`);
+  }
+
+  replace('teleconverter filter state',
+    "return{min:+$('minReach').value,max:+$('maxReach').value,maxW:+$('maxWeight').value,lens:radioValue('lensType'),brands:new Set(checked),pareto:radioValue('paretoMode')};",
+    "return{min:+$('minReach').value,max:+$('maxReach').value,maxW:+$('maxWeight').value,lens:radioValue('lensType'),tcNo:$('tcNo')?.checked??true,tcYes:$('tcYes')?.checked??false,brands:new Set(checked),pareto:radioValue('paretoMode')};");
+  replace('teleconverter pass',
+    "return s.fl>=f.min&&s.fl<=f.max&&s.weight<=f.maxW&&f.brands.has(s.brand)&&\n    (f.lens==='all'||(f.lens==='zoom')===s.zoom);",
+    "return s.fl>=f.min&&s.fl<=f.max&&s.weight<=f.maxW&&f.brands.has(s.brand)&&\n    (f.lens==='all'||(f.lens==='zoom')===s.zoom)&&((s.tc==='none'||/disengaged/i.test(s.tc))?f.tcNo:f.tcYes);");
+  replace('teleconverter reset',
+    "setRadio('lensType','all');setRadio('paretoMode','all');refresh();",
+    "setRadio('lensType','all');setRadio('paretoMode','all');$('tcNo').checked=true;$('tcYes').checked=false;refresh();");
+  replace('teleconverter listeners',
+    "document.querySelectorAll('input[name=\"lensType\"],input[name=\"paretoMode\"]').forEach(el=>el.addEventListener('change',refresh));",
+    "document.querySelectorAll('input[name=\"lensType\"],input[name=\"paretoMode\"]').forEach(el=>el.addEventListener('change',refresh));document.querySelectorAll('#tcFilter input').forEach(el=>el.addEventListener('change',refresh));");
+
   replaceRe('residual scope',/function colorState\(ids\)\{[\s\S]*?\n\}\nfunction colorFor/,`function colorState(ids){
   const mode=$('colorMode').value;if(mode==='neutral')return{mode};
   const[kind,dep]=mode.split('-'),pred={fl:['fstop','weight'],fstop:['fl','weight'],weight:['fl','fstop']}[dep];

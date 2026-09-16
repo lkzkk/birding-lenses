@@ -73,8 +73,15 @@ def main():
     assert 'data-sort="seq"' in html
     for marker in ['data-filtered-i','activeSet','computeFrontier','colorFor','axis-reach','axis-aperture','axis-weight','pointerEvents','pointRadius','brandAll','reachResidual','orientPlaneEdgeOn']:
         assert marker in js or marker in css, marker
-    for marker in ['recalcResidualToggle','return 4.5+12.5*Math.sqrt(q);','hover label dedupe','color mode orientation','plane orientation','setInfoOpen','Regression uses the full dataset.','infoClose']:
+    for marker in ['recalcResidualToggle','return 4.5+12.5*Math.sqrt(q);','hover label dedupe','color mode orientation','plane orientation','setInfoOpen','Regression uses the full dataset.','infoClose','teleconverter filter state','teleconverter pass','teleconverter reset','teleconverter listeners','id="tcFilter"','id="tcNo"','id="tcYes"']:
         assert marker in runtime, marker
+    assert '<input id="tcNo" type="checkbox" checked> No TC' in runtime
+    assert '<input id="tcYes" type="checkbox"> TC' in runtime
+    assert "tcNo:$('tcNo')?.checked??true" in runtime
+    assert "tcYes:$('tcYes')?.checked??false" in runtime
+    assert "/disengaged/i.test(s.tc)" in runtime
+    assert "document.querySelectorAll('#tcFilter input').forEach(el=>el.addEventListener('change',refresh));" in runtime
+    assert "$('tcNo').checked=true;$('tcYes').checked=false;refresh();" in runtime
     assert "$('colorMode').addEventListener('change',refresh);" in runtime
     assert "$('planeToggle').addEventListener('change',render);" in runtime
     assert "if(!isSel&&!isShort)tx(" in runtime
