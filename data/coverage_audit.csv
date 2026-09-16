@@ -1,0 +1,38 @@
+brand,body,lens_component_id,lens_name,external_1_4x_supported,built_in_tc,expected_records,actual_records,status,notes
+OM System,OM System OM-1 II,lens-om100400ii,M.Zuiko Digital ED 100-400mm F5.0-6.3 IS II,yes,no,2,2,complete,native + MC-14 1.4x
+OM System,OM System OM-1 II,lens-om300f4,M.Zuiko Digital ED 300mm F4.0 IS PRO,yes,no,2,2,complete,native + MC-14 1.4x
+OM System,OM System OM-1 II,lens-om150400,M.Zuiko Digital ED 150-400mm F4.5 TC1.25x IS PRO,yes,yes,4,4,complete,built-in disengaged/engaged each without/with MC-14 1.4x
+OM System,OM System OM-1 II,lens-om150600,M.Zuiko Digital ED 150-600mm F5.0-6.3 IS,yes,no,2,2,complete,native + MC-14 1.4x
+Canon,Canon EOS R5 Mark II,lens-rf100400,RF100-400mm F5.6-8 IS USM,yes,no,2,2,complete,native + RF 1.4x
+Canon,Canon EOS R5 Mark II,lens-rf100500,RF100-500mm F4.5-7.1 L IS USM,yes,no,2,2,complete,native + RF 1.4x at supported long end
+Canon,Canon EOS R5 Mark II,lens-rf200800,RF200-800mm F6.3-9 IS USM,yes,no,2,2,complete,native + RF 1.4x
+Canon,Canon EOS R5 Mark II,lens-rf600f11,RF600mm F11 IS STM,yes,no,2,2,complete,native + RF 1.4x
+Canon,Canon EOS R5 Mark II,lens-rf800f11,RF800mm F11 IS STM,yes,no,2,2,complete,native + RF 1.4x
+Canon,Canon EOS R5 Mark II,lens-rf400f28,RF400mm F2.8 L IS USM,yes,no,2,2,complete,native + RF 1.4x
+Canon,Canon EOS R5 Mark II,lens-rf600f4,RF600mm F4 L IS USM,yes,no,2,2,complete,native + RF 1.4x
+Canon,Canon EOS R5 Mark II,lens-rf800f56,RF800mm F5.6 L IS USM,yes,no,2,2,complete,native + RF 1.4x
+Fujifilm,Fujifilm X-H2S,lens-xf100400,XF100-400mmF4.5-5.6 R LM OIS WR,yes,no,2,2,complete,native + XF1.4X
+Fujifilm,Fujifilm X-H2S,lens-xf150600,XF150-600mmF5.6-8 R LM OIS WR,yes,no,2,2,complete,native + XF1.4X
+Fujifilm,Fujifilm X-H2S,lens-xf400f45,XF400mmF4.5 R LM OIS WR,yes,no,2,2,complete,native + XF1.4X
+Fujifilm,Fujifilm X-H2S,lens-xf500,XF500mmF5.6 R LM OIS WR,yes,no,2,2,complete,native + XF1.4X
+Fujifilm,Fujifilm X-H2S,lens-tamron150500-x,Tamron 150-500mm F5-6.7 Di III VC VXD X,no,no,1,1,complete,no supported external 1.4x
+Nikon,Nikon Z8,lens-z100400,NIKKOR Z 100-400mm f/4.5-5.6 VR S,yes,no,2,2,complete,native + Z TC-1.4x
+Nikon,Nikon Z8,lens-z180600,NIKKOR Z 180-600mm f/5.6-6.3 VR,yes,no,2,2,complete,native + Z TC-1.4x
+Nikon,Nikon Z8,lens-z400f45,NIKKOR Z 400mm f/4.5 VR S,yes,no,2,2,complete,native + Z TC-1.4x
+Nikon,Nikon Z8,lens-z600f63,NIKKOR Z 600mm f/6.3 VR S,yes,no,2,2,complete,native + Z TC-1.4x
+Nikon,Nikon Z8,lens-z800f63,NIKKOR Z 800mm f/6.3 VR S,yes,no,2,2,complete,native + Z TC-1.4x
+Nikon,Nikon Z8,lens-z400f28tc,NIKKOR Z 400mm f/2.8 TC VR S,yes,yes,4,4,complete,built-in disengaged/engaged each without/with Z TC-1.4x
+Nikon,Nikon Z8,lens-z600f4tc,NIKKOR Z 600mm f/4 TC VR S,yes,yes,4,4,complete,built-in disengaged/engaged each without/with Z TC-1.4x
+Nikon,Nikon Z8,lens-tamron150500-z,Tamron 150-500mm F5-6.7 Di III VC VXD,no,no,1,1,complete,no supported external 1.4x
+Sony,Sony Alpha 1 II,lens-fe100400b,FE 100-400mm F5.6-8 OSS,yes,no,2,2,complete,native + FE 1.4x
+Sony,Sony Alpha 1 II,lens-fe100400gm,FE 100-400mm F4.5-5.6 GM OSS,yes,no,2,2,complete,native + FE 1.4x
+Sony,Sony Alpha 1 II,lens-fe100400mc,FE 100-400mm F4.5 GM OSS,yes,no,2,2,complete,native + FE 1.4x
+Sony,Sony Alpha 1 II,lens-fe200600,FE 200-600mm F5.6-6.3 G OSS,yes,no,2,2,complete,native + FE 1.4x
+Sony,Sony Alpha 1 II,lens-fe300f28,FE 300mm F2.8 GM OSS,yes,no,2,2,complete,native + FE 1.4x
+Sony,Sony Alpha 1 II,lens-fe400f28,FE 400mm F2.8 GM OSS,yes,no,2,2,complete,native + FE 1.4x
+Sony,Sony Alpha 1 II,lens-fe400f45,FE 400mm F4.5 GM OSS,yes,no,2,2,complete,native + FE 1.4x
+Sony,Sony Alpha 1 II,lens-fe400800,FE 400-800mm F6.3-8 G OSS,yes,no,2,2,complete,native + FE 1.4x
+Sony,Sony Alpha 1 II,lens-fe600f4,FE 600mm F4 GM OSS,yes,no,2,2,complete,native + FE 1.4x
+Sony,Sony Alpha 1 II,lens-fe600f63,FE 600mm F6.3 GM OSS,yes,no,2,2,complete,native + FE 1.4x
+Sony,Sony Alpha 1 II,lens-sigma500,Sigma 500mm F5.6 DG DN OS Sports (Sony E),no,no,1,1,complete,Sigma TC support is L-Mount only
+Sony,Sony Alpha 1 II,lens-tamron150500-e,Tamron 150-500mm F5-6.7 Di III VC VXD,no,no,1,1,complete,no supported external 1.4x
