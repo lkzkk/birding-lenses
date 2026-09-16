@@ -1,0 +1,5 @@
+lens_component_id,brand,lens_name,compatible_1_4x,teleconverter_component_id,source_url,notes
+lens-panaleica100400ii,Panasonic,Leica DG Vario-Elmar 100-400mm F4.0-6.3 II,yes,tc-pana14,https://av.jpn.support.panasonic.com/support/global/cs/dsc/connect/tc.html,Panasonic lists H-RSA100400 as compatible with DMW-TC14; shooting range with 1.4x is 294-560mm.
+lens-panaleica50200,Panasonic,Leica DG Vario-Elmarit 50-200mm F2.8-4.0,yes,tc-pana14,https://av.jpn.support.panasonic.com/support/global/cs/dsc/connect/tc.html,Panasonic lists H-ES50200 as compatible with DMW-TC14.
+lens-panaleica200,Panasonic,Leica DG Elmarit 200mm F2.8,yes,tc-pana14-bundled,https://shop.panasonic.com/products/g-series-200mm-f2-8-asph-leica-1-4x-teleconverter,Panasonic supplies DMW-TC14 with H-ES200 and documents 280mm F4 with the 1.4x converter.
+lens-sigma150600-e,Sony,Sigma 150-600mm F5-6.3 DG DN OS Sports (Sony E),no,,https://www.sigma-global.com/en/lenses/s021_150_600_5_63/,Sigma states TC-1411/TC-2011 compatibility is for L-Mount only; Sony E has no supported external 1.4x converter.
