@@ -47,6 +47,7 @@ function colorFor`);
   const infoHelp=document.getElementById('infoHelp');
   const infoButton=document.getElementById('infoButton');
   const infoPopover=document.getElementById('infoPopover');
+  const infoClose=document.getElementById('infoClose');
   const setInfoOpen=open=>{
     if(!infoHelp||!infoButton||!infoPopover)return;
     infoHelp.classList.toggle('is-open',open);
@@ -56,6 +57,11 @@ function colorFor`);
   infoButton?.addEventListener('click',e=>{
     e.stopPropagation();
     setInfoOpen(!infoHelp.classList.contains('is-open'));
+  });
+  infoClose?.addEventListener('click',e=>{
+    e.stopPropagation();
+    setInfoOpen(false);
+    infoButton?.focus();
   });
   document.addEventListener('pointerdown',e=>{
     if(infoHelp?.classList.contains('is-open')&&!infoHelp.contains(e.target))setInfoOpen(false);

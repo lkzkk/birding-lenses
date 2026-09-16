@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <title>Birding Kit Explorer</title>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=20260916b">
 </head>
 <body>
 <main>
@@ -19,6 +19,7 @@
       <div class="info-help" id="infoHelp">
         <button class="info-button" id="infoButton" type="button" aria-label="About the comparison metrics" aria-controls="infoPopover" aria-expanded="false">i</button>
         <div class="info-popover" id="infoPopover" role="dialog" aria-label="Comparison metric explanations" aria-hidden="true">
+        <button class="info-close" id="infoClose" type="button" aria-label="Close information">×</button>
         <section><strong>Pareto frontier</strong><p>A kit is Pareto-efficient when no other currently eligible kit is at least as long-reaching, at least as fast (lower equivalent f-number), and at least as light, with at least one strict improvement.</p></section>
         <section><strong>Equivalent focal length and aperture</strong><p>Equivalent focal length = actual focal length × crop factor. Equivalent aperture = actual f-number × crop factor. The latter compares depth of field and total light at equivalent framing; it is <em>not</em> the f-number used for exposure. Fujifilm X APS-C uses the conventional 1.5× factor here.</p><p><a href="https://www.dpreview.com/articles/2666934640/what-is-equivalence-and-why-should-i-care/" target="_blank" rel="noopener">DPReview: What is equivalence?</a> · <a href="https://www.dpreview.com/learn/equivalence-in-a-nutshell/" target="_blank" rel="noopener">Equivalence in a nutshell</a></p></section>
         <section><strong>Residuals</strong><p>A residual is the actual value minus the value predicted by a linear regression from the other two chart dimensions. By default the regression is fitted to the full kit dataset, so a kit keeps the same residual when filters change. Enable “Recalculate residuals using filtered kits only” to refit the model to the currently active kits instead. Positive reach residual means more reach than predicted. For aperture and weight, a negative residual is favorable because the kit is faster or lighter than predicted. Residuals describe trade-off efficiency, not overall image quality.</p></section>
@@ -178,6 +179,6 @@
     </div>
   </section>
 </main>
-<script src="app-loader.js?v=20260915g"></script>
+<script src="runtime-wrapper.js?v=20260916b"></script>
 </body>
 </html>
