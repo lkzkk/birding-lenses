@@ -4,7 +4,7 @@ A small static comparison tool for long-reach bird-photography kits.
 
 ## Vocabulary
 
-- **System / brand** means the camera mount/brand family: Canon, Fujifilm, Nikon, OM System or Sony.
+- **System / brand** means the camera mount/brand family: Canon, Fujifilm, Nikon, OM System or Sony. Micro Four Thirds is a shared mount, so Panasonic Leica MFT lenses can appear on the OM-1 II while remaining clearly identified as Panasonic lenses.
 - **Kit** means one specific body + lens + teleconverter configuration. Kit names are normalized as **Brand — Camera — Lens (+ teleconverter when used)**; zoom operating focal length is shown explicitly.
 
 ## Current comparison dimensions
@@ -26,6 +26,7 @@ This applies to:
 - reach range
 - maximum kit weight
 - lens type
+- external 1.4× teleconverter
 - system / brand
 - Pareto-efficient-only mode
 
@@ -57,9 +58,15 @@ Both end states are represented: 400mm F4.5 with the built-in TC disengaged (800
 
 ## Data sources
 
-- `data/systems.csv` is the runtime kit dataset.
-- `data/component_prices.csv` retains the price-source audit trail for future purchase decisions.
-- `data/spec_sources.csv` records fresh official source checks relevant to the latest specification updates.
+The canonical dataset is the union of the base CSV and its audited additions file. This keeps API-driven expansions small while the smoke test treats both files as one dataset.
+
+- `data/systems.csv` + `data/systems_additions.csv`: runtime kit records.
+- `data/component_prices.csv` + `data/component_prices_additions.csv`: component price-source audit trail.
+- `data/spec_sources.csv` + `data/spec_sources_additions.csv`: official specification/source checks.
+- `data/teleconverter_compatibility.csv` + `data/teleconverter_compatibility_additions.csv`: 1.4× compatibility audit.
+- `data/coverage_audit.csv` + `data/coverage_audit_additions.csv`: line-by-line expected/actual record coverage.
+
+`tests/smoke.py` derives the expected number of records from compatibility rules. It deliberately does not hard-code the current total number of lenses or kits.
 
 ### Sony 400/4.5 GM and 600/6.3 GM — 15 September 2026
 
@@ -76,3 +83,5 @@ The launch-price estimates were converted to CHF at EUR/CHF 0.944895 on 15 Septe
 ## Publishing
 
 Dependency-free static site deployed through GitHub Pages.
+
+Multi-file data/UI changes must follow `PROJECT_UPDATE_RULES.md`: assemble related edits on a non-deploy branch, validate the complete state, and promote it to `main` only once. The Pages workflow also coalesces rapid updates and refuses to validate/deploy a commit that has already been superseded on `main`; this prevents temporary half-updated states from producing failed deployment builds.
