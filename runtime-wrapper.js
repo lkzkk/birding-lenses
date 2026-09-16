@@ -13,7 +13,7 @@
 
   const lensType=document.getElementById('lensType');
   if(lensType&&!document.getElementById('tcFilter')){
-    lensType.closest('.filter-section')?.insertAdjacentHTML('beforeend',`<div class="control-head" style="margin-top:10px"><span>Teleconverter</span></div><div class="choice-row" id="tcFilter"><label><input id="tcNo" type="checkbox" checked> No TC</label><label><input id="tcYes" type="checkbox"> TC</label></div>`);
+    lensType.closest('.filter-section')?.insertAdjacentHTML('beforeend',`<div class="control-head" style="margin-top:10px"><span>External teleconverter</span></div><div class="choice-row" id="tcFilter"><label><input id="tcNo" type="checkbox" checked> No TC</label><label><input id="tcYes" type="checkbox"> TC</label></div>`);
   }
 
   replace('teleconverter filter state',
@@ -21,7 +21,7 @@
     "return{min:+$('minReach').value,max:+$('maxReach').value,maxW:+$('maxWeight').value,lens:radioValue('lensType'),tcNo:$('tcNo')?.checked??true,tcYes:$('tcYes')?.checked??false,brands:new Set(checked),pareto:radioValue('paretoMode')};");
   replace('teleconverter pass',
     "return s.fl>=f.min&&s.fl<=f.max&&s.weight<=f.maxW&&f.brands.has(s.brand)&&\n    (f.lens==='all'||(f.lens==='zoom')===s.zoom);",
-    "return s.fl>=f.min&&s.fl<=f.max&&s.weight<=f.maxW&&f.brands.has(s.brand)&&\n    (f.lens==='all'||(f.lens==='zoom')===s.zoom)&&((s.tc==='none'||/disengaged/i.test(s.tc))?f.tcNo:f.tcYes);");
+    "const builtInOnly=s.tc==='TC disengaged'||/^built-in/i.test(s.tc),externalTc=s.tc!=='none'&&!builtInOnly;return s.fl>=f.min&&s.fl<=f.max&&s.weight<=f.maxW&&f.brands.has(s.brand)&&\n    (f.lens==='all'||(f.lens==='zoom')===s.zoom)&&(builtInOnly||(externalTc?f.tcYes:f.tcNo));");
   replace('teleconverter reset',
     "setRadio('lensType','all');setRadio('paretoMode','all');refresh();",
     "setRadio('lensType','all');setRadio('paretoMode','all');$('tcNo').checked=true;$('tcYes').checked=false;refresh();");
