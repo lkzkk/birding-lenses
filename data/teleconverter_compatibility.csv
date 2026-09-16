@@ -2,25 +2,37 @@ lens_component_id,brand,lens_name,compatible_1_4x,teleconverter_component_id,sou
 lens-om100400ii,OM System,M.Zuiko Digital ED 100-400mm F5.0-6.3 IS II,yes,tc-om-mc14,https://explore.omsystem.com/c/en/m-zuiko-digital-1-4x-teleconverter-mc-14,OM SYSTEM MC-14 page explicitly lists the 100-400 II.
 lens-om300f4,OM System,M.Zuiko Digital ED 300mm F4.0 IS PRO,yes,tc-om-mc14,https://explore.omsystem.com/c/en/m-zuiko-digital-1-4x-teleconverter-mc-14,OM SYSTEM MC-14 page explicitly lists the 300mm F4 PRO.
 lens-om150400,OM System,M.Zuiko Digital ED 150-400mm F4.5 TC1.25x IS PRO,yes,tc-om-mc14,https://jp.omsystem.com/product/lens/zoom/pro/150-400_45ispro/feature.html,OM SYSTEM explicitly documents MC-14 used together with the lens built-in 1.25x teleconverter.
-lens-rf600f11,Canon,RF600mm F11 IS STM,yes,tc-rf14,https://www.usa.canon.com/support/p/extender-rf1-4x,Canon RF1.4x compatibility list includes RF600mm F11.
-lens-rf800f11,Canon,RF800mm F11 IS STM,yes,tc-rf14,https://www.usa.canon.com/support/p/extender-rf1-4x,Canon RF1.4x compatibility list includes RF800mm F11.
+lens-om150600,OM System,M.Zuiko Digital ED 150-600mm F5.0-6.3 IS,yes,tc-om-mc14,https://explore.omsystem.com/us/en/m-zuiko-ed-150-600mm-f5-0-6-3-is,OM SYSTEM official specifications explicitly list MC-14 compatibility.
+lens-rf100400,Canon,RF100-400mm F5.6-8 IS USM,yes,tc-rf14,https://www.usa.canon.com/support/p/extender-rf1-4x,Canon RF1.4x compatibility list includes RF100-400.
 lens-rf100500,Canon,RF100-500mm F4.5-7.1 L IS USM,yes,tc-rf14,https://www.usa.canon.com/support/p/extender-rf1-4x,Canon RF1.4x compatibility list includes RF100-500; extender use is restricted to the long end.
 lens-rf200800,Canon,RF200-800mm F6.3-9 IS USM,yes,tc-rf14,https://www.usa.canon.com/support/p/rf200-800mm-f6-3-9-is-usm,Canon lens support page states RF Extender 1.4x/2x compatibility.
+lens-rf600f11,Canon,RF600mm F11 IS STM,yes,tc-rf14,https://www.usa.canon.com/support/p/extender-rf1-4x,Canon RF1.4x compatibility list includes RF600mm F11.
+lens-rf800f11,Canon,RF800mm F11 IS STM,yes,tc-rf14,https://www.usa.canon.com/support/p/extender-rf1-4x,Canon RF1.4x compatibility list includes RF800mm F11.
+lens-rf400f28,Canon,RF400mm F2.8 L IS USM,yes,tc-rf14,https://www.usa.canon.com/support/p/extender-rf1-4x,Canon RF1.4x compatibility list includes RF400mm F2.8.
 lens-rf600f4,Canon,RF600mm F4 L IS USM,yes,tc-rf14,https://www.usa.canon.com/shop/p/extender-rf1-4x,Canon RF1.4x compatibility list includes RF600mm F4.
+lens-rf800f56,Canon,RF800mm F5.6 L IS USM,yes,tc-rf14,https://www.usa.canon.com/support/p/extender-rf1-4x,Canon RF1.4x compatibility list includes RF800mm F5.6.
+lens-xf100400,Fujifilm,XF100-400mmF4.5-5.6 R LM OIS WR,yes,tc-xf14,https://www.fujifilm-x.com/en-gb/support/compatibility/lenses/xf14x-tc-wr/,Fujifilm XF1.4X compatibility chart lists XF100-400.
 lens-xf150600,Fujifilm,XF150-600mmF5.6-8 R LM OIS WR,yes,tc-xf14,https://www.fujifilm-x.com/en-gb/support/compatibility/lenses/xf14x-tc-wr/,Fujifilm XF1.4X compatibility chart lists XF150-600.
+lens-xf400f45,Fujifilm,XF400mmF4.5 R LM OIS WR,yes,tc-xf14,https://www.fujifilm-x.com/en-gb/support/compatibility/lenses/xf14x-tc-wr/,Fujifilm XF1.4X compatibility chart lists XF400mm F4.5.
 lens-xf500,Fujifilm,XF500mmF5.6 R LM OIS WR,yes,tc-xf14,https://www.fujifilm-x.com/en-gb/support/compatibility/lenses/xf14x-tc-wr/,Fujifilm XF1.4X compatibility chart lists XF500.
-lens-gf500,Fujifilm,GF500mmF5.6 R LM OIS WR,yes,tc-gf14,https://www.fujifilm-x.com/de-ch/support/compatibility/lenses/gf14x-tc-wr/,Fujifilm GF1.4X compatibility chart lists GF500.
-lens-z600f63,Nikon,NIKKOR Z 600mm f/6.3 VR S,yes,tc-z14,https://www.nikonimgsupport.com/eu/BV_article?articleNo=000046822&configured=1&ctry=gb&lang=en_GB&setRedirect=true,Nikon support compatibility list includes this lens.
+lens-tamron150500-x,Fujifilm,Tamron 150-500mm F5-6.7 Di III VC VXD X,no,,https://www.tamron.com/global/consumer/lenses/a057x/spec.html,No supported external 1.4x teleconverter is specified for the Fujifilm X version.
+lens-z100400,Nikon,NIKKOR Z 100-400mm f/4.5-5.6 VR S,yes,tc-z14,https://www.nikonusa.com/p/z-teleconverter-tc-14x/20098/overview,Nikon Z TC-1.4x compatibility includes the Z 100-400mm.
 lens-z180600,Nikon,NIKKOR Z 180-600mm f/5.6-6.3 VR,yes,tc-z14,https://www.nikonimgsupport.com/eu/BV_article?articleNo=000046822&configured=1&ctry=gb&lang=en_GB&setRedirect=true,Nikon support compatibility list includes this lens.
 lens-z400f45,Nikon,NIKKOR Z 400mm f/4.5 VR S,yes,tc-z14,https://www.nikonimgsupport.com/eu/BV_article?articleNo=000046822&configured=1&ctry=gb&lang=en_GB&setRedirect=true,Nikon support compatibility list includes this lens.
+lens-z600f63,Nikon,NIKKOR Z 600mm f/6.3 VR S,yes,tc-z14,https://www.nikonimgsupport.com/eu/BV_article?articleNo=000046822&configured=1&ctry=gb&lang=en_GB&setRedirect=true,Nikon support compatibility list includes this lens.
 lens-z800f63,Nikon,NIKKOR Z 800mm f/6.3 VR S,yes,tc-z14,https://www.nikonimgsupport.com/eu/BV_article?articleNo=000046822&configured=1&ctry=gb&lang=en_GB&setRedirect=true,Nikon support compatibility list includes this lens.
-lens-z600f4tc,Nikon,NIKKOR Z 600mm f/4 TC VR S,yes,tc-z14,https://nij.nikon.com/products/lineup/nikkor/zmount/nikkor_z_600mm_f4_tc_vr_s/features01.html,Nikon explicitly documents 1176mm using the built-in 1.4x together with Z TELECONVERTER TC-1.4x.
 lens-z400f28tc,Nikon,NIKKOR Z 400mm f/2.8 TC VR S,yes,tc-z14,https://www.nikonusa.com/press-room/400mm,Nikon states the lens accepts Z TC-1.4x and reaches 784mm when combined with the built-in 1.4x.
+lens-z600f4tc,Nikon,NIKKOR Z 600mm f/4 TC VR S,yes,tc-z14,https://nij.nikon.com/products/lineup/nikkor/zmount/nikkor_z_600mm_f4_tc_vr_s/features01.html,Nikon explicitly documents 1176mm using the built-in 1.4x together with Z TELECONVERTER TC-1.4x.
+lens-tamron150500-z,Nikon,Tamron 150-500mm F5-6.7 Di III VC VXD (Nikon Z),no,,https://www.tamron.com/global/consumer/lenses/a057/spec.html,No supported external 1.4x teleconverter is specified for the Nikon Z version.
+lens-fe100400b,Sony,FE 100-400mm F5.6-8 OSS,yes,tc-sony14,https://www.sony.com/electronics/support/lenses-e-mount-lenses/sel100400/specifications,Sony specification lists SEL14TC.
+lens-fe100400gm,Sony,FE 100-400mm F4.5-5.6 GM OSS,yes,tc-sony14,https://www.sony.com/electronics/support/lenses-e-mount-lenses/sel100400gm/specifications,Sony specification lists SEL14TC.
+lens-fe100400mc,Sony,FE 100-400mm F4.5 GM OSS,yes,tc-sony14,https://www.sony.com/electronics/support/lenses-e-mount-lenses/sel100400mc/specifications,Sony specification lists SEL14TC.
 lens-fe200600,Sony,FE 200-600mm F5.6-6.3 G OSS,yes,tc-sony14,https://www.sony.com/electronics/support/lenses-e-mount-lenses/sel200600g/specifications,Sony specification lists SEL14TC.
-lens-sigma500,Sony,Sigma 500mm F5.6 DG DN OS Sports (Sony E),no,,https://www.sigma-global.com/jp/support/download/manual_500mm_F5.6_DG_DN_OS_S024.pdf,Sigma teleconverter support for this lens is limited to L-Mount; the Sony E version has no supported 1.4x TC.
-lens-fe400800,Sony,FE 400-800mm F6.3-8 G OSS,yes,tc-sony14,https://www.sony.com/electronics/support/lenses-e-mount-lenses/sel400800g/specifications,Sony specification lists SEL14TC.
 lens-fe300f28,Sony,FE 300mm F2.8 GM OSS,yes,tc-sony14,https://www.sony.com/electronics/support/lenses-e-mount-lenses/sel300f28gm/specifications,Sony specification lists SEL14TC.
-lens-fe600f4,Sony,FE 600mm F4 GM OSS,yes,tc-sony14,https://www.sony.com/electronics/support/lenses-e-mount-lenses/sel600f40gm/specifications,Sony specification lists SEL14TC.
 lens-fe400f28,Sony,FE 400mm F2.8 GM OSS,yes,tc-sony14,https://www.sony.com/electronics/support/lenses-e-mount-lenses/sel400f28gm/specifications,Sony specification lists SEL14TC.
 lens-fe400f45,Sony,FE 400mm F4.5 GM OSS,yes,tc-sony14,https://www.sony.co.uk/presscentre/sony-announces-new-400-mm-and-600-mm-g-master-super-telephoto-prime-lenses-the-worlds-lightest-lenses-in-their-class,Sony 2026 announcement explicitly states SEL14TC compatibility.
+lens-fe400800,Sony,FE 400-800mm F6.3-8 G OSS,yes,tc-sony14,https://www.sony.com/electronics/support/lenses-e-mount-lenses/sel400800g/specifications,Sony specification lists SEL14TC.
+lens-fe600f4,Sony,FE 600mm F4 GM OSS,yes,tc-sony14,https://www.sony.com/electronics/support/lenses-e-mount-lenses/sel600f40gm/specifications,Sony specification lists SEL14TC.
 lens-fe600f63,Sony,FE 600mm F6.3 GM OSS,yes,tc-sony14,https://www.sony.co.uk/presscentre/sony-announces-new-400-mm-and-600-mm-g-master-super-telephoto-prime-lenses-the-worlds-lightest-lenses-in-their-class,Sony 2026 announcement explicitly states SEL14TC compatibility.
+lens-sigma500,Sony,Sigma 500mm F5.6 DG DN OS Sports (Sony E),no,,https://www.sigma-global.com/jp/support/download/manual_500mm_F5.6_DG_DN_OS_S024.pdf,Sigma teleconverter support for this lens is limited to L-Mount; the Sony E version has no supported 1.4x TC.
+lens-tamron150500-e,Sony,Tamron 150-500mm F5-6.7 Di III VC VXD (Sony E),no,,https://www.tamron.com/global/consumer/lenses/a057/spec.html,No supported external 1.4x teleconverter is specified for the Sony E version.
