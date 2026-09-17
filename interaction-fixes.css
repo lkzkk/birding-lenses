@@ -1,16 +1,76 @@
-:root{--info-popover-bg:#f7f9fd}
-@media(prefers-color-scheme:dark){:root{--info-popover-bg:#252a31}}
+:root{--info-popover-bg:#f7f9fd;--control-panel-bg:color-mix(in srgb,var(--panel) 94%,#000)}
+@media(prefers-color-scheme:dark){:root{--info-popover-bg:#252a31;--control-panel-bg:color-mix(in srgb,var(--panel) 91%,#000)}}
 .info-popover{background:var(--info-popover-bg)}
 .info-close{background:var(--info-popover-bg)}
-.residual-controls{display:grid;gap:2px;align-self:end;max-width:500px}
+.info-popover .scenario h3{margin:0 0 4px;font-size:12px;color:var(--text)}
+.info-popover p strong{color:var(--text)}
+
+/* Main control panels: secondary to the plot, side-by-side on desktop. */
+.control-panels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-bottom:16px;align-items:start}
+.control-panel{padding:0;margin:0;background:var(--control-panel-bg);overflow:visible}
+.panel-toggle{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:0;border-radius:12px;background:transparent;color:var(--text);font-weight:800;text-align:left}
+.panel-toggle:hover{border-color:transparent;background:color-mix(in srgb,var(--panel) 48%,transparent)}
+.panel-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.panel-toggle-icon{font-size:17px;line-height:1;color:var(--muted);transition:transform .14s ease}
+.panel-toggle[aria-expanded="true"] .panel-toggle-icon{transform:rotate(180deg)}
+.panel-body{padding:0 14px 14px}
+.panel-body-actions{display:flex;justify-content:flex-end;min-height:32px;margin:0 0 8px}
+.panel-body-actions button{background:var(--panel)}
+
+.control-panels .filter-controls{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.control-panels .filter-section{padding:11px 12px}
+.control-panels .filter-section:nth-child(odd){padding-left:0;border-left:0}
+.control-panels .filter-section:nth-child(even){padding-right:0}
+.control-panels .filter-section:nth-child(n+3){border-top:1px solid var(--border)}
+.control-title{display:inline-flex;align-items:center;gap:5px;min-width:0}
+
+/* Visuals are three clear sections inside their panel. */
+.visual-grid-three{grid-template-columns:1fr}
+.visual-grid-three .visual-section,.visual-grid-three .visual-section:first-child,.visual-grid-three .visual-section:last-child{padding:12px 0}
+.visual-grid-three .visual-section+.visual-section{border-left:0;border-top:1px solid var(--border)}
+.visual-grid-three .options-section{padding-bottom:0}
+.color-control{display:grid;gap:5px;align-items:start}
+.color-control>select{width:min(100%,330px)}
+.compact-head{justify-content:flex-start;min-height:0;margin-bottom:0}
+.inline-legend{width:min(100%,430px);margin-top:3px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+.inline-legend .legendbar{margin-top:7px}
+.inline-legend .hint{margin:6px 0 0;font-size:10px;line-height:1.4}
+.residual-controls{display:grid;gap:2px;align-self:end;max-width:500px;margin-top:10px}
 .residual-toggle-row{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap}
 .residual-toggle-row .check-control{padding-bottom:0}
+.check-with-help{display:inline-flex;align-items:center;gap:4px}
 .check-control:has(input:disabled){opacity:.48;color:var(--muted);cursor:not-allowed}
 .residual-mode-note{margin-top:1px}
+
+/* Small contextual explainers live beside the control they explain. */
+.mini-help{position:relative;display:inline-flex;align-items:center;z-index:20}
+.mini-info-button{width:19px;height:19px;min-width:19px;padding:0;border-radius:50%;background:var(--panel);color:var(--muted);font:700 11px/17px Georgia,serif;text-align:center}
+.mini-popover{position:absolute;left:0;top:25px;z-index:60;width:min(390px,calc(100vw - 40px));padding:11px 12px;border:1px solid var(--border);border-radius:9px;background:var(--info-popover-bg);box-shadow:0 12px 34px rgba(0,0,0,.20);opacity:0;visibility:hidden;transform:translateY(-3px);transition:opacity .12s ease,transform .12s ease,visibility .12s;pointer-events:none;color:var(--text);font-size:11px;line-height:1.45;text-transform:none;letter-spacing:normal;font-weight:400}
+.visual-panel .mini-popover{left:auto;right:0}
+.mini-help.is-open .mini-popover{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.mini-popover strong,.mini-popover .help-copy,.mini-popover .help-links{display:block}
+.mini-popover strong{margin-bottom:5px;font-size:12px}
+.mini-popover .help-copy,.mini-popover .help-links{color:var(--muted)}
+.mini-popover .help-links{margin-top:7px}
+.mini-popover a{color:var(--accent)}
+
+/* Plot is now the primary full-width object. */
+.plot-section{margin-top:2px}
+.plot-heading{margin-bottom:8px}
+.plot-heading strong{font-size:15px}
+.detailcard{padding:13px;margin-top:10px}
+
+@media(max-width:900px){
+  .control-panels{grid-template-columns:1fr}
+}
 @media(max-width:720px){
   .plotwrap{padding:8px 10px 18px}
   .point-popup{max-width:min(280px,calc(100% - 20px));font-size:11px}
   .chart-hint{line-height:1.35}
+  .control-panels .filter-controls{grid-template-columns:1fr}
+  .control-panels .filter-section,.control-panels .filter-section:nth-child(odd),.control-panels .filter-section:nth-child(even){padding:11px 0;border-left:0;border-top:1px solid var(--border)}
+  .control-panels .filter-section:first-child{border-top:0}
   .residual-controls{max-width:none}
   .residual-toggle-row{gap:7px 12px}
+  .mini-popover,.visual-panel .mini-popover{position:fixed;left:12px;right:12px;top:68px;width:auto;max-height:72vh;overflow:auto}
 }
