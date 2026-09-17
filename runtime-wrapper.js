@@ -35,7 +35,7 @@
 
   replace('remove chart zoom state',
     "let selected=null,shortlist=[],hovered=null,sort={key:'seq',dir:1},yaw=-38*Math.PI/180,pitch=24*Math.PI/180,zoom=1,pointer=null,activeView='custom';",
-    "let selected=null,shortlist=[],hovered=null,sort={key:'seq',dir:1},yaw=-38*Math.PI/180,pitch=24*Math.PI/180,pointer=null,activeView='custom';");
+    "let selected=null,shortlist=[],hovered=null,sort={key:'seq',dir:1},yaw=-38*Math.PI/180,pitch=24*Math.PI/180,pointer=null,activeView='three-d';");
   replace('fixed chart scale',
     "function project([x,y,z]){const cy=Math.cos(yaw),sy=Math.sin(yaw),x1=x*cy-z*sy,z1=x*sy+z*cy,cp=Math.cos(pitch),sp=Math.sin(pitch),y1=y*cp-z1*sp,z2=y*sp+z1*cp,sc=220*zoom;return[470+x1*sc,330-y1*sc,z2]}",
     "function project([x,y,z]){const cy=Math.cos(yaw),sy=Math.sin(yaw),x1=x*cy-z*sy,z1=x*sy+z*cy,cp=Math.cos(pitch),sp=Math.sin(pitch),y1=y*cp-z1*sp,z2=y*sp+z1*cp,sc=220;return[470+x1*sc,330-y1*sc,z2]}");
@@ -47,10 +47,11 @@
     "    if(active&&hoverCapable){\n      grp.addEventListener('mouseenter'");
   replace('mobile clear selection',
     "function clearSelection(){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class=\"hint\">Use “Compare” to add up to five kits to the shortlist.</p>';render();renderTable()}",
-    "function clearSelection(){selected=null;hovered=null;popup.hidden=true;detail.innerHTML='<strong>Select a kit</strong><p class=\"hint\">Tap or click a point to inspect it. Use “Compare” to add up to five kits to the shortlist.</p>';render();renderTable()}");
+    "function clearSelection(){selected=null;hovered=null;popup.hidden=true;detail.innerHTML='<strong>Select a kit</strong><p class=\"hint\">Tap or click any active point to inspect the kit and add it to the shortlist.</p>';render();renderTable()}");
   replace('filtered selection reset copy',
     "if(selected!==null&&!activeSet.has(selected)){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class=\"hint\">Use “Compare” to add up to five kits to the shortlist.</p>'}",
-    "if(selected!==null&&!activeSet.has(selected)){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class=\"hint\">Tap or click a point to inspect it. Use “Compare” to add up to five kits to the shortlist.</p>'}");
+    "if(selected!==null&&!activeSet.has(selected)){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class=\"hint\">Tap or click any active point to inspect the kit and add it to the shortlist.</p>'}");
+
   replace('mobile pointer interaction',
     "svg.addEventListener('pointerdown',e=>{if(e.button!==0&&e.button!==undefined)return;const hit=e.target.closest?.('[data-i]');pointer={id:e.pointerId,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,drag:false,hit:hit?+hit.dataset.i:null}});\nsvg.addEventListener('pointermove',e=>{if(!pointer||pointer.id!==e.pointerId)return;const moved=Math.hypot(e.clientX-pointer.sx,e.clientY-pointer.sy);if(!pointer.drag&&moved>5){pointer.drag=true;activeView='custom';try{svg.setPointerCapture(e.pointerId)}catch(_){}}if(!pointer.drag)return;const dx=e.clientX-pointer.lx,dy=e.clientY-pointer.ly;pointer.lx=e.clientX;pointer.ly=e.clientY;yaw+=dx*.01;pitch=Math.max(-1.48,Math.min(1.48,pitch+dy*.008));render()});\nsvg.addEventListener('pointerup',e=>{if(!pointer||pointer.id!==e.pointerId)return;const p=pointer;pointer=null;if(svg.hasPointerCapture(e.pointerId))svg.releasePointerCapture(e.pointerId);if(!p.drag){if(Number.isInteger(p.hit)&&activeSet.has(p.hit))select(p.hit);else clearSelection()}});\nsvg.addEventListener('pointercancel',()=>pointer=null);svg.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.65,Math.min(1.5,zoom*(e.deltaY>0?.94:1.06)));activeView='custom';render()},{passive:false});",
     "function hitTestPoint(e){const rect=svg.getBoundingClientRect();if(!rect.width||!rect.height)return null;const sx=(e.clientX-rect.left)*940/rect.width,sy=(e.clientY-rect.top)*670/rect.height,px=rect.width/940,py=rect.height/670,limit=e.pointerType==='touch'?24:14;let best=null,bestDist=limit,bestDepth=-Infinity;for(const i of activeIds){const p=project(coords(S[i])),d=Math.hypot((p[0]-sx)*px,(p[1]-sy)*py);if(d<bestDist-.25||(Math.abs(d-bestDist)<=.25&&p[2]>bestDepth)){best=i;bestDist=d;bestDepth=p[2]}}return best}\nsvg.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;if(e.pointerType!=='mouse'){hovered=null;if(selected===null)popup.hidden=true}pointer={id:e.pointerId,sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,drag:false,hit:hitTestPoint(e),threshold:e.pointerType==='touch'?9:5};try{svg.setPointerCapture(e.pointerId)}catch(_){}});\nsvg.addEventListener('pointermove',e=>{if(!pointer||pointer.id!==e.pointerId)return;const moved=Math.hypot(e.clientX-pointer.sx,e.clientY-pointer.sy);if(!pointer.drag&&moved>pointer.threshold){pointer.drag=true;activeView='custom'}if(!pointer.drag)return;const dx=e.clientX-pointer.lx,dy=e.clientY-pointer.ly;pointer.lx=e.clientX;pointer.ly=e.clientY;yaw+=dx*.01;pitch=Math.max(-1.48,Math.min(1.48,pitch+dy*.008));render()});\nsvg.addEventListener('pointerup',e=>{if(!pointer||pointer.id!==e.pointerId)return;const p=pointer;pointer=null;try{if(svg.hasPointerCapture(e.pointerId))svg.releasePointerCapture(e.pointerId)}catch(_){}if(!p.drag){if(Number.isInteger(p.hit)&&activeSet.has(p.hit))select(p.hit);else clearSelection()}});\nsvg.addEventListener('pointercancel',e=>{if(pointer?.id===e.pointerId)pointer=null});");
@@ -68,7 +69,7 @@ function colorFor`);
 
   replace('residual control state',
     "const bar=$('legendBar');bar.className='legendbar '+(cs.mode==='neutral'?'neutral':'metric');",
-    "const bar=$('legendBar'),colorLegend=$('colorLegend'),recalc=$('recalcResidualToggle'),plane=$('planeToggle'),residualNote=$('residualModeNote'),residualMode=cs.kind==='res';if(colorLegend)colorLegend.hidden=cs.mode==='neutral';bar.className='legendbar '+(cs.mode==='neutral'?'neutral':'metric');if(recalc){recalc.disabled=!residualMode;if(!residualMode)recalc.checked=false}if(plane)plane.disabled=!residualMode;if(residualNote)residualNote.hidden=residualMode;");
+    "const bar=$('legendBar'),colorLegend=$('colorLegend'),recalc=$('recalcResidualToggle'),plane=$('planeToggle'),residualNote=$('residualModeNote'),residualMode=cs.kind==='res';if(colorLegend)colorLegend.classList.toggle('is-empty',cs.mode==='neutral');bar.className='legendbar '+(cs.mode==='neutral'?'neutral':'metric');if(recalc){recalc.disabled=!residualMode;if(!residualMode)recalc.checked=false}if(plane)plane.disabled=!residualMode;if(residualNote)residualNote.hidden=residualMode;");
   replace('residual legend note',
     "$('legendNote').textContent=cs.kind==='abs'?`Green = ${better[cs.dep]}; red = less favorable. Filtered-out kits stay grey.`:`Green = ${better[cs.dep]} than predicted from the other two metrics. Filtered-out kits stay grey.`;",
     "$('legendNote').textContent=cs.kind==='abs'?`Green = ${better[cs.dep]}; red = less favorable. Filtered-out kits stay grey.`:`Green = ${better[cs.dep]} than predicted from the other two metrics. ${cs.recalc?'Regression uses only currently active filtered kits.':'Regression uses the full dataset.'} Filtered-out kits stay grey.`;");
@@ -91,6 +92,30 @@ function colorFor`);
   replace('residual toggle listener',
     "brandFilter.addEventListener('change',e=>",
     "$('recalcResidualToggle')?.addEventListener('change',refresh);brandFilter.addEventListener('change',e=>");
+
+  replace('preset orientations',
+    "function useView(v){activeView=v;if(v==='reach-aperture'){yaw=0;pitch=0}else if(v==='reach-weight'){yaw=0;pitch=-Math.PI/2}else if(v==='aperture-weight'){yaw=Math.PI/2;pitch=0}render()}",
+    "function useView(v){activeView=v;if(v==='three-d'){yaw=-38*Math.PI/180;pitch=24*Math.PI/180}else if(v==='reach-aperture'){yaw=0;pitch=0}else if(v==='reach-weight'){yaw=0;pitch=-Math.PI/2}else if(v==='aperture-weight'){yaw=-Math.PI/2;pitch=0}render()}");
+
+  replace('weight slider fill',
+    "$('reachFill').style.left=`${left}%`;$('reachFill').style.right=`${right}%`;lo.style.zIndex=min>max-60?'5':'3';hi.style.zIndex='4';",
+    "$('reachFill').style.left=`${left}%`;$('reachFill').style.right=`${right}%`;const w=$('maxWeight'),wSpan=(+w.max-+w.min)||1,wPct=((+w.value-+w.min)/wSpan*100);w.style.setProperty('--range-pct',`${wPct}%`);lo.style.zIndex=min>max-60?'5':'3';hi.style.zIndex='4';");
+
+  replace('active first table sorting',
+    "const ids=S.map(s=>s.i),key=sort.key,dir=sort.dir;ids.sort((ia,ib)=>{const a=S[ia],b=S[ib];let va=key==='name'?a.name:key==='pareto'?(frontier.has(ia)?1:0):a[key],vb=key==='name'?b.name:key==='pareto'?(frontier.has(ib)?1:0):b[key];return(typeof va==='string'?va.localeCompare(vb):va-vb)*dir});return ids;",
+    "const ids=S.map(s=>s.i),key=sort.key,dir=sort.dir;ids.sort((ia,ib)=>{const aa=activeSet.has(ia),ab=activeSet.has(ib);if(aa!==ab)return aa?-1:1;const a=S[ia],b=S[ib];let va=key==='name'?a.name:key==='pareto'?(frontier.has(ia)?1:0):a[key],vb=key==='name'?b.name:key==='pareto'?(frontier.has(ib)?1:0):b[key];return(typeof va==='string'?va.localeCompare(vb):va-vb)*dir});return ids;");
+
+  replace('shortlist status',
+    "const table=$('compareTable'),empty=$('compareEmpty'),tb=table.querySelector('tbody');tb.innerHTML='';if(!shortlist.length){table.hidden=true;empty.hidden=false;return}empty.hidden=true;table.hidden=false;",
+    "const table=$('compareTable'),empty=$('compareEmpty'),tb=table.querySelector('tbody'),status=$('shortlistStatus');if(status)status.textContent=`${shortlist.length} / 5 shortlisted`;tb.innerHTML='';if(!shortlist.length){table.hidden=true;empty.hidden=false;return}empty.hidden=true;table.hidden=false;");
+
+  replaceRe('persistent shortlist points',
+    /const active=activeSet\.has\(i\),isSel=i===selected,isShort=shortlist\.includes\(i\);\n    const grp=mk\('g',active\?\{'data-i':i\}:\{'data-filtered-i':i\},g\);grp\.style\.opacity=active\?'1':'\.18';if\(!active\)grp\.style\.pointerEvents='none';\n    const baseR=pointRadius\(s\),r=isSel\?baseR\+3:isShort&&active\?baseR\+2:baseR,fill=active\?colorFor\(s,cs\):'var\(--filtered\)';\n    mk\('circle',\{cx:p\[0\],cy:p\[1\],r,fill,stroke:isSel\?'var\(--accent\)':isShort&&active\?'var\(--text\)':active\?'rgba\(255,255,255,.9\)':'var\(--grid\)','stroke-width':isSel\?'3':'1.2',style:`cursor:\$\{active\?'pointer':'default'\}`\},grp\);\n    if\(active&&\(isSel\|\|isShort\)\)tx\(p\[0\]\+10,p\[1\]-9,pointLabel\(s\),\{'font-size':'10','font-weight':isSel\?'800':'650'\},g\);/,
+    `const active=activeSet.has(i),isSel=i===selected,isShort=shortlist.includes(i),shortNo=isShort?shortlist.indexOf(i)+1:0;
+    const grp=mk('g',active?{'data-i':i}:{'data-filtered-i':i},g);grp.style.opacity=active?'1':isShort?'.72':'.16';if(!active)grp.style.pointerEvents='none';
+    const baseR=pointRadius(s),r=isSel?baseR+4:isShort?baseR+3:baseR,fill=active?colorFor(s,cs):'var(--filtered)';
+    mk('circle',{cx:p[0],cy:p[1],r,fill,stroke:isSel?'var(--accent)':isShort?'var(--text)':active?'rgba(255,255,255,.9)':'var(--grid)','stroke-width':isSel?'4':isShort?'3':'1.2',style:`cursor:${active?'pointer':'default'}`},grp);
+    if(isSel||isShort)tx(p[0]+10,p[1]-9,isShort?`${shortNo}. ${pointLabel(s)}`:pointLabel(s),{'font-size':'10','font-weight':isSel?'800':'650'},g);`);
 
   await (0,eval)(`${text}\n//# sourceURL=app-core.js`);
 
