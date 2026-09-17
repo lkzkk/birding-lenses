@@ -10,7 +10,7 @@ SPEC_FILES=[ROOT/'data'/'spec_sources.csv',ROOT/'data'/'spec_sources_additions.c
 COMPAT_FILES=[ROOT/'data'/'teleconverter_compatibility.csv',ROOT/'data'/'teleconverter_compatibility_additions.csv']
 COVERAGE_FILES=[ROOT/'data'/'coverage_audit.csv',ROOT/'data'/'coverage_audit_additions.csv']
 HTML=ROOT/'index.html'; JS=ROOT/'app.js'; CSS=ROOT/'styles.css'; UXCSS=ROOT/'interaction-fixes.css'; RUNTIME=ROOT/'runtime-wrapper.js'
-WORKFLOW=ROOT/'.github'/'workflows'/'static.yml'; UPDATE_RULES=ROOT/'PROJECT_UPDATE_RULES.md'
+WORKFLOW=ROOT/'.github'/'workflows'/'static.yml'; UPDATE_RULES=ROOT/'PROJECT_UPDATE_RULES.md'; UI_AUDIT=ROOT/'UI_REDESIGN_AUDIT.md'
 SYS_REQUIRED={'system_id','brand','list_name','body','lens','teleconverter','equiv_focal_length_mm','equiv_f_stop','system_weight_g'}
 BUILTIN_TC_LENSES={'lens-om150400','lens-z400f28tc','lens-z600f4tc'}
 EXPECTED_BODIES={'OM System OM-1 II','Canon EOS R5 Mark II','Fujifilm X-H2S','Nikon Z8','Sony Alpha 1 II'}
@@ -89,7 +89,6 @@ def main():
     for lens_id in {'lens-panaleica100400ii','lens-panaleica50200','lens-panaleica200'}:
         assert compat_by_id[lens_id]['compatible_1_4x']=='yes', lens_id
 
-    # Cardinality is derived from compatibility, never from a hard-coded global kit count.
     expected_total=0
     expected_by_lens={}
     for lens_id in sorted(used_lens_ids):
@@ -131,28 +130,40 @@ def main():
 
     html=HTML.read_text(encoding='utf-8'); js=JS.read_text(encoding='utf-8'); css=CSS.read_text(encoding='utf-8'); uxcss=UXCSS.read_text(encoding='utf-8'); runtime=RUNTIME.read_text(encoding='utf-8')
     workflow=WORKFLOW.read_text(encoding='utf-8'); update_rules=UPDATE_RULES.read_text(encoding='utf-8')
-    for marker in ['id="minReach" class="range-thumb range-thumb-min" type="range"','id="maxReach" class="range-thumb range-thumb-max" type="range"','id="reachFill"','id="maxWeight"','name="lensType"','name="paretoMode"','System / brand','id="colorMode"','id="planeToggle"','id="sizePriceToggle"','id="recalcResidualToggle"','id="plot"','id="rankTable"']:
+    assert UI_AUDIT.is_file()
+
+    for marker in [
+        'id="minReach" class="range-thumb range-thumb-min" type="range"',
+        'id="maxReach" class="range-thumb range-thumb-max" type="range"',
+        'id="reachFill"','id="maxWeight"','name="lensType"','name="paretoMode"',
+        'id="brandFilter"','id="colorMode"','id="planeToggle"','id="sizePriceToggle"',
+        'id="recalcResidualToggle"','id="plot"','id="rankTable"','id="shortlistStatus"'
+    ]:
         assert marker in html, marker
+
     assert 'statusFilter' not in html and 'Highlight similar kits' not in html
     assert 'id="infoPopover"' in html and 'id="infoButton"' in html and 'id="infoClose"' in html
     assert 'DPReview: What is equivalence?' in html and 'https://buymeacoffee.com/lkzk' in html
-    assert 'interaction-fixes.css?v=20260917a' in html and 'runtime-wrapper.js?v=20260917a' in html
+    assert 'interaction-fixes.css?v=20260917c' in html and 'runtime-wrapper.js?v=20260917c' in html
     assert 'id="planeToggle" type="checkbox" disabled' in html
     assert 'id="recalcResidualToggle" type="checkbox" disabled' in html
-    assert 'Select an efficiency residual color mode' in html
-    assert 'wheel to zoom' not in html and 'tap or click empty plot space to deselect' in html
+    assert 'Choose an efficiency residual color mode' in html
+    assert 'wheel to zoom' not in html
 
-    # Revised information architecture and terminology.
+    # Task-oriented information architecture.
     assert '<title>Telephotos Side-by-Side</title>' in html
     assert '<h1>Telephotos Side-by-Side</h1>' in html
     assert 'Visualise lens tradeoffs between various camera + telephoto kits for birding and wildlife' in html
-    assert 'class="control-panels"' in html
-    assert 'aria-controls="filtersBody"' in html and 'id="filtersBody" hidden' in html
-    assert 'aria-controls="visualsBody"' in html and 'id="visualsBody" hidden' in html
-    assert '<span>Visuals</span>' in html and 'Visual options' not in html
-    assert 'id="clearSelection" type="button" aria-label="Reset selected kit">Reset</button>' in html
-    assert 'Presets' in html and 'Color and regression' in html and 'Options' in html
-    assert 'id="colorLegend" class="inline-legend" hidden' in html
+    assert 'aria-controls="controlsBody"' in html and 'id="controlsBody" hidden' in html
+    assert html.count('class="panel-toggle shared-controls-toggle"')==1
+    assert 'Filters &amp; display' in html
+    assert 'Define which kits are active.' in html
+    assert 'Change encoding without changing the candidate set.' in html
+    assert '>Reset filters</button>' in html and '>Reset selection</button>' in html
+    assert 'data-view="three-d"' in html
+    assert 'data-view="reach-aperture"' in html and 'data-view="reach-weight"' in html and 'data-view="aperture-weight"' in html
+    assert 'id="colorLegend" class="inline-legend is-empty"' in html
+    assert 'legend-placeholder' in html and 'No color encoding' in html
     assert 'Camera kit plot' in html and 'chartgrid' not in html
     assert html.index('id="plot"') < html.index('id="detail"')
     assert all(x in html for x in ['id="reachHelp"','id="paretoHelp"','id="residualHelp"','id="planeHelp"'])
@@ -163,9 +174,18 @@ def main():
 
     for marker in ['data-filtered-i','activeSet','computeFrontier','colorFor','axis-reach','axis-aperture','axis-weight','pointRadius','brandAll','reachResidual']:
         assert marker in js or marker in css, marker
+
     # Canonical core still contains zoom; runtime removes it before evaluation.
     assert 'zoom=1,pointer=null' in js and 'sc=220*zoom' in js and "addEventListener('wheel'" in js
-    for marker in ['supplemental kit data','systems_additions.csv','recalcResidualToggle','return 4.5+12.5*Math.sqrt(q);','hover label dedupe','setInfoOpen','teleconverter filter state','teleconverter pass','teleconverter reset','teleconverter listeners','remove chart zoom state','fixed chart scale','hover capability','mobile clear selection','mobile pointer interaction','hitTestPoint','setPointerCapture','residualModeNote','filtered selection reset copy','popup equivalent aperture label','colorLegend','panel-toggle','mini-help']:
+    for marker in [
+        'supplemental kit data','systems_additions.csv','recalcResidualToggle',
+        'return 4.5+12.5*Math.sqrt(q);','hover label dedupe','setInfoOpen',
+        'teleconverter filter state','teleconverter pass','teleconverter reset','teleconverter listeners',
+        'remove chart zoom state','fixed chart scale','hover capability','mobile clear selection',
+        'mobile pointer interaction','hitTestPoint','setPointerCapture','residualModeNote',
+        'filtered selection reset copy','popup equivalent aperture label','colorLegend','panel-toggle','mini-help',
+        'preset orientations','weight slider fill','active first table sorting','shortlist status','persistent shortlist points'
+    ]:
         assert marker in runtime, marker
     assert 'External 1.4× teleconverter' in runtime
     assert '<input id="tcNo" type="checkbox" checked> No 1.4× TC' in runtime
@@ -174,12 +194,23 @@ def main():
     assert "builtInOnly||(externalTc?f.tcYes:f.tcNo)" in runtime
     assert "hovered=null;popup.hidden=true" in runtime
     assert "residualMode=cs.kind==='res'" in runtime and "recalc.disabled=!residualMode" in runtime and "plane.disabled=!residualMode" in runtime
-    assert "colorLegend.hidden=cs.mode==='neutral'" in runtime
+    assert "colorLegend.classList.toggle('is-empty',cs.mode==='neutral')" in runtime
+    assert "v==='aperture-weight'){yaw=-Math.PI/2" in runtime
+    assert "activeView='three-d'" in runtime
+    assert "status.textContent=`${shortlist.length} / 5 shortlisted`" in runtime
+    assert 'shortNo=isShort?shortlist.indexOf(i)+1:0' in runtime
+    assert 'const aa=activeSet.has(ia),ab=activeSet.has(ib)' in runtime
+    assert "w.style.setProperty('--range-pct'" in runtime
     assert 'equivalent aperture f/${s.fstop}' in runtime
-    assert '--info-popover-bg:#f7f9fd' in uxcss and '--info-popover-bg:#252a31' in uxcss
-    assert '--control-panel-bg:' in uxcss and '.control-panels{' in uxcss and '.panel-toggle{' in uxcss
+
+    assert '--info-popover-bg:#f8fafc' in uxcss and '--info-popover-bg:#24282e' in uxcss
+    assert '.control-drawer{' in uxcss and '.shared-controls-toggle{' in uxcss
+    assert '.weight-slider::-webkit-slider-runnable-track' in uxcss and '--range-pct' in uxcss
+    assert '.inline-legend.is-empty .legend-content' in uxcss
+    assert '.plot-presets{' in uxcss and '.plot-key{' in uxcss
+    assert '#rankTable thead th{position:sticky' in uxcss
     assert ':has(+ #tcFilter)' not in uxcss
-    assert '.check-control:has(input:disabled)' in uxcss and '.plotwrap{padding:8px 10px 18px}' in uxcss
+    assert '.check-control:has(input:disabled)' in uxcss
     assert 'type="number"' not in html and 'Highlight frontier' not in html
 
     # Deployment logic must never validate a rapidly superseded partial main state.
