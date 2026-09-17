@@ -136,16 +136,36 @@ def main():
     assert 'statusFilter' not in html and 'Highlight similar kits' not in html
     assert 'id="infoPopover"' in html and 'id="infoButton"' in html and 'id="infoClose"' in html
     assert 'DPReview: What is equivalence?' in html and 'https://buymeacoffee.com/lkzk' in html
-    assert 'interaction-fixes.css?v=20260916b' in html and 'runtime-wrapper.js?v=20260916d' in html
+    assert 'interaction-fixes.css?v=20260917a' in html and 'runtime-wrapper.js?v=20260917a' in html
     assert 'id="planeToggle" type="checkbox" disabled' in html
     assert 'id="recalcResidualToggle" type="checkbox" disabled' in html
-    assert 'Select an Advanced: efficiency residual color mode' in html
+    assert 'Select an efficiency residual color mode' in html
     assert 'wheel to zoom' not in html and 'tap or click empty plot space to deselect' in html
+
+    # Revised information architecture and terminology.
+    assert '<title>Telephotos Side-by-Side</title>' in html
+    assert '<h1>Telephotos Side-by-Side</h1>' in html
+    assert 'Visualise lens tradeoffs between various camera + telephoto kits for birding and wildlife' in html
+    assert 'class="control-panels"' in html
+    assert 'aria-controls="filtersBody"' in html and 'id="filtersBody" hidden' in html
+    assert 'aria-controls="visualsBody"' in html and 'id="visualsBody" hidden' in html
+    assert '<span>Visuals</span>' in html and 'Visual options' not in html
+    assert 'id="clearSelection" type="button" aria-label="Reset selected kit">Reset</button>' in html
+    assert 'Presets' in html and 'Color and regression' in html and 'Options' in html
+    assert 'id="colorLegend" class="inline-legend" hidden' in html
+    assert 'Camera kit plot' in html and 'chartgrid' not in html
+    assert html.index('id="plot"') < html.index('id="detail"')
+    assert all(x in html for x in ['id="reachHelp"','id="paretoHelp"','id="residualHelp"','id="planeHelp"'])
+    assert all(x in html for x in ['Scenario 1','Scenario 2','Scenario 3','Scenario 4'])
+    assert 'Equivalent aperture residual' in html
+    assert 'Reach × equivalent aperture' in html and 'Equivalent aperture × weight' in html
+    assert '>Aperture residual<' not in html and '>Eq. f<' not in html and '>Eq. f-stop<' not in html
+
     for marker in ['data-filtered-i','activeSet','computeFrontier','colorFor','axis-reach','axis-aperture','axis-weight','pointRadius','brandAll','reachResidual']:
         assert marker in js or marker in css, marker
     # Canonical core still contains zoom; runtime removes it before evaluation.
     assert 'zoom=1,pointer=null' in js and 'sc=220*zoom' in js and "addEventListener('wheel'" in js
-    for marker in ['supplemental kit data','systems_additions.csv','recalcResidualToggle','return 4.5+12.5*Math.sqrt(q);','hover label dedupe','setInfoOpen','teleconverter filter state','teleconverter pass','teleconverter reset','teleconverter listeners','remove chart zoom state','fixed chart scale','hover capability','mobile clear selection','mobile pointer interaction','hitTestPoint','setPointerCapture','residualModeNote']:
+    for marker in ['supplemental kit data','systems_additions.csv','recalcResidualToggle','return 4.5+12.5*Math.sqrt(q);','hover label dedupe','setInfoOpen','teleconverter filter state','teleconverter pass','teleconverter reset','teleconverter listeners','remove chart zoom state','fixed chart scale','hover capability','mobile clear selection','mobile pointer interaction','hitTestPoint','setPointerCapture','residualModeNote','filtered selection reset copy','popup equivalent aperture label','colorLegend','panel-toggle','mini-help']:
         assert marker in runtime, marker
     assert 'External 1.4× teleconverter' in runtime
     assert '<input id="tcNo" type="checkbox" checked> No 1.4× TC' in runtime
@@ -154,7 +174,10 @@ def main():
     assert "builtInOnly||(externalTc?f.tcYes:f.tcNo)" in runtime
     assert "hovered=null;popup.hidden=true" in runtime
     assert "residualMode=cs.kind==='res'" in runtime and "recalc.disabled=!residualMode" in runtime and "plane.disabled=!residualMode" in runtime
+    assert "colorLegend.hidden=cs.mode==='neutral'" in runtime
+    assert 'equivalent aperture f/${s.fstop}' in runtime
     assert '--info-popover-bg:#f7f9fd' in uxcss and '--info-popover-bg:#252a31' in uxcss
+    assert '--control-panel-bg:' in uxcss and '.control-panels{' in uxcss and '.panel-toggle{' in uxcss
     assert ':has(+ #tcFilter)' not in uxcss
     assert '.check-control:has(input:disabled)' in uxcss and '.plotwrap{padding:8px 10px 18px}' in uxcss
     assert 'type="number"' not in html and 'Highlight frontier' not in html
