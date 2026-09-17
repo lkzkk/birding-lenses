@@ -76,6 +76,10 @@
 .plot-presets .viewbtn{padding:5px 8px;background:color-mix(in srgb,var(--panel) 92%,transparent);font-size:11px}
 .detailcard{padding:13px;margin-top:10px}
 
+/* Shortlisted points need a clear cube state, not just a near-white outline. */
+#plot circle[stroke="var(--text)"]{stroke:var(--accent)!important;stroke-width:3px!important}
+#plot text[font-weight="650"]:not([data-hover-label]){fill:var(--accent);font-weight:800;paint-order:stroke;stroke:var(--panel);stroke-width:3px;stroke-linejoin:round}
+
 @media(max-width:900px){
   .control-panels{grid-template-columns:1fr}
 }
