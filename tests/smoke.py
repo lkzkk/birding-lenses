@@ -144,7 +144,7 @@ def main():
     assert 'statusFilter' not in html and 'Highlight similar kits' not in html
     assert 'id="infoPopover"' in html and 'id="infoButton"' in html and 'id="infoClose"' in html
     assert 'DPReview: What is equivalence?' in html and 'https://buymeacoffee.com/lkzk' in html
-    assert 'interaction-fixes.css?v=20260919b' in html and 'runtime-wrapper.js?v=20260919a' in html
+    assert 'interaction-fixes.css?v=20260919b' in html and 'runtime-wrapper.js?v=20260919d' in html
     assert 'id="planeToggle" type="checkbox" disabled' in html
     assert 'id="recalcResidualToggle" type="checkbox" disabled' in html
     assert 'Choose an efficiency residual color mode' in html
@@ -204,6 +204,12 @@ def main():
     assert 'const aa=activeSet.has(ia),ab=activeSet.has(ib)' in runtime
     assert "w.style.setProperty('--range-pct'" in runtime
     assert 'equivalent aperture f/${s.fstop}' in runtime
+    assert 'const assetToken=Date.now()' in runtime
+    assert 'const dataToken=Date.now()' in runtime
+    assert 'systems.csv?v=${dataToken}' in runtime and 'systems_additions.csv?v=${dataToken}' in runtime
+    assert "priceDate:r.price_checked_date||''" in js
+    assert '<div>Price snapshot</div>' in js and '<div>Price checked</div>' in js
+    assert "['Price checked',i=>S[i].priceDate||'—']" in js
 
     assert '--info-popover-bg:#f8fafc' in uxcss and '--info-popover-bg:#24282e' in uxcss
     assert '.control-drawer{' in uxcss and '.shared-controls-toggle{' in uxcss
@@ -233,6 +239,8 @@ def main():
     assert next(r for r in rows if r['system_id']=='om1ii-100400-400')['system_price_chf']=='3026'
     assert next(r for r in rows if r['system_id']=='om1ii-300f4-14x')['system_price_chf']=='4585'
     assert next(r for r in rows if r['system_id']=='om1ii-150400-400')['system_price_chf']=='8197'
+    assert next(r for r in rows if r['system_id']=='om1ii-150400-400')['price_checked_date']=='2026-09-19'
+    assert next(r for r in rows if r['system_id']=='om1ii-150400-400-14x')['system_price_chf']=='8646'
     assert next(r for r in rows if r['system_id']=='om1ii-150600-600-14x')['system_price_chf']=='4335'
     assert next(r for r in rows if r['system_id']=='om1ii-panaleica50200-200')['system_price_chf']=='3087'
 
