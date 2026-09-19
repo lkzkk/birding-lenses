@@ -338,3 +338,21 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{
   .segmented label span,#tcFilter label{padding:5px 8px}
   .brandfilter label{font-size:10px}
 }
+
+
+/* Comparison is a matrix: each shortlisted kit is a vertical column. */
+.compare-wrap{overflow-x:auto}
+.compare-matrix{table-layout:fixed;min-width:760px}
+.compare-matrix th,.compare-matrix td{text-align:center;vertical-align:top}
+.compare-matrix .compare-metric-head,.compare-matrix tbody th{width:118px;text-align:left;position:sticky;left:0;z-index:2;background:var(--panel)}
+.compare-matrix .compare-kit-head{position:relative;min-width:155px;padding:12px 10px 10px;text-transform:none;letter-spacing:0;white-space:normal;color:var(--text)}
+.compare-kit-head strong{display:block;font-size:11px;line-height:1.35;padding:0 18px}
+.compare-number{position:absolute;top:11px;left:8px;display:inline-grid;place-items:center;width:18px;height:18px;border:2px solid var(--accent);border-radius:50%;color:var(--accent);font-size:10px;font-weight:900}
+.compare-kit-head button{margin-top:8px;padding:4px 7px;font-size:10px}
+.compare-filtered{display:block;margin-top:4px;color:var(--muted);font-size:9px;font-weight:500}
+.compare-matrix tbody th{font-size:10px;color:var(--muted)}
+.compare-matrix tbody td{font-variant-numeric:tabular-nums;font-weight:650}
+@media(max-width:720px){
+  .compare-matrix{min-width:690px}
+  .compare-matrix .compare-metric-head,.compare-matrix tbody th{width:104px}
+}
