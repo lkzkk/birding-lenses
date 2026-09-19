@@ -105,7 +105,6 @@ function colorFor`);
     "const ids=S.map(s=>s.i),key=sort.key,dir=sort.dir;ids.sort((ia,ib)=>{const a=S[ia],b=S[ib];let va=key==='name'?a.name:key==='pareto'?(frontier.has(ia)?1:0):a[key],vb=key==='name'?b.name:key==='pareto'?(frontier.has(ib)?1:0):b[key];return(typeof va==='string'?va.localeCompare(vb):va-vb)*dir});return ids;",
     "const ids=S.map(s=>s.i),key=sort.key,dir=sort.dir;ids.sort((ia,ib)=>{const aa=activeSet.has(ia),ab=activeSet.has(ib);if(aa!==ab)return aa?-1:1;const a=S[ia],b=S[ib];let va=key==='name'?a.name:key==='pareto'?(frontier.has(ia)?1:0):a[key],vb=key==='name'?b.name:key==='pareto'?(frontier.has(ib)?1:0):b[key];return(typeof va==='string'?va.localeCompare(vb):va-vb)*dir});return ids;");
 
-    if(isSel||isShort)tx(p[0]+10,p[1]-9,isShort?`${shortNo}. ${pointLabel(s)}`:pointLabel(s),{'font-size':'10','font-weight':isSel?'800':'650'},g);`);
 
   await (0,eval)(`${text}\n//# sourceURL=app-core.js`);
 
