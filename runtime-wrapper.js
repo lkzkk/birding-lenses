@@ -1,5 +1,5 @@
 (async()=>{
-  const r=await fetch('app.js?v=20260919a',{cache:'no-store'});
+  const r=await fetch('app.js?v=20260919c',{cache:'no-store'});
   if(!r.ok) throw new Error(`App core load failed: HTTP ${r.status}`);
   let text=await r.text();
   const replace=(name,from,to)=>{
