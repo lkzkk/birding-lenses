@@ -18,7 +18,7 @@
 
   replace('supplemental kit data',
     "  const r=await fetch('data/systems.csv',{cache:'no-store'});\n  if(!r.ok)throw Error(`HTTP ${r.status}`);\n  records=parseCSV(await r.text());",
-    "  const [r,extra]=await Promise.all([fetch('data/systems.csv',{cache:'no-store'}),fetch('data/systems_additions.csv',{cache:'no-store'})]);\n  if(!r.ok)throw Error(`systems.csv HTTP ${r.status}`);\n  if(!extra.ok)throw Error(`systems_additions.csv HTTP ${extra.status}`);\n  records=[...parseCSV(await r.text()),...parseCSV(await extra.text())];");
+    "  const [r,extra]=await Promise.all([fetch('data/systems.csv?v=20260919c',{cache:'no-store'}),fetch('data/systems_additions.csv?v=20260919c',{cache:'no-store'})]);\n  if(!r.ok)throw Error(`systems.csv HTTP ${r.status}`);\n  if(!extra.ok)throw Error(`systems_additions.csv HTTP ${extra.status}`);\n  records=[...parseCSV(await r.text()),...parseCSV(await extra.text())];");
 
   replace('teleconverter filter state',
     "return{min:+$('minReach').value,max:+$('maxReach').value,maxW:+$('maxWeight').value,lens:radioValue('lensType'),brands:new Set(checked),pareto:radioValue('paretoMode')};",
