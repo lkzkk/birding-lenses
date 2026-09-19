@@ -377,7 +377,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{
   }
   .plotwrap{
     height:clamp(320px,calc(100dvh - 275px),820px);
-    min-height:0;box-sizing:border-box;overflow:hidden;
+    min-height:0;box-sizing:border-box;overflow:visible;
     padding:18px 34px 22px;
   }
   #plot{
