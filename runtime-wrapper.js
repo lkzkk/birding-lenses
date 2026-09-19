@@ -105,16 +105,6 @@ function colorFor`);
     "const ids=S.map(s=>s.i),key=sort.key,dir=sort.dir;ids.sort((ia,ib)=>{const a=S[ia],b=S[ib];let va=key==='name'?a.name:key==='pareto'?(frontier.has(ia)?1:0):a[key],vb=key==='name'?b.name:key==='pareto'?(frontier.has(ib)?1:0):b[key];return(typeof va==='string'?va.localeCompare(vb):va-vb)*dir});return ids;",
     "const ids=S.map(s=>s.i),key=sort.key,dir=sort.dir;ids.sort((ia,ib)=>{const aa=activeSet.has(ia),ab=activeSet.has(ib);if(aa!==ab)return aa?-1:1;const a=S[ia],b=S[ib];let va=key==='name'?a.name:key==='pareto'?(frontier.has(ia)?1:0):a[key],vb=key==='name'?b.name:key==='pareto'?(frontier.has(ib)?1:0):b[key];return(typeof va==='string'?va.localeCompare(vb):va-vb)*dir});return ids;");
 
-  replace('shortlist status',
-    "const table=$('compareTable'),empty=$('compareEmpty'),tb=table.querySelector('tbody');tb.innerHTML='';if(!shortlist.length){table.hidden=true;empty.hidden=false;return}empty.hidden=true;table.hidden=false;",
-    "const table=$('compareTable'),empty=$('compareEmpty'),tb=table.querySelector('tbody'),status=$('shortlistStatus');if(status)status.textContent=`${shortlist.length} / 5 shortlisted`;tb.innerHTML='';if(!shortlist.length){table.hidden=true;empty.hidden=false;return}empty.hidden=true;table.hidden=false;");
-
-  replaceRe('persistent shortlist points',
-    /const active=activeSet\.has\(i\),isSel=i===selected,isShort=shortlist\.includes\(i\);\n    const grp=mk\('g',active\?\{'data-i':i\}:\{'data-filtered-i':i\},g\);grp\.style\.opacity=active\?'1':'\.18';if\(!active\)grp\.style\.pointerEvents='none';\n    const baseR=pointRadius\(s\),r=isSel\?baseR\+3:isShort&&active\?baseR\+2:baseR,fill=active\?colorFor\(s,cs\):'var\(--filtered\)';\n    mk\('circle',\{cx:p\[0\],cy:p\[1\],r,fill,stroke:isSel\?'var\(--accent\)':isShort&&active\?'var\(--text\)':active\?'rgba\(255,255,255,.9\)':'var\(--grid\)','stroke-width':isSel\?'3':'1.2',style:`cursor:\$\{active\?'pointer':'default'\}`\},grp\);\n    if\(active&&\(isSel\|\|isShort\)\)tx\(p\[0\]\+10,p\[1\]-9,pointLabel\(s\),\{'font-size':'10','font-weight':isSel\?'800':'650'\},g\);/,
-    `const active=activeSet.has(i),isSel=i===selected,isShort=shortlist.includes(i),shortNo=isShort?shortlist.indexOf(i)+1:0;
-    const grp=mk('g',active?{'data-i':i}:{'data-filtered-i':i},g);grp.style.opacity=active?'1':isShort?'.72':'.16';if(!active)grp.style.pointerEvents='none';
-    const baseR=pointRadius(s),r=isSel?baseR+4:isShort?baseR+3:baseR,fill=active?colorFor(s,cs):'var(--filtered)';
-    mk('circle',{cx:p[0],cy:p[1],r,fill,stroke:isSel?'var(--accent)':isShort?'var(--text)':active?'rgba(255,255,255,.9)':'var(--grid)','stroke-width':isSel?'4':isShort?'3':'1.2',style:`cursor:${active?'pointer':'default'}`},grp);
     if(isSel||isShort)tx(p[0]+10,p[1]-9,isShort?`${shortNo}. ${pointLabel(s)}`:pointLabel(s),{'font-size':'10','font-weight':isSel?'800':'650'},g);`);
 
   await (0,eval)(`${text}\n//# sourceURL=app-core.js`);
