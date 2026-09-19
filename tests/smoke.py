@@ -144,7 +144,7 @@ def main():
     assert 'statusFilter' not in html and 'Highlight similar kits' not in html
     assert 'id="infoPopover"' in html and 'id="infoButton"' in html and 'id="infoClose"' in html
     assert 'DPReview: What is equivalence?' in html and 'https://buymeacoffee.com/lkzk' in html
-    assert 'interaction-fixes.css?v=20260919b' in html and 'runtime-wrapper.js?v=20260919b' in html
+    assert 'interaction-fixes.css?v=20260919b' in html and 'runtime-wrapper.js?v=20260919c' in html
     assert 'id="planeToggle" type="checkbox" disabled' in html
     assert 'id="recalcResidualToggle" type="checkbox" disabled' in html
     assert 'Choose an efficiency residual color mode' in html
