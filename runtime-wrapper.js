@@ -108,15 +108,16 @@ function colorFor`);
 
   await (0,eval)(`${text}\n//# sourceURL=app-core.js`);
 
-  document.querySelectorAll('.panel-toggle[aria-controls]').forEach(button=>{
-    const body=document.getElementById(button.getAttribute('aria-controls'));
-    if(!body)return;
-    button.addEventListener('click',()=>{
-      const open=button.getAttribute('aria-expanded')!=='true';
-      button.setAttribute('aria-expanded',String(open));
-      body.hidden=!open;
-    });
-  });
+  const controlDrawer=document.querySelector('.control-drawer');
+  const controlsToggle=controlDrawer?.querySelector('.panel-toggle[aria-controls]');
+  const controlsBody=controlsToggle?document.getElementById(controlsToggle.getAttribute('aria-controls')):null;
+  const setControlsOpen=open=>{
+    if(!controlsToggle||!controlsBody)return;
+    controlsToggle.setAttribute('aria-expanded',String(open));
+    controlsBody.hidden=!open;
+    controlDrawer?.classList.toggle('is-open',open);
+  };
+  controlsToggle?.addEventListener('click',()=>setControlsOpen(controlsToggle.getAttribute('aria-expanded')!=='true'));
 
   const infoHelp=document.getElementById('infoHelp');
   const infoButton=document.getElementById('infoButton');
@@ -158,12 +159,13 @@ function colorFor`);
     });
   });
   document.addEventListener('pointerdown',e=>{
+    if(controlDrawer?.classList.contains('is-open')&&!controlDrawer.contains(e.target))setControlsOpen(false);
     if(infoHelp?.classList.contains('is-open')&&!infoHelp.contains(e.target))setInfoOpen(false);
     miniHelps.forEach(help=>{if(help.classList.contains('is-open')&&!help.contains(e.target))setMiniOpen(help,false)});
   });
   document.addEventListener('keydown',e=>{
     if(e.key!=='Escape')return;
-    setInfoOpen(false);closeMiniHelps();
+    setControlsOpen(false);setInfoOpen(false);closeMiniHelps();
   });
 })().catch(err=>{
   console.error(err);
