@@ -144,7 +144,7 @@ def main():
     assert 'statusFilter' not in html and 'Highlight similar kits' not in html
     assert 'id="infoPopover"' in html and 'id="infoButton"' in html and 'id="infoClose"' in html
     assert 'DPReview: What is equivalence?' in html and 'https://buymeacoffee.com/lkzk' in html
-    assert 'interaction-fixes.css?v=20260917c' in html and 'runtime-wrapper.js?v=20260917c' in html
+    assert 'interaction-fixes.css?v=20260919a' in html and 'runtime-wrapper.js?v=20260919a' in html
     assert 'id="planeToggle" type="checkbox" disabled' in html
     assert 'id="recalcResidualToggle" type="checkbox" disabled' in html
     assert 'Choose an efficiency residual color mode' in html
@@ -184,7 +184,7 @@ def main():
         'remove chart zoom state','fixed chart scale','hover capability','mobile clear selection',
         'mobile pointer interaction','hitTestPoint','setPointerCapture','residualModeNote',
         'filtered selection reset copy','popup equivalent aperture label','colorLegend','panel-toggle','mini-help',
-        'preset orientations','weight slider fill','active first table sorting','shortlist status','persistent shortlist points'
+        'preset orientations','weight slider fill','active first table sorting'
     ]:
         assert marker in runtime, marker
     assert 'External 1.4× teleconverter' in runtime
@@ -197,8 +197,10 @@ def main():
     assert "colorLegend.classList.toggle('is-empty',cs.mode==='neutral')" in runtime
     assert "v==='aperture-weight'){yaw=-Math.PI/2" in runtime
     assert "activeView='three-d'" in runtime
-    assert "status.textContent=`${shortlist.length} / 5 shortlisted`" in runtime
-    assert 'shortNo=isShort?shortlist.indexOf(i)+1:0' in runtime
+    assert "Shortlist is limited to four kits." in js
+    assert "status.textContent=`${shortlist.length} / 4 shortlisted`" in js
+    assert 'shortNo=isShort?shortlist.indexOf(i)+1:0' in js
+    assert 'compare-kit-head' in js and 'compare-metric-head' in js
     assert 'const aa=activeSet.has(ia),ab=activeSet.has(ib)' in runtime
     assert "w.style.setProperty('--range-pct'" in runtime
     assert 'equivalent aperture f/${s.fstop}' in runtime
@@ -208,10 +210,28 @@ def main():
     assert '.weight-slider::-webkit-slider-runnable-track' in uxcss and '--range-pct' in uxcss
     assert '.inline-legend.is-empty .legend-content' in uxcss
     assert '.plot-presets{' in uxcss and '.plot-key{' in uxcss
+    assert '.compare-matrix{' in uxcss and '.compare-kit-head{' in uxcss
+    assert '0 / 4 shortlisted' in html and '2–4 finalists' in html
     assert '#rankTable thead th{position:sticky' in uxcss
     assert ':has(+ #tcFilter)' not in uxcss
     assert '.check-control:has(input:disabled)' in uxcss
     assert 'type="number"' not in html and 'Highlight frontier' not in html
+
+    # OM/MFT price audit: coherent Swiss price basis for this branch.
+    assert comp_price['body-om1ii']==1748.00
+    assert comp_price['lens-om100400ii']==1278.00
+    assert comp_price['lens-om300f4']==2388.00
+    assert comp_price['lens-om150400']==6449.00
+    assert comp_price['lens-om150600']==2138.00
+    assert comp_price['tc-om-mc14']==449.00
+    assert comp_price['lens-panaleica100400ii']==1345.00
+    assert comp_price['lens-panaleica50200']==1339.00
+    assert comp_price['lens-panaleica200']==2545.00
+    assert next(r for r in rows if r['system_id']=='om1ii-100400-400')['system_price_chf']=='3026'
+    assert next(r for r in rows if r['system_id']=='om1ii-300f4-14x')['system_price_chf']=='4585'
+    assert next(r for r in rows if r['system_id']=='om1ii-150400-400')['system_price_chf']=='8197'
+    assert next(r for r in rows if r['system_id']=='om1ii-150600-600-14x')['system_price_chf']=='4335'
+    assert next(r for r in rows if r['system_id']=='om1ii-panaleica50200-200')['system_price_chf']=='3087'
 
     # Deployment logic must never validate a rapidly superseded partial main state.
     assert 'cancel-in-progress: true' in workflow
