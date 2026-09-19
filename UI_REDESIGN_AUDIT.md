@@ -44,6 +44,9 @@ Controls, explanatory popovers and plot chrome were reduced in width but not suf
 ### 11. Terminology needed stricter consistency
 Equivalent aperture is conceptually easy to confuse with exposure aperture. The interface must explicitly say “Equivalent aperture” whenever that metric is meant.
 
+### 12. OM/MFT pricing mixed incompatible price bases
+The OM-family rows mixed lowest import-market prices, official OM SYSTEM Swiss-store prices, and stale Panasonic snapshots. That made some OM kits look artificially cheap and made price-size encoding internally inconsistent. OM SYSTEM-branded components now use current official Swiss-store prices; Panasonic MFT components use current normal Swiss retail snapshots, avoiding obvious import/outlier offers. The standalone DMW-TC14 remains a used-market reference because no current Swiss new stock is available.
+
 ## Redesign decisions implemented
 
 ### Information architecture
@@ -77,8 +80,10 @@ Equivalent aperture is conceptually easy to confuse with exposure aperture. The 
 - Shortlisted points receive an explicit accent ring and persistent label.
 - Shortlisted points remain visibly identifiable even if they later become filtered out.
 - Shortlisted labels are numbered in shortlist order.
-- A live `0 / 5 shortlisted` indicator sits next to the plot.
+- A live `0 / 4 shortlisted` indicator sits next to the plot.
 - Selected points and shortlisted points use distinct emphasis levels.
+- The shortlist is capped at four kits so each finalist can remain a readable vertical comparison column.
+- The comparison is transposed: metrics run down the page and shortlisted kits sit side-by-side as columns.
 
 ### Ranked table
 - Active candidates are always sorted ahead of filtered-out reference rows.
@@ -101,6 +106,12 @@ The intended workflow is now:
 **Filter → choose view/encoding → inspect → shortlist → compare → sort full table if needed.**
 
 Filtering never changes the meaning of Display controls. Display controls never change which kits qualify. Shortlisting persists as a user decision even when subsequent filtering temporarily makes a shortlisted kit inactive.
+
+## Reliability fixes made during review
+
+- Fixed a redesign-wrapper JavaScript error that could leave the page permanently at “Loading kits…”.
+- Cache-busted the redesigned app/runtime assets so branch previews do not reuse the broken script.
+- Re-ran structural validation: 83 kits, 41 compatibility rows, all component-price sums consistent.
 
 ## Remaining technical debt
 
