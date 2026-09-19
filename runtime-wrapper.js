@@ -1,5 +1,6 @@
 (async()=>{
-  const r=await fetch('app.js?v=20260919a',{cache:'no-store'});
+  const assetToken=Date.now();
+  const r=await fetch(`app.js?v=${assetToken}`,{cache:'no-store'});
   if(!r.ok) throw new Error(`App core load failed: HTTP ${r.status}`);
   let text=await r.text();
   const replace=(name,from,to)=>{
@@ -18,7 +19,7 @@
 
   replace('supplemental kit data',
     "  const r=await fetch('data/systems.csv',{cache:'no-store'});\n  if(!r.ok)throw Error(`HTTP ${r.status}`);\n  records=parseCSV(await r.text());",
-    "  const [r,extra]=await Promise.all([fetch('data/systems.csv',{cache:'no-store'}),fetch('data/systems_additions.csv',{cache:'no-store'})]);\n  if(!r.ok)throw Error(`systems.csv HTTP ${r.status}`);\n  if(!extra.ok)throw Error(`systems_additions.csv HTTP ${extra.status}`);\n  records=[...parseCSV(await r.text()),...parseCSV(await extra.text())];");
+    "  const dataToken=Date.now();\n  const [r,extra]=await Promise.all([fetch(`data/systems.csv?v=${dataToken}`,{cache:'no-store'}),fetch(`data/systems_additions.csv?v=${dataToken}`,{cache:'no-store'})]);\n  if(!r.ok)throw Error(`systems.csv HTTP ${r.status}`);\n  if(!extra.ok)throw Error(`systems_additions.csv HTTP ${extra.status}`);\n  records=[...parseCSV(await r.text()),...parseCSV(await extra.text())];");
 
   replace('teleconverter filter state',
     "return{min:+$('minReach').value,max:+$('maxReach').value,maxW:+$('maxWeight').value,lens:radioValue('lensType'),brands:new Set(checked),pareto:radioValue('paretoMode')};",
