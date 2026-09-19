@@ -144,7 +144,7 @@ def main():
     assert 'statusFilter' not in html and 'Highlight similar kits' not in html
     assert 'id="infoPopover"' in html and 'id="infoButton"' in html and 'id="infoClose"' in html
     assert 'DPReview: What is equivalence?' in html and 'https://buymeacoffee.com/lkzk' in html
-    assert 'interaction-fixes.css?v=20260919a' in html and 'runtime-wrapper.js?v=20260919a' in html
+    assert 'interaction-fixes.css?v=20260919b' in html and 'runtime-wrapper.js?v=20260919b' in html
     assert 'id="planeToggle" type="checkbox" disabled' in html
     assert 'id="recalcResidualToggle" type="checkbox" disabled' in html
     assert 'Choose an efficiency residual color mode' in html
@@ -211,6 +211,9 @@ def main():
     assert '.inline-legend.is-empty .legend-content' in uxcss
     assert '.plot-presets{' in uxcss and '.plot-key{' in uxcss
     assert '.compare-matrix{' in uxcss and '.compare-kit-head{' in uxcss
+    assert 'height:clamp(320px,calc(100dvh - 275px),820px)' in uxcss
+    assert '.control-drawer-body{' in uxcss and 'position:absolute' in uxcss
+    assert "const setControlsOpen=open=>" in runtime
     assert '0 / 4 shortlisted' in html and '2–4 finalists' in html
     assert '#rankTable thead th{position:sticky' in uxcss
     assert ':has(+ #tcFilter)' not in uxcss
