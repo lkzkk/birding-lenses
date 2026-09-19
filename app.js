@@ -26,7 +26,7 @@ try{
 
 const S=records.map((r,i)=>({
   i,id:r.system_id,brand:r.brand,name:r.list_name,displayName:r.display_name,body:r.body,lens:r.lens,tc:r.teleconverter,
-  fl:+r.equiv_focal_length_mm,fstop:+r.equiv_f_stop,weight:+r.system_weight_g/1000,price:+r.system_price_chf,
+  fl:+r.equiv_focal_length_mm,fstop:+r.equiv_f_stop,weight:+r.system_weight_g/1000,price:+r.system_price_chf,priceDate:r.price_checked_date||'',priceBasis:r.price_basis||'',
   actualFl:+r.actual_focal_length_mm,actualF:+r.actual_f_stop,
   zoom:/\d+\s*[-–]\s*\d+/.test(r.lens)
 }));
@@ -170,7 +170,7 @@ function useView(v){activeView=v;if(v==='reach-aperture'){yaw=0;pitch=0}else if(
 
 function select(i){
   if(!activeSet.has(i))return;selected=i;const s=S[i],isP=frontier.has(i);
-  detail.innerHTML=`<strong>${s.name}</strong><div class="detailgrid"><div>Equivalent reach</div><div>${Math.round(s.fl)} mm</div><div>Equivalent aperture</div><div>f/${s.fstop}</div><div>Kit weight</div><div>${s.weight.toFixed(3)} kg</div>${$('sizePriceToggle').checked?`<div>Price snapshot</div><div>CHF ${Math.round(s.price).toLocaleString('de-CH')}</div>`:''}<div>Lens type</div><div>${s.zoom?'Zoom':'Prime'}</div><div>Pareto-efficient</div><div>${isP?'Yes':'No'}</div></div><div class="detail-actions"><button id="detailCompare" type="button">${shortlist.includes(i)?'Remove from compare':'Add to compare'}</button><button id="detailClear" type="button">Deselect</button></div>`;
+  detail.innerHTML=`<strong>${s.name}</strong><div class="detailgrid"><div>Equivalent reach</div><div>${Math.round(s.fl)} mm</div><div>Equivalent aperture</div><div>f/${s.fstop}</div><div>Kit weight</div><div>${s.weight.toFixed(3)} kg</div><div>Price snapshot</div><div>CHF ${Math.round(s.price).toLocaleString('de-CH')}</div>${s.priceDate?`<div>Price checked</div><div>${s.priceDate}</div>`:''}<div>Lens type</div><div>${s.zoom?'Zoom':'Prime'}</div><div>Pareto-efficient</div><div>${isP?'Yes':'No'}</div></div><div class="detail-actions"><button id="detailCompare" type="button">${shortlist.includes(i)?'Remove from compare':'Add to compare'}</button><button id="detailClear" type="button">Deselect</button></div>`;
   $('detailCompare').onclick=()=>toggleCompare(i);$('detailClear').onclick=clearSelection;render();renderTable();
 }
 function clearSelection(){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class="hint">Use “Compare” to add up to five kits to the shortlist.</p>';render();renderTable()}
@@ -192,6 +192,7 @@ function renderCompare(){
     ['Equivalent aperture',i=>`f/${S[i].fstop}`],
     ['Weight',i=>`${S[i].weight.toFixed(3)} kg`],
     ['Price',i=>`CHF ${Math.round(S[i].price).toLocaleString('de-CH')}`],
+    ['Price checked',i=>S[i].priceDate||'—'],
     ['Lens type',i=>S[i].zoom?'Zoom':'Prime'],
     ['Pareto-efficient',i=>frontier.has(i)&&baseSet.has(i)?'Yes':'No']
   ];
