@@ -151,11 +151,11 @@ function render(){
   const cs=colorState(activeIds);updateLegend(cs);svg.innerHTML='';const g=mk('g');drawAxes(g);drawPlane(g,cs);
   const pts=S.map(s=>({i:s.i,s,p:project(coords(s))})).sort((a,b)=>a.p[2]-b.p[2]);
   for(const{i,s,p}of pts){
-    const active=activeSet.has(i),isSel=i===selected,isShort=shortlist.includes(i);
-    const grp=mk('g',active?{'data-i':i}:{'data-filtered-i':i},g);grp.style.opacity=active?'1':'.18';if(!active)grp.style.pointerEvents='none';
-    const baseR=pointRadius(s),r=isSel?baseR+3:isShort&&active?baseR+2:baseR,fill=active?colorFor(s,cs):'var(--filtered)';
-    mk('circle',{cx:p[0],cy:p[1],r,fill,stroke:isSel?'var(--accent)':isShort&&active?'var(--text)':active?'rgba(255,255,255,.9)':'var(--grid)','stroke-width':isSel?'3':'1.2',style:`cursor:${active?'pointer':'default'}`},grp);
-    if(active&&(isSel||isShort))tx(p[0]+10,p[1]-9,pointLabel(s),{'font-size':'10','font-weight':isSel?'800':'650'},g);
+    const active=activeSet.has(i),isSel=i===selected,isShort=shortlist.includes(i),shortNo=isShort?shortlist.indexOf(i)+1:0;
+    const grp=mk('g',active?{'data-i':i}:{'data-filtered-i':i},g);grp.style.opacity=active?'1':isShort?'.72':'.16';if(!active)grp.style.pointerEvents='none';
+    const baseR=pointRadius(s),r=isSel?baseR+4:isShort?baseR+3:baseR,fill=active?colorFor(s,cs):'var(--filtered)';
+    mk('circle',{cx:p[0],cy:p[1],r,fill,stroke:isSel?'var(--accent)':isShort?'var(--text)':active?'rgba(255,255,255,.9)':'var(--grid)','stroke-width':isSel?'4':isShort?'3':'1.2',style:`cursor:${active?'pointer':'default'}`},grp);
+    if(isSel||isShort)tx(p[0]+10,p[1]-9,isShort?`${shortNo}. ${pointLabel(s)}`:pointLabel(s),{'font-size':'10','font-weight':isSel?'800':'650'},g);
     if(active){
       grp.addEventListener('mouseenter',()=>{hovered=i;showPopup(i,p);const old=svg.querySelector('[data-hover-label]');if(old)old.remove();tx(p[0]+10,p[1]-9,pointLabel(s),{'font-size':'10','font-weight':'650','data-hover-label':'1'},svg)});
       grp.addEventListener('mouseleave',()=>{hovered=null;const old=svg.querySelector('[data-hover-label]');if(old)old.remove();if(selected===null)popup.hidden=true;else updatePopupSelected()});
@@ -175,13 +175,28 @@ function select(i){
 }
 function clearSelection(){selected=null;detail.innerHTML='<strong>Select a kit</strong><p class="hint">Use “Compare” to add up to five kits to the shortlist.</p>';render();renderTable()}
 function toggleCompare(i){
-  const p=shortlist.indexOf(i);if(p>=0)shortlist.splice(p,1);else{if(!activeSet.has(i))return;if(shortlist.length>=5){alert('Shortlist is limited to five kits.');return}shortlist.push(i)}
+  const p=shortlist.indexOf(i);if(p>=0)shortlist.splice(p,1);else{if(!activeSet.has(i))return;if(shortlist.length>=4){alert('Shortlist is limited to four kits.');return}shortlist.push(i)}
   if(selected===i)select(i);render();renderTable();renderCompare();
 }
 function renderCompare(){
-  const table=$('compareTable'),empty=$('compareEmpty'),tb=table.querySelector('tbody');tb.innerHTML='';if(!shortlist.length){table.hidden=true;empty.hidden=false;return}empty.hidden=true;table.hidden=false;
-  for(const i of shortlist){const s=S[i],tr=document.createElement('tr');tr.innerHTML=`<td><strong>${s.name}</strong>${!activeSet.has(i)?'<div class="subline">currently filtered out</div>':''}</td><td class="num">${Math.round(s.fl)} mm</td><td class="num">f/${s.fstop}</td><td class="num">${s.weight.toFixed(3)} kg</td><td><button data-remove="${i}">Remove</button></td>`;tb.appendChild(tr)}
-  tb.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>toggleCompare(+b.dataset.remove));
+  const table=$('compareTable'),empty=$('compareEmpty'),status=$('shortlistStatus'),thead=table.querySelector('thead'),tb=table.querySelector('tbody');
+  if(status)status.textContent=`${shortlist.length} / 4 shortlisted`;
+  thead.innerHTML='';tb.innerHTML='';
+  if(!shortlist.length){table.hidden=true;empty.hidden=false;return}
+  empty.hidden=true;table.hidden=false;
+  const hr=document.createElement('tr');
+  hr.innerHTML='<th class="compare-metric-head">Metric</th>'+shortlist.map((i,n)=>{const s=S[i],filtered=!activeSet.has(i);return `<th class="compare-kit-head"><span class="compare-number">${n+1}</span><strong>${s.name}</strong>${filtered?'<span class="compare-filtered">currently filtered out</span>':''}<button type="button" data-remove="${i}">Remove</button></th>`}).join('');
+  thead.appendChild(hr);
+  const rows=[
+    ['Reach',i=>`${Math.round(S[i].fl)} mm`],
+    ['Equivalent aperture',i=>`f/${S[i].fstop}`],
+    ['Weight',i=>`${S[i].weight.toFixed(3)} kg`],
+    ['Price',i=>`CHF ${Math.round(S[i].price).toLocaleString('de-CH')}`],
+    ['Lens type',i=>S[i].zoom?'Zoom':'Prime'],
+    ['Pareto-efficient',i=>frontier.has(i)&&baseSet.has(i)?'Yes':'No']
+  ];
+  for(const [label,fmt] of rows){const tr=document.createElement('tr');tr.innerHTML=`<th scope="row">${label}</th>`+shortlist.map(i=>`<td>${fmt(i)}</td>`).join('');tb.appendChild(tr)}
+  table.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>toggleCompare(+b.dataset.remove));
 }
 function metricBar(v,d){const[lo,hi]=ranges[d],pct=(v-lo)/((hi-lo)||1)*100;return`<div class="barbg"><div class="barfill" style="width:${pct}%"></div></div>`}
 function sortedIds(){
